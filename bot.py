@@ -19,7 +19,7 @@ from aiogram.types import (
 # ---------------------------------------------------------
 
 # Рекомендуется хранить токен в переменной окружения BOT_TOKEN
-TOKEN = os.getenv("BOT_TOKEN", "ВАШ_ТОКЕН_ЗДЕСЬ")
+TOKEN = os.getenv("BOT_TOKEN", "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE")
 
 WORDS_FILE = "words.json"
 
@@ -371,3 +371,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
