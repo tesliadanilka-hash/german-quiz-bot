@@ -14,7 +14,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 # =============== НАСТРОЙКИ ===============
 
-TOKEN = os.getenv("BOT_TOKEN", "PASTE_YOUR_TOKEN_HERE")
+TOKEN = os.getenv("BOT_TOKEN", "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE")
 WORDS_FILE = Path("words.json")
 
 ALL_TOPIC_KEY = "ALL"  # спец ключ для режима "все темы"
@@ -608,3 +608,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
