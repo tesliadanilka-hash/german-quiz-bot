@@ -20,7 +20,7 @@ from aiogram.types import (
 #  НАСТРОЙКИ
 # ======================================
 
-TOKEN = os.getenv("BOT_TOKEN", "ТОКЕН_СЮДА")  # на Render лучше задать BOT_TOKEN в env
+TOKEN = os.getenv("BOT_TOKEN", "")  # на Render лучше задать BOT_TOKEN в env
 
 logging.basicConfig(level=logging.INFO)
 
@@ -361,4 +361,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
