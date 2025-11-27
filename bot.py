@@ -18,33 +18,25 @@ from aiogram.types import (
 # НАСТРОЙКИ
 # ============================================================
 
-# 1. Либо бери токен из переменной окружения BOT_TOKEN (Render / .env),
-#    либо временно вставь его сюда строкой вместо os.getenv(...)
 TOKEN = os.getenv("BOT_TOKEN", "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE")
-
 WORDS_FILE = "words.json"
 
-# Режимы: de->ru, ru->de, mixed
 MODE_DE_RU = "de_ru"
 MODE_RU_DE = "ru_de"
 MODE_MIXED = "mixed"
 
-# ID темы по умолчанию
 THEME_ALL = "all"
 THEME_OTHER = "other"
 
 # ============================================================
-# ЗАГРУЗКА СЛОВ И АВТОМАТИЧЕСКОЕ РАЗБИТИЕ ПО ТЕМАМ
+# ЗАГРУЗКА СЛОВ И РАЗБИЕНИЕ ПО ТЕМАМ
 # ============================================================
 
-# Сюда подгрузим список слов (каждое слово – dict с de/tr/ru)
 WORDS: List[Dict[str, str]] = []
-
-# Темы: id -> {name, words: [индексы], count}
 TOPICS: Dict[str, Dict[str, Any]] = {}
 
-# Простые правила для определения тем по русскому переводу (и иногда по немецкому слову)
 TOPIC_RULES = [
+    # правила такие же, как раньше – укороченный комментарий
     {
         "id": "greetings",
         "name": "Приветствия и базовые фразы",
@@ -172,6 +164,7 @@ TOPIC_RULES = [
             "продавец",
             "парикмахер",
             "певец",
+            "актриса",
             "актёр",
             "электронщик",
             "домохозяин",
@@ -431,7 +424,6 @@ TOPIC_RULES = [
             "кинотеатр",
             "театр",
             "музей",
-            "болница",
             "порт",
             "парковка",
         ],
@@ -730,6 +722,7 @@ TOPIC_RULES = [
     },
 ]
 
+
 def load_words():
     global WORDS, TOPICS
     with open(WORDS_FILE, "r", encoding="utf-8") as f:
@@ -759,7 +752,6 @@ def load_words():
                 "count": len(ids),
             }
 
-    # Тема "Разное"
     other_ids = topics_words.get(THEME_OTHER, [])
     if other_ids:
         TOPICS[THEME_OTHER] = {
@@ -771,22 +763,29 @@ def load_words():
 
 
 # ============================================================
-# СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ (в памяти)
+# СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
 # ============================================================
 
-# user_id -> {"mode": ..., "theme": ...}
-USER_STATE: Dict[int, Dict[str, str]] = {}
+# user_id -> state
+USER_STATE: Dict[int, Dict[str, Any]] = {}
 
 
-def get_user_state(user_id: int) -> Dict[str, str]:
+def init_state() -> Dict[str, Any]:
+    return {
+        "mode": MODE_DE_RU,
+        "theme": THEME_ALL,
+        "remaining": [],   # список индексов слов, которые ещё не задавали в этом раунде
+        "correct": 0,
+        "wrong": 0,
+        "total": 0,
+    }
+
+
+def get_user_state(user_id: int) -> Dict[str, Any]:
     if user_id not in USER_STATE:
-        USER_STATE[user_id] = {"mode": MODE_DE_RU, "theme": THEME_ALL}
+        USER_STATE[user_id] = init_state()
     return USER_STATE[user_id]
 
-
-# ============================================================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-# ============================================================
 
 def get_words_for_theme(theme_id: str) -> List[int]:
     if theme_id == THEME_ALL or theme_id not in TOPICS:
@@ -794,11 +793,30 @@ def get_words_for_theme(theme_id: str) -> List[int]:
     return TOPICS[theme_id]["words"]
 
 
+def reset_round(state: Dict[str, Any], keep_theme: bool = True, new_theme: str = None):
+    if not keep_theme and new_theme is not None:
+        state["theme"] = new_theme
+    elif new_theme is not None:
+        state["theme"] = new_theme
+
+    candidates = get_words_for_theme(state["theme"])
+    remaining = candidates.copy()
+    random.shuffle(remaining)
+    state["remaining"] = remaining
+    state["correct"] = 0
+    state["wrong"] = 0
+    state["total"] = 0
+
+
 def choose_mode_for_question(state_mode: str) -> str:
     if state_mode == MODE_MIXED:
         return random.choice([MODE_DE_RU, MODE_RU_DE])
     return state_mode
 
+
+# ============================================================
+# ПОСТРОЕНИЕ ВАРИАНТОВ И КЛАВИАТУР
+# ============================================================
 
 def build_options(question_index: int, mode: str) -> List[Dict[str, Any]]:
     correct = WORDS[question_index]
@@ -815,17 +833,10 @@ def build_options(question_index: int, mode: str) -> List[Dict[str, Any]]:
         else:
             return f'{w["de"]} [{w["tr"]}]'
 
-    # правильный
-    options.append({
-        "text": make_text(correct),
-        "is_correct": True,
-    })
+    options.append({"text": make_text(correct), "is_correct": True})
 
     for wi in wrong_indices:
-        options.append({
-            "text": make_text(WORDS[wi]),
-            "is_correct": False,
-        })
+        options.append({"text": make_text(WORDS[wi]), "is_correct": False})
 
     random.shuffle(options)
     return options
@@ -846,51 +857,28 @@ def build_keyboard_for_question(question_index: int, mode: str) -> InlineKeyboar
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-async def send_question(message: Message, user_id: int):
-    state = get_user_state(user_id)
-    theme_id = state["theme"]
-    base_mode = state["mode"]
-    mode = choose_mode_for_question(base_mode)
-
-    candidates = get_words_for_theme(theme_id)
-    if not candidates:
-        await message.answer("В этой теме пока нет слов. Попробуй выбрать другую тему через /themes.")
-        return
-
-    q_index = random.choice(candidates)
-    word = WORDS[q_index]
-
-    if mode == MODE_DE_RU:
-        question_text = f'🇩🇪 {word["de"]} [{word["tr"]}] → выбери перевод на русском:'
-    else:
-        question_text = f'🇷🇺 {word["ru"]} → выбери перевод на немецком:'
-
-    kb = build_keyboard_for_question(q_index, mode)
-    await message.answer(question_text, reply_markup=kb)
-
-
 def build_themes_keyboard() -> InlineKeyboardMarkup:
     buttons = []
-
-    buttons.append([
-        InlineKeyboardButton(
-            text=f"Все темы ({len(WORDS)})", callback_data=f"theme:{THEME_ALL}"
-        )
-    ])
-
-    # сортируем темы по названию
+    buttons.append(
+        [
+            InlineKeyboardButton(
+                text=f"Все темы ({len(WORDS)})",
+                callback_data=f"theme:{THEME_ALL}",
+            )
+        ]
+    )
     for topic_id, topic in sorted(TOPICS.items(), key=lambda x: x[1]["name"]):
         text = f'{topic["name"]} ({topic["count"]})'
-        buttons.append([InlineKeyboardButton(text=text, callback_data=f"theme:{topic_id}")])
+        buttons.append(
+            [InlineKeyboardButton(text=text, callback_data=f"theme:{topic_id}")]
+        )
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def build_mode_keyboard(current: str) -> InlineKeyboardMarkup:
     def label(m, txt):
-        if m == current:
-            return f"✅ {txt}"
-        return txt
+        return f"✅ {txt}" if m == current else txt
 
     buttons = [
         [
@@ -914,6 +902,40 @@ def build_mode_keyboard(current: str) -> InlineKeyboardMarkup:
 
 
 # ============================================================
+# ОТПРАВКА ВОПРОСА
+# ============================================================
+
+async def send_question(message: Message, user_id: int):
+    state = get_user_state(user_id)
+
+    # если раунд ещё не инициализирован – запускаем
+    if not state["remaining"]:
+        reset_round(state)
+
+    # если после reset_round всё равно пусто – в теме нет слов
+    if not state["remaining"]:
+        await message.answer(
+            "В этой теме пока нет слов. Попробуй выбрать другую тему через /themes."
+        )
+        return
+
+    base_mode = state["mode"]
+    mode = choose_mode_for_question(base_mode)
+
+    # берём слово, удаляя из списка remaining – не повторится в этом раунде
+    q_index = state["remaining"].pop()
+    word = WORDS[q_index]
+
+    if mode == MODE_DE_RU:
+        question_text = f'🇩🇪 {word["de"]} [{word["tr"]}] → выбери перевод на русском:'
+    else:
+        question_text = f'🇷🇺 {word["ru"]} → выбери перевод на немецком:'
+
+    kb = build_keyboard_for_question(q_index, mode)
+    await message.answer(question_text, reply_markup=kb)
+
+
+# ============================================================
 # ХЕНДЛЕРЫ
 # ============================================================
 
@@ -924,6 +946,7 @@ dp = Dispatcher()
 async def cmd_start(message: Message):
     user_id = message.from_user.id
     state = get_user_state(user_id)
+    reset_round(state)  # обнуляем раунд и статистику
 
     total_words = len(WORDS)
     themes_count = len(TOPICS)
@@ -937,9 +960,6 @@ async def cmd_start(message: Message):
         "• Если ответ верный, карточка помечается галочкой, а ниже появится новое слово.\n\n"
         f"Сейчас в базе: {total_words} слов.\n"
         f"Тем: {themes_count}.\n\n"
-        "Режимы:\n"
-        "• 🇩🇪 → 🇷🇺 немецкое слово и варианты на русском.\n"
-        "• 🇷🇺 → 🇩🇪 русское слово и варианты на немецком.\n\n"
         "Команды:\n"
         "/next – следующее слово\n"
         "/themes – выбрать тему слов\n"
@@ -968,19 +988,28 @@ async def callback_theme(call: CallbackQuery):
     await call.answer()
     theme_id = call.data.split(":", 1)[1]
     state = get_user_state(call.from_user.id)
-    state["theme"] = theme_id
+
+    reset_round(state, keep_theme=False, new_theme=theme_id)
 
     if theme_id == THEME_ALL:
-        text = "Тема сброшена. Теперь слова берутся из всех тем.\nНажми /next, чтобы продолжить."
+        text = (
+            "Тема сброшена. Теперь слова берутся из всех тем.\n"
+            "Статистика обнулена.\n"
+            "Нажми /next, чтобы начать новый раунд."
+        )
     else:
         topic = TOPICS.get(theme_id)
         if topic:
             text = (
                 f'Тема установлена: "{topic["name"]}" ({topic["count"]} слов).\n'
-                "Нажми /next, чтобы начать квиз по этой теме."
+                "Статистика для этой темы обнулена.\n"
+                "Нажми /next, чтобы начать раунд."
             )
         else:
-            text = "Эта тема не найдена. Использую все слова.\nНажми /next."
+            text = (
+                "Эта тема не найдена. Использую все слова.\n"
+                "Нажми /next, чтобы начать раунд."
+            )
             state["theme"] = THEME_ALL
 
     await call.message.edit_reply_markup(reply_markup=None)
@@ -1001,6 +1030,9 @@ async def callback_mode(call: CallbackQuery):
     state = get_user_state(call.from_user.id)
     state["mode"] = mode_id
 
+    # при смене режима обнуляем раунд и статистику
+    reset_round(state)
+
     human = {
         MODE_DE_RU: "🇩🇪 → 🇷🇺 (немецкое слово, ответы на русском)",
         MODE_RU_DE: "🇷🇺 → 🇩🇪 (русское слово, ответы на немецком)",
@@ -1008,7 +1040,11 @@ async def callback_mode(call: CallbackQuery):
     }.get(mode_id, "неизвестный режим")
 
     await call.message.edit_reply_markup(reply_markup=None)
-    await call.message.answer(f"Режим установлен: {human}\nНажми /next, чтобы продолжить.")
+    await call.message.answer(
+        f"Режим установлен: {human}\n"
+        "Текущий раунд и статистика обнулены.\n"
+        "Нажми /next, чтобы начать заново."
+    )
 
 
 @dp.message(Command("stats"))
@@ -1035,27 +1071,52 @@ async def callback_answer(call: CallbackQuery):
     word_index = int(parts[2])
     word = WORDS[word_index]
 
-    await call.answer()
-
-    # Убираем кнопки у старого сообщения
-    await call.message.edit_reply_markup(reply_markup=None)
+    state = get_user_state(call.from_user.id)
 
     if is_correct:
+        state["correct"] += 1
         prefix = "✅ Правильно!"
-        text = call.message.text + f"\n\n{prefix}"
+        add_text = prefix
     else:
+        state["wrong"] += 1
         correct_text = f'🇩🇪 {word["de"]} [{word["tr"]}] – 🇷🇺 {word["ru"]}'
-        text = (
-            call.message.text
-            + "\n\n❌ Неверно.\nПравильный ответ:\n"
-            + correct_text
+        add_text = "❌ Неверно.\nПравильный ответ:\n" + correct_text
+
+    state["total"] += 1
+
+    await call.answer()
+    await call.message.edit_reply_markup(reply_markup=None)
+    await call.message.edit_text(call.message.text + "\n\n" + add_text)
+
+    # если ещё есть слова в этом раунде – задаём следующее
+    if state["remaining"]:
+        dummy_msg = call.message
+        await send_question(dummy_msg, call.from_user.id)
+    else:
+        # раунд завершён – показываем статистику
+        theme_id = state["theme"]
+        if theme_id == THEME_ALL:
+            theme_name = "Все темы"
+        else:
+            theme_name = TOPICS.get(theme_id, {}).get("name", "Неизвестная тема")
+
+        total_q = state["total"]
+        correct = state["correct"]
+        wrong = state["wrong"]
+        percent = int(round(correct * 100 / total_q)) if total_q > 0 else 0
+
+        stats_text = (
+            f'📊 Раунд по теме "{theme_name}" завершён.\n'
+            f"Всего вопросов: {total_q}\n"
+            f"Правильных ответов: {correct}\n"
+            f"Ошибок: {wrong}\n"
+            f"Точность: {percent}%\n\n"
+            "Чтобы начать новый раунд по этой же теме, нажми /next.\n"
+            "Чтобы выбрать другую тему, используй /themes."
         )
 
-    await call.message.edit_text(text)
-
-    # Сразу отправляем новое слово
-    dummy_msg = call.message  # просто используем тот же chat
-    await send_question(dummy_msg, call.from_user.id)
+        await call.message.answer(stats_text)
+        # новый раунд пока не инициализируем – он начнётся при следующем /next
 
 
 # ============================================================
@@ -1070,5 +1131,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
