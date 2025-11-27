@@ -1,319 +1,364 @@
 import asyncio
 import json
 import logging
+import os
 import random
-from typing import Dict, List, Any
+from typing import Dict, Any, List, Optional
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
 from aiogram.types import (
     Message,
     CallbackQuery,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-# ===================== НАСТРОЙКИ =====================
+# ======================================
+#  НАСТРОЙКИ
+# ======================================
 
-TOKEN = "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE"   # <-- вставь сюда свой токен
-
-# Режимы
-MODE_DE_RU = "de_ru"   # вопрос по-немецки -> варианты по-русски
-MODE_RU_DE = "ru_de"   # вопрос по-русски -> варианты по-немецки
-
-# ====================================================
+TOKEN = os.getenv("BOT_TOKEN", "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE")  # на Render лучше задать BOT_TOKEN в env
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=TOKEN, parse_mode="HTML")
-dp = Dispatcher()
+# ======================================
+#  ЗАГРУЗКА СЛОВ
+# ======================================
 
-# ---------- Загружаем слова из words.json ----------
+WORDS: List[Dict[str, Any]] = []          # все слова
+TOPICS: List[str] = []                   # список тем
 
-with open("words.json", "r", encoding="utf-8") as f:
-    WORDS: List[Dict[str, Any]] = json.load(f)
+def load_words() -> None:
+    global WORDS, TOPICS
+    with open("words.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-# добавим id и тему по умолчанию
-for idx, w in enumerate(WORDS):
-    w["id"] = idx
-    if "topic" not in w or not w["topic"]:
-        w["topic"] = "Разное"
+    # гарантируем поле "topic"
+    for w in data:
+        if "topic" not in w or not w["topic"]:
+            w["topic"] = "Общее"
 
-# список тем
-TOPICS = sorted(set(w["topic"] for w in WORDS))
-# специальная тема "Все"
-TOPIC_ALL = "ALL"
-
-# внутренняя структура: id -> слово
-ID_TO_WORD = {w["id"]: w for w in WORDS}
-
-# --------- Память настроек пользователя ---------
-
-# user_id -> {"mode": ..., "topic": ...}
-user_settings: Dict[int, Dict[str, Any]] = {}
+    WORDS = data
+    TOPICS = sorted({w["topic"] for w in WORDS})
 
 
-def get_user_settings(user_id: int) -> Dict[str, Any]:
-    """Гарантированно возвращает настройки пользователя."""
-    if user_id not in user_settings:
-        user_settings[user_id] = {
-            "mode": MODE_DE_RU,
-            "topic": TOPIC_ALL,
+load_words()
+
+# ======================================
+#  СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
+# ======================================
+
+# mode: "de_ru", "ru_de", "mixed"
+# topic: str | None
+# last_question_id: int (для защиты от старых нажатий)
+USER_STATE: Dict[int, Dict[str, Any]] = {}
+
+def get_state(chat_id: int) -> Dict[str, Any]:
+    if chat_id not in USER_STATE:
+        USER_STATE[chat_id] = {
+            "mode": "de_ru",
+            "topic": None,
+            "last_question_id": 0,
         }
-    return user_settings[user_id]
+    return USER_STATE[chat_id]
+
+# ======================================
+#  КЛАВИАТУРЫ
+# ======================================
+
+def main_menu_kb() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        keyboard=[
+            [KeyboardButton(text="🇩🇪 Немецкий → Русский")],
+            [KeyboardButton(text="🇷🇺 Русский → Немецкий")],
+            [KeyboardButton(text="🎲 Смешанный режим")],
+            [KeyboardButton(text="📚 Выбрать тему")],
+            [KeyboardButton(text="▶️ Начать квиз")],
+        ],
+    )
 
 
-# ================== КЛАВИАТУРЫ ==================
+def topics_kb() -> InlineKeyboardMarkup:
+    # отправляем темы как inline-кнопки (по индексам)
+    rows = []
+    for idx, topic in enumerate(TOPICS):
+        rows.append(
+            [InlineKeyboardButton(text=topic, callback_data=f"topic:{idx}")]
+        )
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def themes_keyboard() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
+def answers_kb(options: List[str], correct_index: int, question_id: int) -> InlineKeyboardMarkup:
+    # callback_data: ans:<question_id>:<chosen>:<correct>
+    rows = []
+    for i, opt in enumerate(options):
+        cb = f"ans:{question_id}:{i}:{correct_index}"
+        rows.append([InlineKeyboardButton(text=opt, callback_data=cb)])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
-    # Кнопка "Все темы"
-    builder.button(text="🌍 Все темы", callback_data=f"topic:{TOPIC_ALL}")
+# ======================================
+#  ЛОГИКА ВЫБОРА СЛОВА
+# ======================================
 
-    # Остальные темы
-    for t in TOPICS:
-        builder.button(text=f"📚 {t}", callback_data=f"topic:{t}")
+def choose_word_for_user(chat_id: int) -> (Dict[str, Any], str):
+    """
+    Возвращает (слово, направление).
+    Направление: "de_ru" или "ru_de".
+    В режиме mixed – направление выбирается случайно.
+    """
+    state = get_state(chat_id)
+    mode = state["mode"]
+    topic = state["topic"]
 
-    builder.adjust(2)
-    return builder.as_markup()
-
-
-def modes_keyboard(current_mode: str) -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-
-    text_de_ru = "🇩🇪 ➜ 🇷🇺 Немецкий → Русский"
-    text_ru_de = "🇷🇺 ➜ 🇩🇪 Русский → Немецкий"
-
-    if current_mode == MODE_DE_RU:
-        text_de_ru = "✅ " + text_de_ru
+    # фильтрация по теме
+    if topic is None:
+        words_pool = WORDS
     else:
-        text_ru_de = "✅ " + text_ru_de
+        words_pool = [w for w in WORDS if w["topic"] == topic]
 
-    builder.button(text=text_de_ru, callback_data=f"mode:{MODE_DE_RU}")
-    builder.button(text=text_ru_de, callback_data=f"mode:{MODE_RU_DE}")
+    if not words_pool:
+        # если в теме нет слов, берём все
+        words_pool = WORDS
 
-    builder.adjust(1)
-    return builder.as_markup()
+    word = random.choice(words_pool)
 
+    if mode == "mixed":
+        direction = random.choice(["de_ru", "ru_de"])
+    else:
+        direction = mode
 
-def quiz_keyboard(correct_id: int, options: List[Dict[str, Any]], mode: str) -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-
-    for opt in options:
-        if mode == MODE_DE_RU:
-            btn_text = opt["ru"]
-        else:
-            # Немецкое слово + транскрипция
-            btn_text = f"{opt['de']} [{opt['tr']}]"
-        builder.button(
-            text=btn_text,
-            callback_data=f"ans:{correct_id}:{opt['id']}"
-        )
-
-    builder.adjust(2)
-    return builder.as_markup()
+    return word, direction
 
 
-# ================== ЛОГИКА ИГРЫ ==================
+def build_question(chat_id: int) -> Dict[str, Any]:
+    """
+    Формирует вопрос для пользователя:
+    {
+        "text": str,
+        "options": [str, str, str, str],
+        "correct_index": int,
+        "direction": "de_ru" | "ru_de",
+        "word": {...}
+    }
+    """
+    word, direction = choose_word_for_user(chat_id)
+
+    # правильный ответ
+    if direction == "de_ru":
+        correct = word["ru"]
+        question_text = f"🇩🇪 → 🇷🇺\n\nСлово: *{word['de']}* [{word.get('tr', '')}]"
+        # берём другие переводы
+        pool = [w for w in WORDS if w["ru"] != correct]
+        wrongs = random.sample(pool, k=3) if len(pool) >= 3 else random.choices(pool, k=3)
+        options = [correct] + [w["ru"] for w in wrongs]
+    else:
+        correct = word["de"]
+        question_text = f"🇷🇺 → 🇩🇪\n\nСлово: *{word['ru']}*"
+        pool = [w for w in WORDS if w["de"] != correct]
+        wrongs = random.sample(pool, k=3) if len(pool) >= 3 else random.choices(pool, k=3)
+        options = [correct] + [w["de"] for w in wrongs]
+
+    random.shuffle(options)
+    correct_index = options.index(correct)
+
+    return {
+        "text": question_text,
+        "options": options,
+        "correct_index": correct_index,
+        "direction": direction,
+        "word": word,
+    }
+
+# ======================================
+#  ОБРАБОТЧИКИ
+# ======================================
+
+async def cmd_start(message: Message):
+    state = get_state(message.chat.id)
+    state["mode"] = "de_ru"
+    state["topic"] = None
+
+    await message.answer(
+        "Привет! 👋\n"
+        "Я бот для тренировки немецких слов.\n\n"
+        "Выбери режим или просто нажми «▶️ Начать квиз».",
+        reply_markup=main_menu_kb(),
+    )
 
 
-def get_words_for_topic(topic: str) -> List[Dict[str, Any]]:
-    if topic == TOPIC_ALL:
-        return WORDS
-    return [w for w in WORDS if w["topic"] == topic]
+async def cmd_help(message: Message):
+    await message.answer(
+        "Команды:\n"
+        "/start – главное меню\n"
+        "/help – помощь\n\n"
+        "Кнопки внизу:\n"
+        "🇩🇪 Немецкий → Русский\n"
+        "🇷🇺 Русский → Немецкий\n"
+        "🎲 Смешанный режим\n"
+        "📚 Выбрать тему\n"
+        "▶️ Начать квиз",
+        reply_markup=main_menu_kb(),
+    )
 
 
-async def send_next_question(chat_id: int, user_id: int):
-    settings = get_user_settings(user_id)
-    mode = settings["mode"]
-    topic = settings["topic"]
+async def set_mode_de_ru(message: Message):
+    state = get_state(message.chat.id)
+    state["mode"] = "de_ru"
+    await message.answer("Режим: 🇩🇪 Немецкий → Русский.\nНажми «▶️ Начать квиз».", reply_markup=main_menu_kb())
 
-    words_pool = get_words_for_topic(topic)
 
-    if len(words_pool) < 1:
-        await bot.send_message(
-            chat_id,
-            "⚠️ В этой теме пока нет слов. Выбери другую тему через /themes."
-        )
+async def set_mode_ru_de(message: Message):
+    state = get_state(message.chat.id)
+    state["mode"] = "ru_de"
+    await message.answer("Режим: 🇷🇺 Русский → Немецкий.\nНажми «▶️ Начать квиз».", reply_markup=main_menu_kb())
+
+
+async def set_mode_mixed(message: Message):
+    state = get_state(message.chat.id)
+    state["mode"] = "mixed"
+    await message.answer("Режим: 🎲 Смешанный.\nНажми «▶️ Начать квиз».", reply_markup=main_menu_kb())
+
+
+async def choose_topic(message: Message):
+    if not TOPICS:
+        await message.answer("Темы не найдены. Добавь поле \"topic\" в words.json.")
         return
 
-    # если мало слов, уменьшаем количество вариантов
-    num_options = 4 if len(words_pool) >= 4 else len(words_pool)
-
-    correct = random.choice(words_pool)
-
-    # другие варианты
-    others = [w for w in words_pool if w["id"] != correct["id"]]
-    random.shuffle(others)
-    others = others[: num_options - 1]
-
-    options = others + [correct]
-    random.shuffle(options)
-
-    # Текст вопроса
-    if mode == MODE_DE_RU:
-        question_text = (
-            f"🇩🇪 <b>{correct['de']}</b> [{correct['tr']}]\n\n"
-            f"Выбери правильный перевод на русский:"
-        )
-    else:
-        question_text = (
-            f"🇷🇺 <b>{correct['ru']}</b>\n\n"
-            f"Выбери правильный вариант на немецком:"
-        )
-
-    keyboard = quiz_keyboard(correct["id"], options, mode)
-
-    await bot.send_message(
-        chat_id,
-        question_text,
-        reply_markup=keyboard
-    )
-
-
-def format_full_answer(word: Dict[str, Any]) -> str:
-    return f"🇩🇪 <b>{word['de']}</b> [{word['tr']}] — 🇷🇺 <b>{word['ru']}</b>"
-
-
-# ================== ХЭНДЛЕРЫ ==================
-
-
-@dp.message(CommandStart())
-async def cmd_start(message: Message):
-    user_id = message.from_user.id
-    settings = get_user_settings(user_id)
-
-    total_words = len(WORDS)
-    current_topic = settings["topic"]
-    if current_topic == TOPIC_ALL:
-        topic_text = "Все темы"
-    else:
-        topic_text = current_topic
-
-    mode_text = "🇩🇪 → 🇷🇺 Немецкий → Русский" if settings["mode"] == MODE_DE_RU else "🇷🇺 → 🇩🇪 Русский → Немецкий"
-
-    text = (
-        "🇩🇪 <b>German Quiz Bot</b>\n\n"
-        "Я помогу тебе учить немецкие слова в формате викторины.\n\n"
-        f"📚 Всего слов в базе: <b>{total_words}</b>\n"
-        f"📂 Текущая тема: <b>{topic_text}</b>\n"
-        f"🎯 Текущий режим: <b>{mode_text}</b>\n\n"
-        "Команды:\n"
-        "• /themes — выбрать тему\n"
-        "• /mode — выбрать режим\n\n"
-        "Нажми на тему или режим и начнём! 👇"
-    )
-
-    await message.answer(text, reply_markup=themes_keyboard())
-
-
-@dp.message(Command("themes"))
-async def cmd_themes(message: Message):
     await message.answer(
-        "📂 Выбери тему, с которой хочешь тренироваться:",
-        reply_markup=themes_keyboard()
+        "Выбери тему ⬇️",
+        reply_markup=topics_kb(),
     )
 
 
-@dp.message(Command("mode"))
-async def cmd_mode(message: Message):
-    settings = get_user_settings(message.from_user.id)
-    await message.answer(
-        "🎯 Выбери режим:",
-        reply_markup=modes_keyboard(settings["mode"])
-    )
-
-
-@dp.callback_query(F.data.startswith("topic:"))
-async def cb_set_topic(callback: CallbackQuery):
-    user_id = callback.from_user.id
-    topic = callback.data.split(":", 1)[1]
-
-    settings = get_user_settings(user_id)
-    settings["topic"] = topic
-
-    if topic == TOPIC_ALL:
-        topic_text = "Все темы"
-    else:
-        topic_text = topic
-
+async def on_topic_chosen(callback: CallbackQuery):
     await callback.answer()  # закрыть "часики"
 
+    try:
+        _, idx_str = callback.data.split(":")
+        idx = int(idx_str)
+    except Exception:
+        await callback.message.answer("Ошибка выбора темы.")
+        return
+
+    if idx < 0 or idx >= len(TOPICS):
+        await callback.message.answer("Тема не найдена.")
+        return
+
+    topic = TOPICS[idx]
+    state = get_state(callback.message.chat.id)
+    state["topic"] = topic
+
     await callback.message.answer(
-        f"📂 Тема изменена на: <b>{topic_text}</b>\n"
-        "Отлично! Вот твоё следующее слово 👇"
+        f"Тема выбрана: *{topic}*.\nНажми «▶️ Начать квиз».",
+        parse_mode="Markdown",
+        reply_markup=main_menu_kb(),
     )
 
-    await send_next_question(callback.message.chat.id, user_id)
+
+async def start_quiz(message: Message):
+    chat_id = message.chat.id
+    state = get_state(chat_id)
+
+    # увеличиваем id вопроса, чтобы защититься от старых нажатий
+    state["last_question_id"] += 1
+    qid = state["last_question_id"]
+
+    q = build_question(chat_id)
+
+    kb = answers_kb(q["options"], q["correct_index"], qid)
+
+    # сохраняем текущий вопрос в состоянии
+    state["current_question"] = q
+
+    await message.answer(
+        q["text"],
+        parse_mode="Markdown",
+        reply_markup=kb,
+    )
 
 
-@dp.callback_query(F.data.startswith("mode:"))
-async def cb_set_mode(callback: CallbackQuery):
-    user_id = callback.from_user.id
-    mode = callback.data.split(":", 1)[1]
-
-    settings = get_user_settings(user_id)
-    settings["mode"] = mode
-
+async def on_answer(callback: CallbackQuery):
     await callback.answer()
 
-    mode_text = "🇩🇪 → 🇷🇺 Немецкий → Русский" if mode == MODE_DE_RU else "🇷🇺 → 🇩🇪 Русский → Немецкий"
+    chat_id = callback.message.chat.id
+    state = get_state(chat_id)
+
+    try:
+        _, qid_str, chosen_str, correct_str = callback.data.split(":")
+        qid = int(qid_str)
+        chosen = int(chosen_str)
+        correct = int(correct_str)
+    except Exception:
+        await callback.message.answer("Ошибка обработки ответа.")
+        return
+
+    # игнорируем старые нажатия, если уже был другой вопрос
+    if qid != state.get("last_question_id"):
+        return
+
+    q = state.get("current_question")
+    if not q:
+        await callback.message.answer("Вопрос не найден. Нажми «▶️ Начать квиз».")
+        return
+
+    word = q["word"]
+    direction = q["direction"]
+
+    # формируем строку с правильным ответом
+    correct_line = f"{word['de']} [{word.get('tr', '')}] – {word['ru']}"
+
+    if chosen == correct:
+        await callback.message.answer(f"✅ Правильно!\n{correct_line}")
+    else:
+        await callback.message.answer(f"❌ Неправильно.\nПравильно: {correct_line}")
+
+    # задаём новый вопрос
+    state["last_question_id"] += 1
+    new_qid = state["last_question_id"]
+    new_q = build_question(chat_id)
+    state["current_question"] = new_q
+
+    kb = answers_kb(new_q["options"], new_q["correct_index"], new_qid)
 
     await callback.message.answer(
-        f"🎯 Режим изменён на: <b>{mode_text}</b>\n"
-        "Поехали дальше! 👇"
+        new_q["text"],
+        parse_mode="Markdown",
+        reply_markup=kb,
     )
 
-    await send_next_question(callback.message.chat.id, user_id)
-
-
-@dp.callback_query(F.data.startswith("ans:"))
-async def cb_answer(callback: CallbackQuery):
-    try:
-        _, correct_id_str, chosen_id_str = callback.data.split(":")
-        correct_id = int(correct_id_str)
-        chosen_id = int(chosen_id_str)
-    except ValueError:
-        await callback.answer("Ошибка данных", show_alert=True)
-        return
-
-    user_id = callback.from_user.id
-    settings = get_user_settings(user_id)
-    mode = settings["mode"]
-
-    correct_word = ID_TO_WORD.get(correct_id)
-    chosen_word = ID_TO_WORD.get(chosen_id)
-
-    if not correct_word or not chosen_word:
-        await callback.answer("Слово не найдено", show_alert=True)
-        return
-
-    await callback.answer()  # закрыть "часики"
-
-    if correct_id == chosen_id:
-        # правильный ответ
-        await callback.message.answer("✅ Правильно!")
-    else:
-        # неправильный ответ
-        full = format_full_answer(correct_word)
-        await callback.message.answer(
-            "❌ Неправильно.\n"
-            f"Правильный ответ:\n{full}"
-        )
-
-    # отправляем следующее слово
-    await send_next_question(callback.message.chat.id, user_id)
-
-
-# ================== ЗАПУСК ==================
-
+# ======================================
+#  РЕГИСТРАЦИЯ ХЕНДЛЕРОВ И ЗАПУСК
+# ======================================
 
 async def main():
+    bot = Bot(token=TOKEN)
+    dp = Dispatcher()
+
+    # команды
+    dp.message.register(cmd_start, CommandStart())
+    dp.message.register(cmd_help, Command("help"))
+
+    # режимы
+    dp.message.register(set_mode_de_ru, F.text == "🇩🇪 Немецкий → Русский")
+    dp.message.register(set_mode_ru_de, F.text == "🇷🇺 Русский → Немецкий")
+    dp.message.register(set_mode_mixed, F.text == "🎲 Смешанный режим")
+
+    # выбор темы и старт квиза
+    dp.message.register(choose_topic, F.text == "📚 Выбрать тему")
+    dp.message.register(start_quiz, F.text == "▶️ Начать квиз")
+
+    # callback-кнопки
+    dp.callback_query.register(on_topic_chosen, F.data.startswith("topic:"))
+    dp.callback_query.register(on_answer, F.data.startswith("ans:"))
+
+    logging.info("Бот запущен...")
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
