@@ -1,8 +1,8 @@
 import asyncio
-import logging
+import json
 import random
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Any
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
@@ -13,381 +13,977 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 
-# ============================================================
-# 1. BOT TOKEN
-# ============================================================
-
-# ВСТАВЬ СВОЙ ТОКЕН ОТ BotFather СЮДА
 TOKEN = "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE"
 
-# ============================================================
-# 2. DATA: WORDS + THEMES
-# ============================================================
-
-# Все слова. Поля:
-# id   - уникальный номер
-# topic - ключ темы
-# de   - немецкое слово
-# tr   - транскрипция
-# ru   - перевод
-WORDS: List[Dict] = [
-    # ---------- Примеры. Сюда ты добавляешь весь свой список ----------
-    # Тема: приветствия
-    {"id": 1, "topic": "greetings", "de": "Hallo", "tr": "хá-ло", "ru": "привет"},
-    {"id": 2, "topic": "greetings", "de": "Guten Tag", "tr": "гý-тэн так", "ru": "добрый день"},
-    {"id": 3, "topic": "greetings", "de": "Guten Abend", "tr": "гý-тэн á-бэнт", "ru": "добрый вечер"},
-    {"id": 4, "topic": "greetings", "de": "Guten Morgen", "tr": "гю́-тэн мóр-гэн", "ru": "доброе утро"},
-    {"id": 5, "topic": "greetings", "de": "Gute Nacht", "tr": "гý-те нахт", "ru": "доброй ночи"},
-    {"id": 6, "topic": "greetings", "de": "Tschüs", "tr": "чюс", "ru": "пока"},
-
-    # Тема: семья
-    {"id": 100, "topic": "family", "de": "Die Familie", "tr": "фа-ми́-ли-е", "ru": "семья"},
-    {"id": 101, "topic": "family", "de": "Die Mutter", "tr": "му́т-та", "ru": "мать"},
-    {"id": 102, "topic": "family", "de": "Der Vater", "tr": "фа́-та", "ru": "отец"},
-    {"id": 103, "topic": "family", "de": "Der Sohn", "tr": "зон", "ru": "сын"},
-    {"id": 104, "topic": "family", "de": "Die Tochter", "tr": "то́х-та", "ru": "дочь"},
-    {"id": 105, "topic": "family", "de": "Der Bruder", "tr": "бру́-да", "ru": "брат"},
-    {"id": 106, "topic": "family", "de": "Die Schwester", "tr": "швэс-та", "ru": "сестра"},
-
-    # Тема: базовые глаголы
-    {"id": 200, "topic": "verbs_basic", "de": "Sein", "tr": "зайн", "ru": "быть"},
-    {"id": 201, "topic": "verbs_basic", "de": "Ich bin", "tr": "их бин", "ru": "я есть"},
-    {"id": 202, "topic": "verbs_basic", "de": "Haben", "tr": "ха́-бэн", "ru": "иметь"},
-    {"id": 203, "topic": "verbs_basic", "de": "Sprechen", "tr": "шпрэ́-хен", "ru": "говорить"},
-    {"id": 204, "topic": "verbs_basic", "de": "Arbeiten", "tr": "а́р-бай-тэн", "ru": "работать"},
-    {"id": 205, "topic": "verbs_basic", "de": "Lernen", "tr": "ле́р-нен", "ru": "учиться"},
-
-    # Здесь просто продолжай добавлять все остальные 897 слов
-    # с указанием поля "topic": "greetings", "family", "verbs_basic" и так далее.
-]
-
-# Все доступные темы: ключ -> человекочитаемое название
-THEMES: Dict[str, str] = {
-    "greetings": "Приветствия",
-    "family": "Семья",
-    "verbs_basic": "Базовые глаголы",
-    # Добавляй сюда новые темы, когда разнесешь все слова
-}
-
-# Быстрый доступ по id
-WORDS_BY_ID: Dict[int, Dict] = {w["id"]: w for w in WORDS}
-
-
-def get_word_ids_by_theme(topic: str) -> List[int]:
-    if topic == "all":
-        return [w["id"] for w in WORDS]
-    return [w["id"] for w in WORDS if w["topic"] == topic]
-
-
-# ============================================================
-# 3. USER STATE
-# ============================================================
-
-@dataclass
-class UserState:
-    mode: str = "de-ru"  # "de-ru" или "ru-de"
-    theme: str = "greetings"  # ключ темы или "all"
-    remaining_ids: List[int] = field(default_factory=list)
-    correct: int = 0
-    wrong: int = 0
-    current_word_id: Optional[int] = None
-    current_options: List[str] = field(default_factory=list)
-    correct_index: int = 0
-
-
-user_states: Dict[int, UserState] = {}
-
-# ============================================================
-# 4. BOT OBJECTS
-# ============================================================
-
-logging.basicConfig(level=logging.INFO)
-bot = Bot(TOKEN)
+bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
+# ---------- ЗАГРУЗКА СЛОВ ----------
 
-# ============================================================
-# 5. HELPERS
-# ============================================================
-
-def get_state(user_id: int) -> UserState:
-    state = user_states.get(user_id)
-    if state is None:
-        state = UserState()
-        reset_theme_state(state)
-        user_states[user_id] = state
-    return state
-
-
-def reset_theme_state(state: UserState) -> None:
-    ids = get_word_ids_by_theme(state.theme)
-    random.shuffle(ids)
-    state.remaining_ids = ids
-    state.correct = 0
-    state.wrong = 0
-    state.current_word_id = None
-    state.current_options = []
-    state.correct_index = 0
+def load_words(path: str = "words.json") -> List[Dict[str, str]]:
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    # немного чистим пробелы
+    for w in data:
+        w["de"] = w["de"].strip()
+        w["ru"] = w["ru"].strip()
+        w["tr"] = w["tr"].strip()
+    return data
 
 
-def build_themes_keyboard() -> InlineKeyboardMarkup:
+ALL_WORDS: List[Dict[str, str]] = load_words()
+
+# ---------- ТЕМЫ И АВТОМАТИЧЕСКОЕ РАСПРЕДЕЛЕНИЕ ----------
+
+# id темы -> отображаемое имя (без количества, количество добавим динамически)
+TOPIC_TITLES: Dict[str, str] = {
+    "all": "🎲 Все темы (перемешку)",
+    "abstract": "Абстрактные понятия",
+    "verbs": "Базовые глаголы",
+    "time_calendar": "Время и календарь",
+    "city_transport": "Город и транспорт",
+    "home": "Дом и жилье",
+    "food_shop": "Еда и магазин",
+    "animals": "Животные",
+    "tools_house": "Инструменты и быт",
+    "computer_internet": "Компьютер и интернет",
+    "personal_data": "Личные данные",
+    "clothes": "Одежда",
+    "weather_nature": "Погода и природа",
+    "objects": "Предметы и вещи",
+    "greetings": "Приветствия и базовые фразы",
+    "jobs_work": "Профессии и работа",
+    "family": "Семья",
+    "body_health": "Тело и здоровье",
+    "hobby_sport": "Хобби и спорт",
+    "colors_numbers": "Цвета и числа",
+    "school_study": "Школа и учеба",
+    "emotions_character": "Эмоции и характер",
+    "dictionary": "Словарь A1-B1",
+}
+
+# Наборы ключевых слов в русском переводе для автоматического распределения
+TOPIC_KEYWORDS_RU: Dict[str, List[str]] = {
+    "greetings": [
+        "привет",
+        "добрый день",
+        "добрый вечер",
+        "доброе утро",
+        "доброй ночи",
+        "как дела",
+        "спасибо",
+        "пожалуйста",
+        "до свидания",
+        "пока",
+        "верно",
+        "правильно",
+        "окей",
+        "мне жаль",
+        "да",
+        "нет",
+    ],
+    "personal_data": [
+        "имя",
+        "фамилия",
+        "улица",
+        "номер дома",
+        "адрес",
+        "почтовый индекс",
+        "место проживания",
+        "номер телефона",
+        "почта",
+        "электронный адрес",
+        "подпись",
+        "возраст",
+        "год рождения",
+    ],
+    "family": [
+        "семья",
+        "мать",
+        "отец",
+        "сын",
+        "дочь",
+        "бабушка",
+        "дед",
+        "внук",
+        "внучка",
+        "брат",
+        "сестра",
+        "тетя",
+        "дядя",
+        "двоюродный",
+        "двоюродная",
+        "женат",
+        "замужем",
+        "разведен",
+        "вдовец",
+        "одинокий родитель",
+    ],
+    "verbs": [
+        "я есть",
+        "ты есть",
+        "он есть",
+        "иметь",
+        "я имею",
+        "ты имеешь",
+        "он имеет",
+        "жить",
+        "я живу",
+        "ты живешь",
+        "он живет",
+        "говорить",
+        "я говорю",
+        "ты говоришь",
+        "он говорит",
+        "работать",
+        "учиться",
+        "учиться в вузе",
+        "есть",
+        "готовить",
+        "искать",
+        "идти",
+        "звонить",
+        "думать",
+        "делать",
+        "произносить по буквам",
+        "любить (еду)",
+        "хотел бы",
+        "нуждаться",
+        "зарабатывать",
+        "считать",
+        "путешествовать",
+        "жениться",
+        "выйти замуж",
+        "покупать",
+        "закупаться",
+        "мочь",
+        "хотеть",
+        "становиться",
+        "давать",
+        "ждать",
+        "помогать",
+        "описывать",
+        "сравнивать",
+        "рекомендовать",
+        "удивлять",
+        "разрешать",
+        "запрещать",
+        "извиняться",
+        "обосновывать",
+        "достигать",
+        "пропустить",
+    ],
+    "time_calendar": [
+        "понедельник",
+        "вторник",
+        "среда",
+        "четверг",
+        "пятница",
+        "суббота",
+        "воскресенье",
+        "утро",
+        "вечер",
+        "ночь",
+        "первая половина дня",
+        "вторая половина дня",
+        "который час",
+        "месяц",
+        "март",
+        "апрель",
+        "май",
+        "июнь",
+        "июль",
+        "август",
+        "сентябрь",
+        "октябрь",
+        "ноябрь",
+        "декабрь",
+        "время",
+        "неделя",
+        "сегодня",
+        "завтра",
+    ],
+    "city_transport": [
+        "город",
+        "деревня",
+        "улица",
+        "площадь",
+        "парк",
+        "мост",
+        "вокзал",
+        "аэропорт",
+        "остановка",
+        "метро",
+        "электричка",
+        "поезд",
+        "автобус",
+        "такси",
+        "перекресток",
+        "светофор",
+        "аптека",
+        "пекарня",
+        "банк",
+        "почта",
+        "полиция",
+        "школа",
+        "университет",
+        "детская площадка",
+        "кинотеатр",
+        "театр",
+        "музей",
+        "порт",
+        "парковка",
+        "рынок",
+    ],
+    "home": [
+        "дом",
+        "квартира",
+        "комната",
+        "гостиная",
+        "спальня",
+        "кухня",
+        "ванная",
+        "туалет",
+        "коридор",
+        "балкон",
+        "сад",
+        "окно",
+        "дверь",
+        "кровать",
+        "шкаф",
+        "диван",
+        "лампа",
+        "ковер",
+        "стена",
+        "пол",
+        "потолок",
+        "стол",
+        "стул",
+        "зеркало",
+        "штора",
+        "стиральная машина",
+        "холодильник",
+        "плита",
+        "духовка",
+        "ванна (как предмет)",
+        "вход",
+    ],
+    "food_shop": [
+        "кофе",
+        "чай",
+        "молоко",
+        "вода",
+        "сок",
+        "пиво",
+        "хлеб",
+        "булочка",
+        "круассан",
+        "яйцо",
+        "яблоко",
+        "груша",
+        "фрукты",
+        "мюсли",
+        "йогурт",
+        "торт",
+        "колбаса",
+        "сыр",
+        "покупка",
+        "евро",
+        "цент",
+        "стоит",
+        "клиент",
+        "клиентка",
+        "пакет",
+        "продукт питания",
+        "супермаркет",
+        "еда",
+        "любимая еда",
+        "рис",
+        "шоколад",
+        "мороженое",
+        "суп",
+        "ужин",
+        "обед",
+        "масло",
+        "рыба",
+        "счет",
+        "десерт",
+        "напиток",
+        "банка",
+        "бутылка",
+        "грамм",
+        "килограмм",
+        "литр",
+        "картошка",
+        "ветчина",
+        "помидор",
+        "сливки",
+        "банан",
+        "овощи",
+        "мясо",
+        "веганский",
+        "вегетарианский",
+    ],
+    "animals": [
+        "собака",
+        "кошка",
+        "птица",
+        "лошадь",
+        "корова",
+        "свинья",
+        "овца",
+        "мышь",
+        "медведь",
+        "лев",
+        "змея",
+        "тигр",
+        "заяц",
+        "обезьяна",
+        "верблюд",
+        "волк",
+        "лиса",
+        "петух",
+        "утка",
+        "рыба",
+    ],
+    "tools_house": [
+        "молоток",
+        "гвоздь",
+        "винт",
+        "отвертка",
+        "дрель",
+        "пила",
+        "плоскогубцы",
+        "шланг",
+        "инструмент",
+        "пылесос",
+        "метла",
+        "ведро",
+        "губка",
+        "тряпка",
+        "розетка",
+        "вилка (электрич.)",
+        "лампочка",
+        "микроволновка",
+        "чайник электрический",
+        "мусор",
+        "мусорный пакет",
+        "мусорный бак",
+    ],
+    "computer_internet": [
+        "компьютер",
+        "ноутбук",
+        "мышь",
+        "клавиатура",
+        "экран",
+        "монитор",
+        "файл",
+        "папка",
+        "сохранять",
+        "удалять",
+        "пароль",
+        "входить (логиниться)",
+        "выходить (из аккаунта)",
+        "программа",
+        "приложение",
+        "скачивать",
+        "загружать (в сеть)",
+        "интернет",
+        "вай-фай",
+        "сидеть в интернете",
+    ],
+    "clothes": [
+        "рубашка",
+        "штаны",
+        "джинсы",
+        "футболка",
+        "свитер",
+        "куртка",
+        "пальто",
+        "блузка",
+        "юбка",
+        "платье",
+        "обувь",
+        "ботинок",
+        "носки",
+        "сапоги",
+        "ремень",
+        "шляпа",
+        "шапка",
+        "шарф",
+        "перчатки",
+        "трусы",
+        "лифчик",
+        "костюм",
+        "одежда",
+        "мода",
+        "ткань",
+        "пуговица",
+        "молния",
+        "размер",
+    ],
+    "weather_nature": [
+        "погода",
+        "пасмурно",
+        "идет дождь",
+        "идет снег",
+        "светит солнце",
+        "тепло",
+        "холодно",
+        "весна",
+        "лето",
+        "осень",
+        "зима",
+        "градус",
+        "дождь",
+        "снег",
+        "солнце",
+        "ветер",
+        "туман",
+        "шторм",
+        "небо",
+        "облако",
+        "природа",
+        "земля",
+        "планета",
+        "воздух",
+        "климат",
+        "радуга",
+        "лес",
+        "река",
+        "ручей",
+        "холм",
+        "луг",
+        "поле",
+        "скала",
+        "пляж",
+        "море",
+        "озеро",
+    ],
+    "objects": [
+        "книга",
+        "тетрадь",
+        "бумага",
+        "карандаш",
+        "ручка",
+        "линейка",
+        "камера",
+        "принтер",
+        "телефон",
+        "сумка",
+        "рюкзак",
+        "кошелек",
+        "ключ",
+        "клей",
+        "ножницы",
+        "зонт",
+        "очки",
+        "зажигалка",
+        "газета",
+        "чашка",
+        "чемодан",
+        "игра",
+        "игрушка",
+    ],
+    "jobs_work": [
+        "врач",
+        "учитель",
+        "инженер",
+        "повар",
+        "медбрат",
+        "медсестра",
+        "таксист",
+        "продавец",
+        "продавщица",
+        "парикмахер",
+        "певец",
+        "певица",
+        "официант",
+        "актриса",
+        "электронщик",
+        "домохозяин",
+        "домохозяйка",
+        "полицейский",
+        "студент",
+        "студентка",
+        "работа",
+        "профессия",
+        "начальник",
+        "начальница",
+        "офис",
+        "фирма",
+        "заявление на работу",
+        "собеседование",
+        "рабочее время",
+        "перерыв",
+        "зарплата",
+        "оклад",
+        "полный рабочий день",
+        "неполный рабочий день",
+        "команда",
+        "совещание",
+        "шеф-повар",
+        "владелец",
+        "сотрудник",
+        "доставка",
+        "заказ",
+        "контракт",
+        "скидка",
+        "сервис",
+        "клиент",
+    ],
+    "body_health": [
+        "тело",
+        "голова",
+        "лицо",
+        "лоб",
+        "щека",
+        "губы",
+        "язык",
+        "шея",
+        "плечо",
+        "рука",
+        "кисть руки",
+        "палец",
+        "грудь",
+        "спина",
+        "живот",
+        "нога",
+        "стопа",
+        "колено",
+        "кость",
+        "кровь",
+        "легкое",
+        "печень",
+        "мышца",
+        "боль",
+        "головная боль",
+        "боль в горле",
+        "простуда",
+        "грипп",
+        "температура, жар",
+        "таблетка",
+        "лекарство",
+        "мазь",
+        "повязка",
+        "бинт",
+        "здоровье",
+        "здоровый",
+        "больной",
+        "уставший",
+        "в хорошей форме",
+    ],
+    "hobby_sport": [
+        "спорт",
+        "тренировка",
+        "играть",
+        "команда",
+        "сериал",
+        "музыка",
+        "слушать",
+        "танцевать",
+        "плавать",
+        "петь",
+        "гитара",
+        "пианино",
+        "видео",
+        "хобби",
+        "фильм",
+        "велосипед",
+        "ездить на велосипеде",
+        "рисовать",
+        "фотографировать",
+        "печь",
+    ],
+    "colors_numbers": [
+        "красный",
+        "синий",
+        "зеленый",
+        "желтый",
+        "черный",
+        "белый",
+        "серый",
+        "коричневый",
+        "оранжевый",
+        "фиолетовый",
+        "розовый",
+        "ноль",
+        "один",
+        "два",
+        "три",
+        "четыре",
+        "пять",
+        "шесть",
+        "семь",
+        "восемь",
+        "девять",
+        "десять",
+        "одиннадцать",
+        "двенадцать",
+        "двадцать",
+        "тридцать",
+        "сорок",
+        "пятьдесят",
+        "шестдесят",
+        "семьдесят",
+        "восемьдесят",
+        "девяносто",
+        "сто",
+        "цвет",
+        "номер",
+    ],
+    "school_study": [
+        "школа",
+        "школьник",
+        "школьница",
+        "класс",
+        "урок",
+        "домашнее задание",
+        "экзамен",
+        "тест",
+        "занятие",
+        "курс",
+        "повторять",
+        "объяснять",
+        "понимать",
+        "учиться в университете",
+    ],
+    "emotions_character": [
+        "счастливый",
+        "грустный",
+        "злой",
+        "спокойный",
+        "нервный",
+        "расслабленный",
+        "гордый",
+        "застенчивый",
+        "дружелюбный",
+        "готовый помочь",
+        "вежливый",
+        "невежливый",
+        "странный",
+        "смешной",
+        "серьезный",
+        "скучный",
+        "захватывающий",
+        "интересный",
+        "важный",
+        "легкий",
+        "сложный",
+        "честный",
+        "ленивый",
+        "трудолюбивый",
+        "смелый",
+        "трусливый",
+        "умный",
+        "глупый",
+        "наглый",
+        "терпеливый",
+        "нетерпеливый",
+        "симпатичный",
+        "неприятный",
+        "с чувством юмора",
+        "успешный",
+        "любопытный",
+        "медленный",
+        "быстрый",
+        "сильный",
+        "злость",
+        "радость",
+        "страх",
+        "сюрприз",
+        "разочарование",
+        "уважение",
+        "сомнение",
+        "надежда",
+        "терпение",
+    ],
+    "abstract": [
+        "идея",
+        "мечта",
+        "желание",
+        "возможность",
+        "проблема",
+        "решение",
+        "будущее",
+        "прошлое",
+        "настоящее",
+        "страница",
+        "сторона",
+        "начало",
+        "конец",
+        "середина",
+        "причина",
+        "опыт",
+        "помощь",
+        "цель",
+        "время",
+        "свободное время",
+        "информация",
+    ],
+}
+
+# Распределяем слова по темам
+TOPIC_WORDS: Dict[str, List[Dict[str, str]]] = {k: [] for k in TOPIC_TITLES.keys()}
+TOPIC_WORDS["dictionary"] = []
+
+for w in ALL_WORDS:
+    assigned = False
+    ru = w["ru"].lower()
+    for topic_id, kw_list in TOPIC_KEYWORDS_RU.items():
+        if any(k in ru for k in kw_list):
+            TOPIC_WORDS[topic_id].append(w)
+            assigned = True
+            break
+    if not assigned:
+        TOPIC_WORDS["dictionary"].append(w)
+
+# "all" содержит все слова
+TOPIC_WORDS["all"] = ALL_WORDS
+
+# ---------- СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ ----------
+
+@dataclass
+class QuizState:
+    topic_id: str
+    remaining: List[int] = field(default_factory=list)
+    correct: int = 0
+    wrong: int = 0
+    current_index: int | None = None
+    current_direction: str | None = None  # "de_ru" или "ru_de"
+    options: List[str] = field(default_factory=list)
+    correct_option: str | None = None
+
+
+USER_STATE: Dict[int, QuizState] = {}
+
+
+# ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+
+def build_topics_keyboard() -> InlineKeyboardMarkup:
     buttons: List[List[InlineKeyboardButton]] = []
-    # Кнопка "Все темы"
-    buttons.append(
-        [InlineKeyboardButton(text="🔀 Все темы", callback_data="theme:all")]
-    )
-    # Остальные темы
-    for key, title in THEMES.items():
+
+    def add_row(tid: str):
+        count = len(TOPIC_WORDS.get(tid, []))
+        title = TOPIC_TITLES[tid]
+        if tid != "all":
+            text = f"{title} ({count})"
+        else:
+            text = title
         buttons.append(
-            [InlineKeyboardButton(text=f"📚 {title}", callback_data=f"theme:{key}")]
+            [InlineKeyboardButton(text=text, callback_data=f"topic:{tid}")]
         )
+
+    add_row("all")
+    add_row("abstract")
+    add_row("verbs")
+    add_row("time_calendar")
+    add_row("city_transport")
+    add_row("home")
+    add_row("food_shop")
+    add_row("animals")
+    add_row("tools_house")
+    add_row("computer_internet")
+    add_row("personal_data")
+    add_row("clothes")
+    add_row("weather_nature")
+    add_row("objects")
+    add_row("greetings")
+    add_row("jobs_work")
+    add_row("family")
+    add_row("dictionary")
+    add_row("body_health")
+    add_row("hobby_sport")
+    add_row("colors_numbers")
+    add_row("school_study")
+    add_row("emotions_character")
+
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def build_mode_keyboard() -> InlineKeyboardMarkup:
-    kb = [
-        [
-            InlineKeyboardButton(
-                text="🇩🇪 → 🇷🇺", callback_data="mode:de-ru"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="🇷🇺 → 🇩🇪", callback_data="mode:ru-de"
-            )
-        ],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=kb)
-
-
-def choose_wrong_options(
-    correct_word: Dict, state: UserState, count: int
-) -> List[Dict]:
-    """Берем неправильные варианты из той же темы, если возможно."""
-    if state.theme == "all":
-        pool = [w for w in WORDS if w["id"] != correct_word["id"]]
-    else:
-        pool = [
-            w
-            for w in WORDS
-            if w["topic"] == state.theme and w["id"] != correct_word["id"]
-        ]
-        if len(pool) < count:
-            pool = [w for w in WORDS if w["id"] != correct_word["id"]]
-
-    random.shuffle(pool)
-    return pool[:count]
-
-
-async def send_question(message: Message, state: UserState) -> None:
-    """Послать следующую карточку пользователю."""
-    # Если слова по теме закончились
-    if not state.remaining_ids:
-        total = state.correct + state.wrong
-        text = (
-            f"Тема закончилась.\n\n"
-            f"Всего вопросов: {total}\n"
-            f"Правильных: {state.correct}\n"
-            f"Неправильных: {state.wrong}\n\n"
-            f"Я перезапускаю эту тему заново."
-        )
-        await message.answer(text)
-        reset_theme_state(state)
-
-    # Берем следующее слово
-    word_id = state.remaining_ids.pop()
-    word = WORDS_BY_ID[word_id]
-    state.current_word_id = word_id
-
-    # Строим варианты
-    wrong_words = choose_wrong_options(word, state, 3)
-    options_texts: List[str] = []
-
-    if state.mode == "de-ru":
-        correct_option = word["ru"]
-        wrong_texts = [w["ru"] for w in wrong_words]
-        question_text = f"🇩🇪 {word['de']} [{word['tr']}]"
-        options_texts = wrong_texts + [correct_option]
-    else:
-        correct_option = f"{word['de']} [{word['tr']}]"
-        wrong_texts = [f"{w['de']} [{w['tr']}]" for w in wrong_words]
-        question_text = f"🇷🇺 {word['ru']}"
-        options_texts = wrong_texts + [correct_option]
-
-    random.shuffle(options_texts)
-    correct_index = options_texts.index(correct_option)
-    state.current_options = options_texts
-    state.correct_index = correct_index
-
-    # Клавиатура с вариантами
+def build_options_keyboard(options: List[str]) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
-    for idx, text in enumerate(options_texts):
+    for i, opt in enumerate(options):
         rows.append(
-            [
-                InlineKeyboardButton(
-                    text=text,
-                    callback_data=f"ans:{idx}",
-                )
-            ]
+            [InlineKeyboardButton(text=opt, callback_data=f"ans:{i}")]
         )
-    kb = InlineKeyboardMarkup(inline_keyboard=rows)
-
-    await message.answer(question_text, reply_markup=kb)
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-async def send_question_from_callback(callback: CallbackQuery, state: UserState) -> None:
-    dummy_message = callback.message
-    if dummy_message is None:
-        return
-    await send_question(dummy_message, state)
+def format_full_answer(word: Dict[str, str]) -> str:
+    de = word["de"]
+    tr = word["tr"]
+    ru = word["ru"]
+    return (
+        f"{de} [{tr}] - {ru}\n"
+        f"{ru} - {de} [{tr}]"
+    )
 
 
-# ============================================================
-# 6. HANDLERS
-# ============================================================
+def start_new_topic(user_id: int, topic_id: str) -> QuizState:
+    words = TOPIC_WORDS[topic_id]
+    indices = list(range(len(words)))
+    random.shuffle(indices)
+    state = QuizState(topic_id=topic_id, remaining=indices)
+    USER_STATE[user_id] = state
+    return state
+
+
+def prepare_question(user_id: int) -> tuple[str, InlineKeyboardMarkup] | None:
+    state = USER_STATE.get(user_id)
+    if not state or not state.remaining:
+        return None
+
+    words = TOPIC_WORDS[state.topic_id]
+    idx = state.remaining.pop()
+    word = words[idx]
+
+    direction = random.choice(["de_ru", "ru_de"])
+    state.current_index = idx
+    state.current_direction = direction
+
+    # правильный вариант
+    if direction == "de_ru":
+        question_text = f"Выбери перевод на русский:\n\n{word['de']} [{word['tr']}]"
+        correct_text = word["ru"]
+    else:
+        question_text = f"Выбери перевод на немецкий:\n\n{word['ru']}"
+        correct_text = word["de"]
+
+    # набираем 3 неправильных варианта
+    all_words = words
+    incorrect_options: List[str] = []
+    pool_indices = [i for i in range(len(all_words)) if i != idx]
+    random.shuffle(pool_indices)
+    for i in pool_indices:
+        w = all_words[i]
+        opt = w["ru"] if direction == "de_ru" else w["de"]
+        if opt != correct_text and opt not in incorrect_options:
+            incorrect_options.append(opt)
+        if len(incorrect_options) == 3:
+            break
+
+    options = incorrect_options + [correct_text]
+    random.shuffle(options)
+    state.options = options
+    state.correct_option = correct_text
+
+    kb = build_options_keyboard(options)
+    return question_text, kb
+
+
+# ---------- ХЕНДЛЕРЫ ----------
 
 @dp.message(CommandStart())
-async def cmd_start(message: Message) -> None:
-    state = get_state(message.from_user.id)
-    reset_theme_state(state)
-
-    text = (
-        "Привет. Это бот для изучения немецких слов.\n\n"
-        "Как пользоваться:\n"
-        "• Я показываю слово и четыре варианта перевода.\n"
-        "• Нажми на кнопку с вариантом.\n"
-        "• Если ответ неверный, я покажу правильный полный ответ и сразу дам новое слово.\n"
-        "• Если ответ верный, покажу зеленую галочку и полный ответ, а потом новое слово.\n\n"
-        "Команды:\n"
-        "/next - следующее слово\n"
-        "/themes - выбрать тему\n"
-        "/mode - выбрать направление перевода\n\n"
-        "По умолчанию включен режим 🇩🇪 → 🇷🇺 и тема Приветствия."
+async def cmd_start(message: Message):
+    user_id = message.from_user.id
+    USER_STATE.pop(user_id, None)
+    await message.answer(
+        "Привет! Я бот для тренировки немецких слов.\n\n"
+        "Выбери тему:",
+        reply_markup=build_topics_keyboard(),
     )
-    await message.answer(text)
-    await send_question(message, state)
 
 
-@dp.message(Command("next"))
-async def cmd_next(message: Message) -> None:
-    state = get_state(message.from_user.id)
-    await send_question(message, state)
-
-
-@dp.message(Command("themes"))
-async def cmd_themes(message: Message) -> None:
-    text = "Выбери тему:"
-    await message.answer(text, reply_markup=build_themes_keyboard())
-
-
-@dp.message(Command("mode"))
-async def cmd_mode(message: Message) -> None:
-    text = "Выбери направление перевода:"
-    await message.answer(text, reply_markup=build_mode_keyboard())
-
-
-# ---------- смена темы ----------
-
-@dp.callback_query(F.data.startswith("theme:"))
-async def callbacks_theme(callback: CallbackQuery) -> None:
-    user_id = callback.from_user.id
-    state = get_state(user_id)
-    _, topic = callback.data.split(":", 1)
-
-    if topic == "all":
-        state.theme = "all"
-        theme_name = "Все темы"
-    else:
-        state.theme = topic
-        theme_name = THEMES.get(topic, topic)
-
-    reset_theme_state(state)
-    await callback.answer()
-    await callback.message.answer(
-        f"Тема изменена на: {theme_name}.\nЯ обнулил статистику по этой теме."
+@dp.message(Command("menu"))
+async def cmd_menu(message: Message):
+    await message.answer(
+        "Выбери тему:",
+        reply_markup=build_topics_keyboard(),
     )
-    await send_question_from_callback(callback, state)
 
 
-# ---------- смена режима ----------
-
-@dp.callback_query(F.data.startswith("mode:"))
-async def callbacks_mode(callback: CallbackQuery) -> None:
+@dp.callback_query(F.data.startswith("topic:"))
+async def cb_choose_topic(callback: CallbackQuery):
     user_id = callback.from_user.id
-    state = get_state(user_id)
-    _, mode = callback.data.split(":", 1)
-    state.mode = mode
-    reset_theme_state(state)
+    topic_id = callback.data.split(":", 1)[1]
 
-    if mode == "de-ru":
-        text = "Режим изменен на 🇩🇪 → 🇷🇺. Я обнулил статистику."
-    else:
-        text = "Режим изменен на 🇷🇺 → 🇩🇪. Я обнулил статистику."
-
-    await callback.answer()
-    await callback.message.answer(text)
-    await send_question_from_callback(callback, state)
-
-
-# ---------- обработка ответа ----------
-
-@dp.callback_query(F.data.startswith("ans:"))
-async def callbacks_answer(callback: CallbackQuery) -> None:
-    user_id = callback.from_user.id
-    state = get_state(user_id)
-
-    if state.current_word_id is None:
-        await callback.answer("Слово не найдено. Нажми /next.")
+    if topic_id not in TOPIC_TITLES:
+        await callback.answer("Неизвестная тема")
         return
 
-    try:
-        _, idx_str = callback.data.split(":", 1)
-        idx = int(idx_str)
-    except ValueError:
+    state = start_new_topic(user_id, topic_id)
+    words_count = len(TOPIC_WORDS[topic_id])
+
+    if not state.remaining:
+        await callback.message.edit_text("В этой теме пока нет слов.")
         await callback.answer()
         return
 
-    word = WORDS_BY_ID[state.current_word_id]
-    is_correct = idx == state.correct_index
+    await callback.message.edit_text(
+        f"Тема: {TOPIC_TITLES[topic_id]}\nСлов в тренировке: {words_count}\n\n"
+        f"Начинаем!"
+    )
+
+    q = prepare_question(user_id)
+    if q is None:
+        await callback.message.answer("Не удалось подготовить вопрос.")
+    else:
+        text, kb = q
+        await callback.message.answer(text, reply_markup=kb)
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("ans:"))
+async def cb_answer(callback: CallbackQuery):
+    user_id = callback.from_user.id
+    state = USER_STATE.get(user_id)
+
+    if not state or state.current_index is None:
+        await callback.answer("Сначала выбери тему через /start или /menu")
+        return
+
+    try:
+        chosen_i = int(callback.data.split(":", 1)[1])
+    except ValueError:
+        await callback.answer("Ошибка ответа")
+        return
+
+    if chosen_i < 0 or chosen_i >= len(state.options):
+        await callback.answer("Ошибка ответа")
+        return
+
+    chosen_text = state.options[chosen_i]
+    words = TOPIC_WORDS[state.topic_id]
+    word = words[state.current_index]
+
+    is_correct = chosen_text == state.correct_option
 
     if is_correct:
         state.correct += 1
-        if state.mode == "de-ru":
-            text = (
-                "✅ Правильно.\n\n"
-                f"{word['de']} [{word['tr']}] - {word['ru']}"
-            )
-        else:
-            text = (
-                "✅ Правильно.\n\n"
-                f"{word['ru']} - {word['de']} [{word['tr']}]"
-            )
+        prefix = "✅ Правильно!\n"
     else:
         state.wrong += 1
-        if state.mode == "de-ru":
-            text = (
-                "❌ Неправильно.\nПравильный ответ:\n\n"
-                f"{word['de']} [{word['tr']}] - {word['ru']}"
-            )
+        prefix = "❌ Неправильно.\n"
+
+    full_answer = format_full_answer(word)
+    await callback.message.answer(prefix + full_answer)
+
+    # следующий вопрос или статистика
+    if not state.remaining:
+        total = state.correct + state.wrong
+        await callback.message.answer(
+            f"Тема завершена.\n"
+            f"Всего вопросов: {total}\n"
+            f"Правильных: {state.correct}\n"
+            f"Неправильных: {state.wrong}\n\n"
+            f"Чтобы выбрать другую тему, напиши /menu"
+        )
+        USER_STATE.pop(user_id, None)
+    else:
+        q = prepare_question(user_id)
+        if q is None:
+            await callback.message.answer("Ошибка при подготовке следующего вопроса.")
         else:
-            text = (
-                "❌ Неправильно.\nПравильный ответ:\n\n"
-                f"{word['ru']} - {word['de']} [{word['tr']}]"
-            )
+            text, kb = q
+            await callback.message.answer(text, reply_markup=kb)
 
     await callback.answer()
-    await callback.message.answer(text)
-
-    # Сразу следующее слово
-    await send_question_from_callback(callback, state)
 
 
-# ============================================================
-# 7. MAIN
-# ============================================================
+# ---------- ЗАПУСК ----------
 
-async def main() -> None:
-    logging.info("Bot started")
+async def main():
     await dp.start_polling(bot)
 
 
