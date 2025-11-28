@@ -15,7 +15,7 @@ from aiogram.types import (
 )
 
 # ВСТАВЬ СВОЙ ТОКЕН СЮДА
-TOKEN = "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE"
+TOKEN = "ТУТ_ТВОЙ_ТОКЕН"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -24,7 +24,8 @@ dp = Dispatcher()
 Word = Dict[str, Any]
 GrammarRule = Dict[str, Any]
 
-# Названия тем для слов
+# ----------------- Темы для слов -----------------
+
 TOPIC_ALL = "Все темы (перемешку)"
 TOPIC_ABSTRACT = "Абстрактные понятия"
 TOPIC_VERBS = "Базовые глаголы"
@@ -74,7 +75,9 @@ ALL_TOPICS = [
     TOPIC_DICT,
 ]
 
-# Состояние пользователей по словам
+# ----------------- Состояние пользователей -----------------
+
+# Слова
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
         "mode": "de_ru",        # "de_ru" или "ru_de"
@@ -85,13 +88,20 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
     }
 )
 
-# Состояние по грамматике: grammar_state[user_id][rule_id] = {"correct": X, "wrong": Y}
+# Грамматика: grammar_state[user_id][rule_id] = {"correct": X, "wrong": Y}
 grammar_state: Dict[int, Dict[int, Dict[str, int]]] = defaultdict(dict)
 
 WORDS: List[Word] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 
-# Грамматические правила уровня A1
+# ----------------- Грамматические правила уровня A1 -----------------
+# ТУТ ОСТАВЬ СВОЙ СПИСОК GRAMMAR_RULES С 15 ПРАВИЛАМИ, КОТОРЫЙ ТЫ УЖЕ НАПИСАЛ
+# Например:
+# GRAMMAR_RULES: List[GrammarRule] = [
+#     { "id": 1, "level": "A1", "title": "...", ... },
+#     ...
+# ]
+
 GRAMMAR_RULES: List[GrammarRule] = [
     # 1. sein
     {
@@ -159,6 +169,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 2. haben
     {
         "id": 2,
@@ -224,6 +235,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 3. определенный артикль
     {
         "id": 3,
@@ -286,6 +298,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 4. неопределенный артикль
     {
         "id": 4,
@@ -351,6 +364,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 5. порядок слов
     {
         "id": 5,
@@ -439,6 +453,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 6. личные местоимения
     {
         "id": 6,
@@ -505,6 +520,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 7. притяжательные местоимения
     {
         "id": 7,
@@ -549,8 +565,8 @@ GRAMMAR_RULES: List[GrammarRule] = [
                 "prompt": "Выбери правильное притяжательное местоимение.",
                 "question_de": "Wie heißt ___ Mutter? (твоя)",
                 "options": ["mein", "deine", "dein", "ihr"],
-                "correct": 2,
-                "answer_de": "Wie heißt dein Mutter?",
+                "correct": 1,
+                "answer_de": "Wie heißt deine Mutter?",
                 "answer_ru": "Как зовут твою маму?"
             },
             {
@@ -564,13 +580,14 @@ GRAMMAR_RULES: List[GrammarRule] = [
             {
                 "prompt": "Выбери правильное притяжательное местоимение.",
                 "question_de": "___ Kinder spielen im Garten. (их)",
-                "options": ["Ihr", "Euer", "Ihrer", "Ihren"],
-                "correct": 0,
-                "answer_de": "Ihr Kinder spielen im Garten.",
+                "options": ["Ihre", "Eure", "ihre", "Unser"],
+                "correct": 2,
+                "answer_de": "Ihre Kinder spielen im Garten.",
                 "answer_ru": "Их дети играют в саду."
             }
         ]
     },
+
     # 8. отрицание nicht и kein
     {
         "id": 8,
@@ -631,6 +648,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 9. вопросы ja nein и W-Fragen
     {
         "id": 9,
@@ -638,9 +656,9 @@ GRAMMAR_RULES: List[GrammarRule] = [
         "title": "Вопросы: Ja-Nein и W-Fragen",
         "description": (
             "В немецком есть два типа вопросов.\n\n"
-            "1. Ja Nein Fragen вопросы да нет. Глагол ставится на первое место.\n"
+            "1. Ja-Nein-Fragen вопросы да/нет. Глагол ставится на первое место.\n"
             "Beispiel: Kommst du heute?\n\n"
-            "2. W Fragen вопросы с вопросительным словом: wo, wer, was, wann, wie и другие. "
+            "2. W-Fragen вопросы с вопросительным словом: wo, wer, was, wann, wie и другие. "
             "Сначала идет вопросительное слово, затем глагол.\n"
             "Beispiel: Wo wohnst du?"
         ),
@@ -652,7 +670,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
         ],
         "questions": [
             {
-                "prompt": "Выбери правильный вопрос Ja Nein.",
+                "prompt": "Выбери правильный вопрос Ja-Nein.",
                 "question_de": "Ты живешь в Берлине?",
                 "options": [
                     "Wohnst du in Berlin?",
@@ -678,8 +696,8 @@ GRAMMAR_RULES: List[GrammarRule] = [
                 "answer_ru": "Где ты работаешь?"
             },
             {
-                "prompt": "Выбери правильный вопрос Ja Nein.",
-                "question_de": "Ты говоришь по немецки?",
+                "prompt": "Выбери правильный вопрос Ja-Nein.",
+                "question_de": "Ты говоришь по-немецки?",
                 "options": [
                     "Sprichst du Deutsch?",
                     "Du sprichst Deutsch?",
@@ -688,7 +706,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
                 ],
                 "correct": 0,
                 "answer_de": "Sprichst du Deutsch?",
-                "answer_ru": "Ты говоришь по немецки?"
+                "answer_ru": "Ты говоришь по-немецки?"
             },
             {
                 "prompt": "Выбери правильный вопрос с wann.",
@@ -718,6 +736,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 10. предлоги времени
     {
         "id": 10,
@@ -778,6 +797,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 11. предлоги места
     {
         "id": 11,
@@ -841,6 +861,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 12. модальный глагол können
     {
         "id": 12,
@@ -859,7 +880,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             "В предложении модальный глагол на втором месте, смысловой глагол в инфинитиве в конце."
         ),
         "examples": [
-            {"de": "Ich kann Deutsch sprechen.", "ru": "Я могу говорить по немецки."},
+            {"de": "Ich kann Deutsch sprechen.", "ru": "Я могу говорить по-немецки."},
             {"de": "Du kannst gut kochen.", "ru": "Ты хорошо умеешь готовить."},
             {"de": "Wir können heute nicht kommen.", "ru": "Мы не можем сегодня прийти."},
             {"de": "Sie kann sehr gut singen.", "ru": "Она очень хорошо поет."}
@@ -896,7 +917,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
                 "question_de": "Он может сегодня прийти.",
                 "options": [
                     "Er kann heute kommen.",
-                    "Er kann kommen heute.",
+                    "Er kann kommen сегодня.",
                     "Heute er kann kommen.",
                     "Er heute kann kommen."
                 ],
@@ -911,7 +932,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
                     "Wir können nicht arbeiten.",
                     "Wir können arbeiten nicht.",
                     "Wir nicht können arbeiten.",
-                    "Können wir nicht arbeiten."
+                    "Können wir не arbeiten."
                 ],
                 "correct": 0,
                 "answer_de": "Wir können nicht arbeiten.",
@@ -932,6 +953,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 13. отделяемые приставки
     {
         "id": 13,
@@ -974,7 +996,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
                     "Ruft er den Freund an."
                 ],
                 "correct": 0,
-                "answer_de": "Er ruft den Freund an.",
+                "answer_de": "Er ruft den Freund ан.",
                 "answer_ru": "Он звонит другу."
             },
             {
@@ -1018,6 +1040,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 14. множественное число существительных
     {
         "id": 14,
@@ -1026,14 +1049,14 @@ GRAMMAR_RULES: List[GrammarRule] = [
         "description": (
             "У существительных в немецком есть формы единственного и множественного числа. "
             "Общего правила нет, формы нужно запоминать вместе со словом.\n\n"
-            "Частые окончания: e, er, en, s.\n"
-            "Иногда изменяется корневая гласная: das Buch die Bücher."
+            "Частые окончания: -e, -er, -en, -s.\n"
+            "Иногда изменяется корневая гласная: das Buch – die Bücher."
         ),
         "examples": [
-            {"de": "Der Tisch die Tische.", "ru": "Стол столы."},
-            {"de": "Die Frau die Frauen.", "ru": "Женщина женщины."},
-            {"de": "Das Kind die Kinder.", "ru": "Ребенок дети."},
-            {"de": "Das Buch die Bücher.", "ru": "Книга книги."}
+            {"de": "Der Tisch – die Tische.", "ru": "Стол – столы."},
+            {"de": "Die Frau – die Frauen.", "ru": "Женщина – женщины."},
+            {"de": "Das Kind – die Kinder.", "ru": "Ребенок – дети."},
+            {"de": "Das Buch – die Bücher.", "ru": "Книга – книги."}
         ],
         "questions": [
             {
@@ -1078,14 +1101,16 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+
     # 15. конструкция es gibt
     {
         "id": 15,
         "level": "A1",
         "title": "Конструкция es gibt",
         "description": (
-            "Конструкция \"es gibt\" означает \"есть, имеется\" и используется, чтобы сказать, что что то существует.\n\n"
-            "В Nominativ единственного и множественного числа форма одинаковая: es gibt ein Haus, es gibt viele Häuser.\n"
+            "Конструкция \"es gibt\" означает \"есть, имеется\" и используется, чтобы сказать, что что-то существует.\n\n"
+            "В единственном и множественном числе форма одинаковая: "
+            "es gibt ein Haus, es gibt viele Häuser.\n"
             "Часто используется с Akkusativ."
         ),
         "examples": [
@@ -1113,8 +1138,8 @@ GRAMMAR_RULES: List[GrammarRule] = [
                 "question_de": "Здесь есть много кафе.",
                 "options": [
                     "Es gibt viele Cafés hier.",
-                    "Es sind viele Cafés hier.",
-                    "Es hat viele Cafés hier.",
+                    "Es sind viele Cafés здесь.",
+                    "Es hat viele Cafés здесь.",
                     "Es gibt viel Café hier."
                 ],
                 "correct": 0,
@@ -1163,8 +1188,10 @@ GRAMMAR_RULES: List[GrammarRule] = [
         ]
     },
 ]
+  # временно, чтобы не было ошибки, потом заменишь на свой список
 
-# ----------------- Загрузка слов -----------------
+
+# ----------------- Загрузка слов из JSON -----------------
 
 
 def load_words(path: str = "words.json") -> None:
@@ -1196,7 +1223,11 @@ def load_words(path: str = "words.json") -> None:
         WORDS_BY_TOPIC[topic].append(idx)
         WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
+    # Виртуальная тема "Все темы"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
+
+
+# ----------------- Классификация тем по русскому переводу -----------------
 
 
 def classify_topic(ru: str) -> str:
@@ -1428,6 +1459,9 @@ def classify_topic(ru: str) -> str:
     return TOPIC_DICT
 
 
+# ----------------- Логика по словам -----------------
+
+
 def get_user_words(uid: int) -> List[int]:
     state = user_state[uid]
     topic = state["topic"]
@@ -1437,6 +1471,7 @@ def get_user_words(uid: int) -> List[int]:
 
 
 def reset_progress(uid: int) -> None:
+    """Сброс статистики и новый круг слов по текущей теме."""
     state = user_state[uid]
     state["correct"] = 0
     state["wrong"] = 0
@@ -1447,6 +1482,7 @@ def reset_progress(uid: int) -> None:
 
 
 def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyboardMarkup:
+    """Строим клавиатуру с 4 вариантами ответа."""
     pool = set(word_ids)
     pool.discard(correct_id)
     wrong_ids = random.sample(list(pool), k=3) if len(pool) >= 3 else list(pool)
@@ -1473,6 +1509,7 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
         reset_progress(user_id)
 
     if not state["remaining"]:
+        # все слова в теме закончились
         await bot.send_message(
             chat_id,
             "Ты уже прошел все слова в этой теме.\n"
@@ -1529,6 +1566,9 @@ def build_mode_keyboard() -> InlineKeyboardMarkup:
             ],
         ]
     )
+
+
+# ----------------- Логика по грамматике -----------------
 
 
 def build_grammar_keyboard() -> InlineKeyboardMarkup:
@@ -1599,29 +1639,62 @@ async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> Non
 @dp.message(CommandStart())
 async def cmd_start(message: Message) -> None:
     text = (
-        "🇩🇪 *Willkommen! Добро пожаловать!*\n\n"
+        "🇩🇪 *Willkommen! Добро пожаловать!* 👋\n\n"
         "Этот бот помогает учить немецкие слова и грамматику.\n"
         "Все просто и удобно:\n\n"
         "📚 *Что умеет бот:*\n"
         "• Учить слова по темам\n"
-        "• Давать тесты с 4 вариантами\n"
+        "• Давать тесты с 4 вариантами ответа\n"
         "• Показывать транскрипцию и перевод\n"
-        "• Запоминать прогресс в теме\n"
         "• Объяснять грамматику уровня A1\n"
-        "• Давать практические упражнения\n\n"
+        "• Давать упражнения по каждой теме\n\n"
         "🎯 *Режимы обучения:*\n"
         "• 🇩🇪 → 🇷🇺 перевод немецкого слова\n"
         "• 🇷🇺 → 🇩🇪 перевод русского слова\n\n"
         "📘 *Что хочешь делать?*\n"
-        "Выбери действие ниже."
+        "Выбери действие ниже 👇"
     )
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardBut
+                InlineKeyboardButton(
+                    text="📖 Учить слова",
+                    callback_data="menu_words",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📘 Учить грамматику",
+                    callback_data="menu_grammar",
+                )
+            ],
+        ]
+    )
+
+    await message.answer(text, reply_markup=kb, parse_mode="Markdown")
 
 
+@dp.callback_query(F.data == "menu_words")
+async def menu_words(callback: CallbackQuery) -> None:
+    await callback.message.edit_text(
+        "📖 Выбери тему для изучения слов:",
+    )
+    await callback.message.answer(
+        "⬇ *Список тем:*",
+        reply_markup=build_themes_keyboard(),
+        parse_mode="Markdown",
+    )
+    await callback.answer()
+
+
+@dp.callback_query(F.data == "menu_grammar")
+async def menu_grammar(callback: CallbackQuery) -> None:
+    await callback.message.edit_text(
+        "📘 Выбери грамматическое правило уровня A1:",
+        reply_markup=build_grammar_keyboard(),
+    )
+    await callback.answer()
 
 
 @dp.message(Command("next"))
@@ -1629,7 +1702,6 @@ async def cmd_next(message: Message) -> None:
     uid = message.from_user.id
     state = user_state[uid]
 
-    # если слова в теме закончились, начинаем новый круг
     if state["remaining"] is not None and not state["remaining"]:
         reset_progress(uid)
 
@@ -1645,20 +1717,20 @@ async def cmd_themes(message: Message) -> None:
 @dp.message(Command("mode"))
 async def cmd_mode(message: Message) -> None:
     kb = build_mode_keyboard()
-    await message.answer("Выбери направление перевода для слов.", reply_markup=kb)
+    await message.answer("Выбери направление перевода.", reply_markup=kb)
 
 
 @dp.message(Command("grammar"))
 async def cmd_grammar(message: Message) -> None:
+    if not GRAMMAR_RULES:
+        await message.answer("Правила грамматики пока не загружены.")
+        return
+
     kb = build_grammar_keyboard()
     await message.answer(
-        "Выбери грамматическое правило уровня A1. "
-        "Сначала будет объяснение с примерами, потом мини тест из 5 упражнений.",
+        "📘 Выбери грамматическое правило уровня A1 для изучения:",
         reply_markup=kb,
     )
-
-
-# ---------- Callbacks по словам ----------
 
 
 @dp.callback_query(F.data.startswith("mode|"))
@@ -1666,35 +1738,12 @@ async def cb_mode(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
     _, mode = callback.data.split("|", maxsplit=1)
     user_state[uid]["mode"] = mode
-
     if mode == "de_ru":
-        txt = "Режим установлен: 🇩🇪 → 🇷🇺. Немецкое слово и варианты на русском."
+        txt = "Режим установлен: 🇩🇪 → 🇷🇺."
     else:
-        txt = "Режим установлен: 🇷🇺 → 🇩🇪. Русское слово и варианты на немецком."
-
+        txt = "Режим установлен: 🇷🇺 → 🇩🇪."
     await callback.answer("Режим обновлен.")
-    try:
-        await callback.message.edit_text(txt)
-    except Exception:
-        await callback.message.answer(txt)
-
-       @dp.callback_query(F.data == "menu_words")
-async def menu_words(call: CallbackQuery):
-    await call.message.edit_text(
-        "Выбери режим или тему для изучения слов:",
-    )
-    await call.message.answer(
-        "⬇ Выбери тему:",
-        reply_markup=build_themes_keyboard()
-    )
-
-
-@dp.callback_query(F.data == "menu_grammar")
-async def menu_grammar(call: CallbackQuery):
-    await call.message.edit_text(
-        "📘 Выбери грамматическое правило A1 для изучения:",
-        reply_markup=build_grammar_keyboard()
-    )
+    await callback.message.edit_text(txt)
 
 
 @dp.callback_query(F.data.startswith("topic|"))
@@ -1703,20 +1752,11 @@ async def cb_topic(callback: CallbackQuery) -> None:
     _, topic = callback.data.split("|", maxsplit=1)
     user_state[uid]["topic"] = topic
 
-    # новый круг по новой теме
     reset_progress(uid)
     count = len(WORDS_BY_TOPIC.get(topic, []))
 
     await callback.answer("Тема выбрана.")
-    try:
-        await callback.message.edit_text(
-            f"Тема установлена: {topic}.\nСлов в этой теме: {count}."
-        )
-    except Exception:
-        await callback.message.answer(
-            f"Тема установлена: {topic}.\nСлов в этой теме: {count}."
-        )
-
+    await callback.message.edit_text(f"Тема установлена: {topic}.\nСлов в теме: {count}.")
     await send_new_word(uid, callback.message.chat.id)
 
 
@@ -1739,17 +1779,10 @@ async def cb_answer(callback: CallbackQuery) -> None:
     else:
         state["wrong"] += 1
         if mode == "de_ru":
-            text = (
-                "❌ Неправильно.\n"
-                f'Правильный ответ:\n{w["de"]} [{w["tr"]}] - {w["ru"]}'
-            )
+            text = f'❌ Неправильно.\nПравильный ответ:\n{w["de"]} [{w["tr"]}] - {w["ru"]}'
         else:
-            text = (
-                "❌ Неправильно.\n"
-                f'Правильный ответ:\n{w["ru"]} - {w["de"]} [{w["tr"]}]'
-            )
+            text = f'❌ Неправильно.\nПравильный ответ:\n{w["ru"]} - {w["de"]} [{w["tr"]}]'
 
-    # если после этого слова список пустой, значит, тема закончилась
     finished_now = not state["remaining"]
 
     if finished_now:
@@ -1767,47 +1800,34 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
     await callback.answer()
 
-    # если тема еще не закончилась - отправляем следующее слово сразу
     if not finished_now:
         await send_new_word(uid, callback.message.chat.id)
 
 
-# ---------- Callbacks по грамматике ----------
-
-
 @dp.callback_query(F.data.startswith("gram|"))
 async def cb_grammar_rule(callback: CallbackQuery) -> None:
-    """Показ выбранного грамматического правила и запуск теста."""
+    _, rule_id_str = callback.data.split("|", maxsplit=1)
+    rule_id = int(rule_id_str)
     uid = callback.from_user.id
-    _, id_str = callback.data.split("|", maxsplit=1)
-    rule_id = int(id_str)
-    rule = get_grammar_rule_by_id(rule_id)
 
+    rule = get_grammar_rule_by_id(rule_id)
     if rule is None:
         await callback.answer("Правило не найдено.")
         return
 
-    # обнуляем статистику по этому правилу для этого пользователя
     grammar_state[uid][rule_id] = {"correct": 0, "wrong": 0}
 
-    explanation_text = build_grammar_explanation_text(rule)
+    text = build_grammar_explanation_text(rule)
+    await callback.message.edit_text(text)
 
-    try:
-        await callback.message.edit_text(explanation_text)
-    except Exception:
-        await callback.message.answer(explanation_text)
-
-    await callback.answer()
-
-    # сразу даем первый вопрос по этому правилу
     await send_grammar_question(callback.message.chat.id, rule_id, 0)
+    await callback.answer()
 
 
 @dp.callback_query(F.data.startswith("gramq|"))
 async def cb_grammar_answer(callback: CallbackQuery) -> None:
-    """Обработка ответа на грамматический вопрос и статистика по правилу."""
     uid = callback.from_user.id
-    _, rule_id_str, q_index_str, chosen_str = callback.data.split("|", maxsplit=3)
+    _, rule_id_str, q_index_str, chosen_str = callback.data.split("|")
     rule_id = int(rule_id_str)
     q_index = int(q_index_str)
     chosen = int(chosen_str)
@@ -1819,73 +1839,56 @@ async def cb_grammar_answer(callback: CallbackQuery) -> None:
 
     questions = rule["questions"]
     if q_index < 0 or q_index >= len(questions):
-        await callback.answer("Вопрос не найден.")
+        await callback.answer()
         return
 
     question = questions[q_index]
-    correct_index = question["correct"]
-    is_correct = chosen == correct_index
+    correct_idx = question["correct"]
 
-    # статистика по этому правилу только в памяти
-    rule_stats = grammar_state.setdefault(uid, {}).setdefault(
-        rule_id, {"correct": 0, "wrong": 0}
-    )
-    if is_correct:
-        rule_stats["correct"] += 1
-        header = "✅ Правильно."
+    stats = grammar_state.setdefault(uid, {}).setdefault(rule_id, {"correct": 0, "wrong": 0})
+
+    if chosen == correct_idx:
+        stats["correct"] += 1
+        prefix = "✅ Правильно.\n"
     else:
-        rule_stats["wrong"] += 1
-        header = "❌ Неправильно."
+        stats["wrong"] += 1
+        prefix = "❌ Неправильно.\n"
 
-    feedback_text = (
-        f"{header}\n\n"
+    answer_text = (
+        f'{prefix}\n'
         f'Правильный ответ:\n{question["answer_de"]}\n{question["answer_ru"]}'
     )
 
     try:
-        await callback.message.edit_text(feedback_text)
+        await callback.message.edit_text(answer_text)
     except Exception:
-        await callback.message.answer(feedback_text)
+        await callback.message.answer(answer_text)
 
     await callback.answer()
 
-    # следующий вопрос или статистика по правилу
     next_index = q_index + 1
     if next_index < len(questions):
         await send_grammar_question(callback.message.chat.id, rule_id, next_index)
     else:
-        total_correct = rule_stats["correct"]
-        total_wrong = rule_stats["wrong"]
-        total = total_correct + total_wrong
-
-        summary_text = (
-            f'📊 Ты прошел все вопросы по теме: {rule["title"]}\n\n'
-            f"Всего вопросов: {total}\n"
-            f"✅ Правильных ответов: {total_correct}\n"
-            f"❌ Ошибок: {total_wrong}\n\n"
-            "Можешь выбрать другое правило через /grammar или продолжить учить слова."
+        total = stats["correct"] + stats["wrong"]
+        result_text = (
+            f'📊 Тест по теме "{rule["title"]}" завершен.\n\n'
+            f'Всего вопросов: {total}\n'
+            f'✅ Правильных ответов: {stats["correct"]}\n'
+            f'❌ Ошибок: {stats["wrong"]}\n\n'
+            "Можешь выбрать другое правило через команду /grammar."
         )
-
-        await bot.send_message(callback.message.chat.id, summary_text)
-
-        # очищаем статистику по этому правилу, чтобы новый круг начинался с нуля
-        try:
-            del grammar_state[uid][rule_id]
-        except KeyError:
-            pass
+        await bot.send_message(callback.message.chat.id, result_text)
 
 
-# ----------------- Точка входа -----------------
+# ----------------- Запуск бота -----------------
 
 
 async def main() -> None:
     load_words("words.json")
     print(f"Загружено слов: {len(WORDS)}")
-    print(f"Загружено грамматических правил A1: {len(GRAMMAR_RULES)}")
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
