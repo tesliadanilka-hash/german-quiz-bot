@@ -813,7 +813,8 @@
     {"de": "miauen", "tr": "miˈaʊ̯ən", "ru": "мяукать"},
     {"de": "das Küken", "tr": "ˈkyːkn̩", "ru": "цыпленок"},
     {"de": "das Futter", "tr": "ˈfʊtɐ", "ru": "корм"}
-  ],
+  ]
+},
 {
   "topic": "A1: Быт и дом",
   "words": [
@@ -1236,5 +1237,6 @@
     {"de": "die Flasche", "tr": "ˈflaʃə", "ru": "бутылка"},
     { "de": "die Tasse", "tr": "tasa", "ru": "чашка" }
 ]
+
 
 
