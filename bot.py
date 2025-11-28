@@ -217,7 +217,6 @@ def load_words(path: str = "words.json") -> None:
 
     Поддерживаются два варианта структуры:
 
-    1) Плоский список:
        [
          {
            "de": "Hallo",
@@ -7866,3 +7865,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
