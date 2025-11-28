@@ -1,7 +1,8 @@
 import asyncio
 import json
 import random
-from dataclasses import dataclass, field
+from collections import defaultdict
+from pathlib import Path
 from typing import Dict, List, Any
 
 from aiogram import Bot, Dispatcher, F
@@ -13,441 +14,560 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 
+# ВСТАВЬ СВОЙ ТОКЕН СЮДА
 TOKEN = "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# ---------- ЗАГРУЗКА СЛОВ ----------
+# Типы
+Word = Dict[str, Any]
 
-def load_words(path: str = "words.json") -> List[Dict[str, str]]:
-    with open(path, "r", encoding="utf-8") as f:
+# Названия тем как в твоем меню
+TOPIC_ALL = "Все темы (перемешку)"
+TOPIC_ABSTRACT = "Абстрактные понятия"
+TOPIC_VERBS = "Базовые глаголы"
+TOPIC_TIME = "Время и календарь"
+TOPIC_CITY = "Город и транспорт"
+TOPIC_HOME = "Дом и жилье"
+TOPIC_FOOD = "Еда и магазин"
+TOPIC_ANIMALS = "Животные"
+TOPIC_TOOLS = "Инструменты и быт"
+TOPIC_IT = "Компьютер и интернет"
+TOPIC_PERSONAL = "Личные данные"
+TOPIC_CLOTHES = "Одежда"
+TOPIC_WEATHER = "Погода и природа"
+TOPIC_OBJECTS = "Предметы и вещи"
+TOPIC_GREETINGS = "Приветствия и базовые фразы"
+TOPIC_JOBS = "Профессии и работа"
+TOPIC_FAMILY = "Семья"
+TOPIC_DICT = "Словарь A1-B1"
+TOPIC_BODY = "Тело и здоровье"
+TOPIC_HOBBY = "Хобби и спорт"
+TOPIC_COLORS_NUM = "Цвета и числа"
+TOPIC_SCHOOL = "Школа и учеба"
+TOPIC_EMOTIONS = "Эмоции и характер"
+
+ALL_TOPICS = [
+    TOPIC_GREETINGS,
+    TOPIC_ABSTRACT,
+    TOPIC_VERBS,
+    TOPIC_TIME,
+    TOPIC_CITY,
+    TOPIC_HOME,
+    TOPIC_FOOD,
+    TOPIC_ANIMALS,
+    TOPIC_TOOLS,
+    TOPIC_IT,
+    TOPIC_PERSONAL,
+    TOPIC_CLOTHES,
+    TOPIC_WEATHER,
+    TOPIC_OBJECTS,
+    TOPIC_JOBS,
+    TOPIC_FAMILY,
+    TOPIC_BODY,
+    TOPIC_HOBBY,
+    TOPIC_COLORS_NUM,
+    TOPIC_SCHOOL,
+    TOPIC_EMOTIONS,
+    TOPIC_DICT,  # запасная тема для всего, что не попало в другие
+]
+
+# Состояние пользователей в памяти
+user_state: Dict[int, Dict[str, Any]] = defaultdict(
+    lambda: {
+        "mode": "de_ru",        # "de_ru" или "ru_de"
+        "topic": TOPIC_ALL,     # текущая тема или TOPIC_ALL
+        "correct": 0,
+        "wrong": 0,
+    }
+)
+
+WORDS: List[Word] = []
+WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
+
+
+def load_words(path: str = "words.json") -> None:
+    """Загружаем слова из JSON и автоматически присваиваем темы."""
+    global WORDS, WORDS_BY_TOPIC
+
+    file_path = Path(path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Файл {path} не найден. Положи words.json рядом с bot.py")
+
+    with file_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
-    for w in data:
-        w["de"] = w["de"].strip()
-        w["ru"] = w["ru"].strip()
-        w["tr"] = w["tr"].strip()
-    return data
+
+    WORDS = []
+    WORDS_BY_TOPIC = defaultdict(list)
+
+    for idx, raw in enumerate(data):
+        ru = raw["ru"].lower()
+        topic = classify_topic(ru)
+
+        word: Word = {
+            "id": idx,
+            "de": raw["de"],
+            "tr": raw["tr"],
+            "ru": raw["ru"],
+            "topic": topic,
+        }
+        WORDS.append(word)
+        WORDS_BY_TOPIC[topic].append(idx)
+        WORDS_BY_TOPIC[TOPIC_DICT].append(idx)  # словарь A1 B1 всегда содержит все слова
+
+    # Для удобства сделаем еще виртуальную тему "Все темы"
+    WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
 
-ALL_WORDS: List[Dict[str, str]] = load_words()
+def classify_topic(ru: str) -> str:
+    """Грубая автоматическая классификация по русскому переводу."""
 
-# ---------- ТЕМЫ И РАСПРЕДЕЛЕНИЕ ----------
+    r = ru.lower()
 
-TOPIC_TITLES: Dict[str, str] = {
-    "all": "🎲 Все темы (перемешку)",
-    "abstract": "Абстрактные понятия",
-    "verbs": "Базовые глаголы",
-    "time_calendar": "Время и календарь",
-    "city_transport": "Город и транспорт",
-    "home": "Дом и жилье",
-    "food_shop": "Еда и магазин",
-    "animals": "Животные",
-    "tools_house": "Инструменты и быт",
-    "computer_internet": "Компьютер и интернет",
-    "personal_data": "Личные данные",
-    "clothes": "Одежда",
-    "weather_nature": "Погода и природа",
-    "objects": "Предметы и вещи",
-    "greetings": "Приветствия и базовые фразы",
-    "jobs_work": "Профессии и работа",
-    "family": "Семья",
-    "body_health": "Тело и здоровье",
-    "hobby_sport": "Хобби и спорт",
-    "colors_numbers": "Цвета и числа",
-    "school_study": "Школа и учеба",
-    "emotions_character": "Эмоции и характер",
-    "dictionary": "Словарь A1-B1",
-}
+    # Приветствия и базовые фразы
+    greet_kw = [
+        "привет", "добрый день", "добрый вечер", "доброе утро",
+        "доброй ночи", "до свидания", "как дела", "спасибо",
+        "пожалуйста", "очень хорошо", "не очень хорошо", "извините",
+        "мне жаль", "окей", "верно", "правильно", "да", "нет",
+    ]
+    if any(k in r for k in greet_kw):
+        return TOPIC_GREETINGS
 
-# ключевые слова по русскому переводу (как в прошлом варианте)
-TOPIC_KEYWORDS_RU: Dict[str, List[str]] = {
-    # сюда я переношу те же списки ключевых слов, что и раньше
-    # чтобы не раздувать ответ до безумия, логика такая же:
-    # по подстроке в ru слово попадает в нужную тему
-    # (ты уже видел этот блок, я его не менял)
-}
+    # Личные данные
+    personal_kw = [
+        "имя", "фамилия", "адрес", "улица", "номер дома",
+        "почтовый индекс", "место проживания", "номер телефона",
+        "электронный адрес", "подпись", "возраст", "год рождения",
+        "год", "семейное положение", "я есть", "меня зовут", "я из",
+    ]
+    if any(k in r for k in personal_kw):
+        return TOPIC_PERSONAL
 
-# чтобы код был рабочим, добавим пустые списки, если выше ничего не вписано
-for key in TOPIC_TITLES:
-    if key not in TOPIC_KEYWORDS_RU:
-        TOPIC_KEYWORDS_RU[key] = []
+    # Семья
+    family_kw = [
+        "семья", "мать", "отец", "сын", "дочь", "бабушка",
+        "дед", "дедушка", "внук", "внучка", "брат", "сестра",
+        "тетя", "дядя", "подруга", "друг", "женат", "замужем",
+        "разведен", "вдовец", "одинокий родитель",
+    ]
+    if any(k in r for k in family_kw):
+        return TOPIC_FAMILY
 
-TOPIC_WORDS: Dict[str, List[Dict[str, str]]] = {k: [] for k in TOPIC_TITLES.keys()}
-TOPIC_WORDS["dictionary"] = []
+    # Тело и здоровье
+    body_kw = [
+        "голова", "лицо", "глаз", "бровь", "нос", "рот", "зуб",
+        "зубы", "ухо", "волос", "волосы", "шея", "плечо", "рука",
+        "кисть", "палец", "грудь", "спина", "живот", "нога",
+        "стопа", "колено", "кость", "кровь", "печень", "легкое",
+        "мышца", "здоровье", "здоровый", "больной", "усталый",
+        "уставший", "больница", "простуда", "грипп", "температура",
+        "таблетка", "лекарство", "мазь", "повязка",
+    ]
+    if any(k in r for k in body_kw):
+        return TOPIC_BODY
 
-for w in ALL_WORDS:
-    assigned = False
-    ru = w["ru"].lower()
-    for topic_id, kw_list in TOPIC_KEYWORDS_RU.items():
-        if topic_id in ("all", "dictionary"):
-            continue
-        if any(k in ru for k in kw_list):
-            TOPIC_WORDS[topic_id].append(w)
-            assigned = True
-            break
-    if not assigned:
-        TOPIC_WORDS["dictionary"].append(w)
+    # Эмоции и характер
+    emo_kw = [
+        "счастливый", "грустный", "злой", "спокойный", "нервный",
+        "расслабленный", "гордый", "застенчивый", "дружелюбный",
+        "готовый помочь", "вежливый", "невежливый", "странный",
+        "смешной", "серьезный", "скучный", "захватывающий",
+        "интересный", "важный", "честный", "ленивый", "трудолюбивый",
+        "смелый", "трусливый", "умный", "глупый", "наглый",
+        "терпеливый", "нетерпеливый", "симпатичный", "неприятный",
+        "с чувством юмора", "успешный", "любопытный", "медленный",
+        "быстрый", "сильный", "злость", "радость", "страх",
+        "смелость", "сюрприз", "разочарование", "уважение",
+        "сомнение", "надежда", "терпение",
+    ]
+    if any(k in r for k in emo_kw):
+        return TOPIC_EMOTIONS
 
-TOPIC_WORDS["all"] = ALL_WORDS
+    # Профессии и работа
+    jobs_kw = [
+        "врач", "учитель", "инженер", "повар", "медбрат", "медсестра",
+        "таксист", "продавец", "продавщица", "парикмахер", "певец",
+        "певица", "официант", "актриса", "актер", "электронщик",
+        "домохозяин", "домохозяйка", "полицейский", "студент",
+        "студентка", "работа", "профессия", "начальник",
+        "начальница", "офис", "фирма", "заявление на работу",
+        "собеседование", "рабочее время", "перерыв",
+        "зарплата", "оклад", "полный рабочий день",
+        "неполный рабочий день", "команда", "совещание",
+        "шеф повар", "владелец", "сотрудник", "контракт",
+        "оптик", "пекарь", "мясник", "механик", "электрик",
+        "маляр", "портной", "химчистка", "салон красоты",
+    ]
+    if any(k in r for k in jobs_kw):
+        return TOPIC_JOBS
 
-# ---------- СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ ----------
+    # Школа и учеба
+    school_kw = [
+        "школа", "школьник", "школьница", "класс", "урок",
+        "домашнее задание", "экзамен", "тест", "повторять",
+        "объяснять", "понимать", "курс", "учиться", "занятие",
+        "университет",
+    ]
+    if any(k in r for k in school_kw):
+        return TOPIC_SCHOOL
 
-@dataclass
-class QuizState:
-    topic_id: str
-    remaining: List[int] = field(default_factory=list)
-    correct: int = 0
-    wrong: int = 0
-    current_index: int | None = None
-    mode: str = "de_ru"  # "de_ru" или "ru_de"
-    options: List[str] = field(default_factory=list)
-    correct_option: str | None = None
+    # Хобби и спорт
+    hobby_kw = [
+        "спорт", "тренировка", "играть", "игрок", "футбол", "велосипед",
+        "команда", "музыка", "слушать", "танцевать", "печь",
+        "фотографировать", "пианино", "рисовать", "шить", "плавать",
+        "петь", "гитара", "видео", "хобби", "фильм", "серия", "сериал",
+    ]
+    if any(k in r for k in hobby_kw):
+        return TOPIC_HOBBY
+
+    # Цвета и числа
+    color_kw = [
+        "красный", "синий", "зеленый", "желтый", "черный", "белый",
+        "серый", "коричневый", "оранжевый", "фиолетовый", "розовый",
+        "ноль", "один", "два", "три", "четыре", "пять", "шесть",
+        "семь", "восемь", "девять", "десять", "одиннадцать",
+        "двенадцать", "двадцать", "тридцать", "сорок", "пятьдесят",
+        "шестдесят", "семьдесят", "восемьдесят", "девяносто", "сто",
+    ]
+    if any(k in r for k in color_kw):
+        return TOPIC_COLORS_NUM
+
+    # Одежда
+    clothes_kw = [
+        "рубашка", "штаны", "джинсы", "футболка", "свитер",
+        "куртка", "пальто", "блузка", "юбка", "платье", "обувь",
+        "ботинок", "носки", "сапоги", "ремень", "шляпа", "шапка",
+        "шарф", "перчатки", "трусы", "лифчик", "костюм", "одежда",
+        "мода", "ткань", "пуговица", "кнопка", "молния", "размер",
+    ]
+    if any(k in r for k in clothes_kw):
+        return TOPIC_CLOTHES
+
+    # Животные
+    animals_kw = [
+        "собака", "кошка", "птица", "лошадь", "корова", "свинья",
+        "овца", "мышь", "медведь", "лев", "змея", "тигр", "заяц",
+        "обезьяна", "верблюд", "волк", "лиса", "петух", "утка", "рыба",
+    ]
+    if any(k in r for k in animals_kw):
+        return TOPIC_ANIMALS
+
+    # Дом и жилье
+    home_kw = [
+        "дом", "квартира", "комната", "гостиная", "спальня",
+        "кухня", "ванная", "туалет", "коридор", "балкон", "сад",
+        "окно", "дверь", "стол", "стул", "кровать", "шкаф", "лампа",
+        "ковер", "диван", "зеркало", "штора", "стена", "пол",
+        "потолок", "душ", "ванна", "вход",
+    ]
+    if any(k in r for k in home_kw):
+        return TOPIC_HOME
+
+    # Инструменты и быт
+    tools_kw = [
+        "пылесос", "метла", "ведро", "губка", "тряпка", "розетка",
+        "лампочка", "микроволновка", "чайник электрический",
+        "мусорный пакет", "мусорный бак", "мусор", "молоток", "гвоздь",
+        "винт", "отвертка", "дрель", "пила", "плоскогубцы", "шланг",
+        "инструмент", "сковорода", "кастрюля", "плита", "духовка",
+    ]
+    if any(k in r for k in tools_kw):
+        return TOPIC_TOOLS
+
+    # Компьютер и интернет
+    it_kw = [
+        "компьютер", "ноутбук", "мышь", "клавиатура", "экран",
+        "монитор", "файл", "папка", "сохранять", "удалять",
+        "пароль", "входить", "выходить", "программа", "приложение",
+        "скачивать", "загружать", "принтер", "печатать", "интернет",
+        "вай-фай",
+    ]
+    if any(k in r for k in it_kw):
+        return TOPIC_IT
+
+    # Город и транспорт
+    city_kw = [
+        "город", "деревня", "улица", "площадь", "парк", "мост",
+        "вокзал", "аэропорт", "остановка", "метро",
+        "городская электричка", "поезд", "автобус", "такси",
+        "перекресток", "светофор", "аптека", "пекарня", "банк",
+        "почта", "полиция", "школа", "университет", "детская площадка",
+        "кинотеатр", "театр", "музей", "порт", "парковка", "рынок",
+        "окрестность", "район", "туннель", "пляж", "подросток",
+    ]
+    if any(k in r for k in city_kw):
+        return TOPIC_CITY
+
+    # Погода и природа
+    weather_kw = [
+        "погода", "весна", "лето", "осень", "зима", "тепло", "холодно",
+        "пасмурно", "идет дождь", "идет снег", "светит солнце",
+        "градус", "температура", "снег", "дождь", "ветер",
+        "туман", "небо", "облако", "радуга", "шторм", "лес", "река",
+        "ручей", "холм", "луг", "поле", "скала", "остров", "море",
+        "озеро", "природа", "земля", "климат",
+    ]
+    if any(k in r for k in weather_kw):
+        return TOPIC_WEATHER
+
+    # Еда и магазин
+    food_kw = [
+        "кофе", "чай", "молоко", "вода", "сок", "пиво", "хлеб",
+        "булочка", "круассан", "яйцо", "яблоко", "груша", "фрукты",
+        "мюсли", "йогурт", "торт", "колбаса", "сыр", "картошка",
+        "ветчина", "салат", "помидор", "сливки", "банан", "супермаркет",
+        "продукт питания", "свежий", "вкусный", "овощи", "мясо",
+        "напиток", "десерт", "еда", "любимая еда", "рис", "шоколад",
+        "мороженое", "суп", "ужин", "обед", "масло", "рыба", "счет",
+        "брать", "покупать", "закупаться", "евро", "цент", "клиент",
+        "клиентка", "пакет", "покупка", "банка", "бутылка", "стаканчик",
+        "грамм", "килограмм", "литр", "продукт", "доставка", "заказ",
+        "скидка", "сервис",
+    ]
+    if any(k in r for k in food_kw):
+        return TOPIC_FOOD
+
+    # Время и календарь
+    time_kw = [
+        "понедельник", "вторник", "среда", "четверг", "пятница",
+        "суббота", "воскресенье", "утро", "вечер", "ночь",
+        "первая половина дня", "вторая половина дня", "полдень",
+        "неделя", "месяц", "март", "апрель", "май", "июнь", "июль",
+        "август", "сентябрь", "октябрь", "ноябрь", "декабрь",
+        "время", "который час", "сегодня", "завтра", "час",
+    ]
+    if any(k in r for k in time_kw):
+        return TOPIC_TIME
+
+    # Предметы и вещи
+    objects_kw = [
+        "книга", "тетрадь", "бумага", "карандаш", "ручка", "линейка",
+        "камера", "принтер", "телефон", "сумка", "рюкзак", "кошелек",
+        "ключ", "клей", "ножницы", "зонт", "очки", "зажигалка",
+        "газета", "чашка", "чемодан", "почтовая марка", "слово",
+        "предложение", "текст", "ошибка", "вопрос", "ответ", "почта",
+        "балкон", "вход",
+    ]
+    if any(k in r for k in objects_kw):
+        return TOPIC_OBJECTS
+
+    # Базовые глаголы (по форме инфинитива)
+    first_word = r.split()[0]
+    if first_word.endswith("ть") or first_word.endswith("ться"):
+        return TOPIC_VERBS
+
+    # Абстрактные понятия
+    abstract_kw = [
+        "идея", "мечта", "желание", "возможность", "проблема",
+        "решение", "будущее", "прошлое", "настоящее", "страница",
+        "сторона", "начало", "конец", "середина", "причина", "опыт",
+        "помощь", "цель",
+    ]
+    if any(k in r for k in abstract_kw):
+        return TOPIC_ABSTRACT
+
+    # Если ничего не подошло
+    return TOPIC_DICT
 
 
-USER_STATE: Dict[int, QuizState] = {}
+def get_user_words(uid: int) -> List[int]:
+    state = user_state[uid]
+    topic = state["topic"]
+    if topic not in WORDS_BY_TOPIC or topic == TOPIC_ALL:
+        return WORDS_BY_TOPIC[TOPIC_ALL]
+    return WORDS_BY_TOPIC[topic]
 
 
-# ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyboardMarkup:
+    """Строим клавиатуру с 4 вариантами ответа."""
+    # собираем все возможные варианты
+    pool = set(word_ids)
+    pool.discard(correct_id)
+    wrong_ids = random.sample(list(pool), k=3) if len(pool) >= 3 else list(pool)
 
-def build_topics_keyboard() -> InlineKeyboardMarkup:
-    buttons: List[List[InlineKeyboardButton]] = []
+    all_ids = wrong_ids + [correct_id]
+    random.shuffle(all_ids)
 
-    def add_row(tid: str):
-        if tid == "all":
-            text = TOPIC_TITLES[tid]
+    buttons = []
+    for wid in all_ids:
+        w = WORDS[wid]
+        if mode == "de_ru":
+            text = w["ru"]
         else:
-            count = len(TOPIC_WORDS.get(tid, []))
-            text = f"{TOPIC_TITLES[tid]} ({count})"
-        buttons.append(
-            [InlineKeyboardButton(text=text, callback_data=f"topic:{tid}")]
-        )
-
-    add_row("all")
-    add_row("abstract")
-    add_row("verbs")
-    add_row("time_calendar")
-    add_row("city_transport")
-    add_row("home")
-    add_row("food_shop")
-    add_row("animals")
-    add_row("tools_house")
-    add_row("computer_internet")
-    add_row("personal_data")
-    add_row("clothes")
-    add_row("weather_nature")
-    add_row("objects")
-    add_row("greetings")
-    add_row("jobs_work")
-    add_row("family")
-    add_row("dictionary")
-    add_row("body_health")
-    add_row("hobby_sport")
-    add_row("colors_numbers")
-    add_row("school_study")
-    add_row("emotions_character")
+            text = f'{w["de"]} [{w["tr"]}]'
+        is_correct = 1 if wid == correct_id else 0
+        cb_data = f"ans|{correct_id}|{mode}|{is_correct}"
+        buttons.append([InlineKeyboardButton(text=text, callback_data=cb_data)])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def build_options_keyboard(options: List[str]) -> InlineKeyboardMarkup:
-    rows: List[List[InlineKeyboardButton]] = []
-    for i, opt in enumerate(options):
-        rows.append(
-            [InlineKeyboardButton(text=opt, callback_data=f"ans:{i}")]
-        )
+async def send_new_word(user_id: int, chat_id: int) -> None:
+    words_ids = get_user_words(user_id)
+    if not words_ids:
+        await bot.send_message(chat_id, "В этой теме пока нет слов.")
+        return
+
+    word_id = random.choice(words_ids)
+    w = WORDS[word_id]
+    mode = user_state[user_id]["mode"]
+
+    if mode == "de_ru":
+        text = f'🇩🇪 Слово: {w["de"]} [{w["tr"]}]\nВыбери правильный перевод на русский.'
+    else:
+        text = f'🇷🇺 Слово: {w["ru"]}\nВыбери правильный перевод на немецкий.'
+
+    kb = build_options(words_ids, word_id, mode)
+    await bot.send_message(chat_id, text, reply_markup=kb)
+
+
+def build_themes_keyboard() -> InlineKeyboardMarkup:
+    rows = []
+    for topic in ALL_TOPICS:
+        count = len(WORDS_BY_TOPIC.get(topic, []))
+        text = f"{topic} ({count})"
+        cb = f"topic|{topic}"
+        rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
+    # В начале добавим кнопку "Все темы"
+    rows.insert(
+        0,
+        [InlineKeyboardButton(text=f"{TOPIC_ALL} ({len(WORDS)})", callback_data=f"topic|{TOPIC_ALL}")]
+    )
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def build_mode_keyboard(current: str) -> InlineKeyboardMarkup:
-    mark_de_ru = "✅ " if current == "de_ru" else ""
-    mark_ru_de = "✅ " if current == "ru_de" else ""
-    kb = InlineKeyboardMarkup(
+def build_mode_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=f"{mark_de_ru}🇩🇪 -> 🇷🇺",
-                    callback_data="mode:de_ru",
+                    text="🇩🇪 → 🇷🇺 Немецкое слово",
+                    callback_data="mode|de_ru",
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=f"{mark_ru_de}🇷🇺 -> 🇩🇪",
-                    callback_data="mode:ru_de",
+                    text="🇷🇺 → 🇩🇪 Русское слово",
+                    callback_data="mode|ru_de",
                 )
             ],
         ]
     )
-    return kb
 
-
-def format_full_answer(word: Dict[str, str]) -> str:
-    de = word["de"]
-    tr = word["tr"]
-    ru = word["ru"]
-    return (
-        f"{de} [{tr}] - {ru}\n"
-        f"{ru} - {de} [{tr}]"
-    )
-
-
-def start_new_topic(user_id: int, topic_id: str) -> QuizState:
-    words = TOPIC_WORDS[topic_id]
-    indices = list(range(len(words)))
-    random.shuffle(indices)
-
-    old_state = USER_STATE.get(user_id)
-    mode = old_state.mode if old_state else "de_ru"
-
-    state = QuizState(topic_id=topic_id, remaining=indices, mode=mode)
-    USER_STATE[user_id] = state
-    return state
-
-
-def prepare_question(user_id: int) -> tuple[str, InlineKeyboardMarkup] | None:
-    state = USER_STATE.get(user_id)
-    if not state:
-        return None
-
-    if not state.remaining:
-        return None
-
-    words = TOPIC_WORDS[state.topic_id]
-    idx = state.remaining.pop()
-    word = words[idx]
-
-    state.current_index = idx
-
-    if state.mode == "de_ru":
-        question_text = f"Выбери перевод на русский:\n\n{word['de']} [{word['tr']}]"
-        correct_text = word["ru"]
-    else:
-        question_text = f"Выбери перевод на немецкий:\n\n{word['ru']}"
-        correct_text = word["de"]
-
-    # собираем неправильные варианты
-    incorrect: List[str] = []
-    pool_indices = [i for i in range(len(words)) if i != idx]
-    random.shuffle(pool_indices)
-    for i in pool_indices:
-        w = words[i]
-        opt = w["ru"] if state.mode == "de_ru" else w["de"]
-        if opt != correct_text and opt not in incorrect:
-            incorrect.append(opt)
-        if len(incorrect) == 3:
-            break
-
-    options = incorrect + [correct_text]
-    random.shuffle(options)
-    state.options = options
-    state.correct_option = correct_text
-
-    kb = build_options_keyboard(options)
-    return question_text, kb
-
-
-def get_or_create_state(user_id: int) -> QuizState:
-    state = USER_STATE.get(user_id)
-    if state:
-        return state
-    # по умолчанию тема all
-    state = start_new_topic(user_id, "all")
-    return state
-
-
-# ---------- ХЕНДЛЕРЫ ----------
 
 @dp.message(CommandStart())
-async def cmd_start(message: Message):
-    user_id = message.from_user.id
-    USER_STATE.pop(user_id, None)
+async def cmd_start(message: Message) -> None:
+    uid = message.from_user.id
 
-    total_words = len(ALL_WORDS)
-    topics_count = len(TOPIC_TITLES) - 1  # без "all"
+    total_words = len(WORDS)
+    used_topics = {w["topic"] for w in WORDS}
+    total_topics = len(used_topics)
 
     text = (
-        "🇩🇪 Привет! Это бот для изучения немецких слов.\n\n"
+        "🇩🇪 Привет. Это бот для изучения немецких слов.\n\n"
         "Как пользоваться:\n"
         "• Я показываю слово и 4 варианта перевода.\n"
         "• Нажми на кнопку с вариантом.\n"
         "• Если ответ неверный, я покажу правильный ответ и сразу дам новое слово.\n"
         "• Если ответ верный, карточка помечается галочкой, а ниже появляется новое слово.\n\n"
         f"Сейчас в базе {total_words} слов.\n"
-        f"Тем: {topics_count}.\n\n"
+        f"Тем: {total_topics}.\n\n"
         "Режимы:\n"
-        "• 🇩🇪 -> 🇷🇺 немецкое слово и варианты на русском.\n"
-        "• 🇷🇺 -> 🇩🇪 русское слово и варианты на немецком.\n\n"
+        "• 🇩🇪 → 🇷🇺 немецкое слово и варианты на русском.\n"
+        "• 🇷🇺 → 🇩🇪 русское слово и варианты на немецком.\n\n"
         "Команды:\n"
         "/next - следующее слово\n"
         "/themes - выбрать тему слов\n"
         "/mode - выбрать направление перевода\n\n"
-        "По умолчанию включен режим 🇩🇪 -> 🇷🇺."
+        "По умолчанию включен режим 🇩🇪 → 🇷🇺 и все темы вперемешку."
     )
-
     await message.answer(text)
-    await message.answer(
-        "Выбери тему:",
-        reply_markup=build_topics_keyboard(),
-    )
-
-
-@dp.message(Command("themes"))
-async def cmd_themes(message: Message):
-    await message.answer(
-        "Выбери тему:",
-        reply_markup=build_topics_keyboard(),
-    )
-
-
-@dp.message(Command("mode"))
-async def cmd_mode(message: Message):
-    user_id = message.from_user.id
-    state = get_or_create_state(user_id)
-    kb = build_mode_keyboard(state.mode)
-    await message.answer(
-        "Выбери направление перевода:",
-        reply_markup=kb,
-    )
+    await send_new_word(uid, message.chat.id)
 
 
 @dp.message(Command("next"))
-async def cmd_next(message: Message):
-    user_id = message.from_user.id
-    state = get_or_create_state(user_id)
+async def cmd_next(message: Message) -> None:
+    await send_new_word(message.from_user.id, message.chat.id)
 
-    if not state.remaining:
-        total = state.correct + state.wrong
-        await message.answer(
-            "В этой теме больше нет слов.\n\n"
-            f"Всего вопросов: {total}\n"
-            f"Правильных: {state.correct}\n"
-            f"Неправильных: {state.wrong}\n\n"
-            "Выбери новую тему через /themes."
-        )
-        USER_STATE.pop(user_id, None)
-        return
 
-    q = prepare_question(user_id)
-    if q is None:
-        await message.answer("Не удалось подготовить вопрос.")
+@dp.message(Command("themes"))
+async def cmd_themes(message: Message) -> None:
+    kb = build_themes_keyboard()
+    await message.answer("Выбери тему для изучения.", reply_markup=kb)
+
+
+@dp.message(Command("mode"))
+async def cmd_mode(message: Message) -> None:
+    kb = build_mode_keyboard()
+    await message.answer("Выбери направление перевода.", reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("mode|"))
+async def cb_mode(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    _, mode = callback.data.split("|", maxsplit=1)
+    user_state[uid]["mode"] = mode
+    if mode == "de_ru":
+        txt = "Режим установлен: 🇩🇪 → 🇷🇺."
     else:
-        text, kb = q
-        await message.answer(text, reply_markup=kb)
+        txt = "Режим установлен: 🇷🇺 → 🇩🇪."
+    await callback.answer("Режим обновлен.")
+    await callback.message.edit_text(txt)
 
 
-@dp.callback_query(F.data.startswith("mode:"))
-async def cb_mode(callback: CallbackQuery):
-    user_id = callback.from_user.id
-    mode = callback.data.split(":", 1)[1]
-    if mode not in ("de_ru", "ru_de"):
-        await callback.answer("Неизвестный режим")
-        return
-
-    state = get_or_create_state(user_id)
-    state.mode = mode
-
-    kb = build_mode_keyboard(state.mode)
-    await callback.message.edit_reply_markup(reply_markup=kb)
-    await callback.answer("Режим обновлен")
-
-    # сразу даем слово в новом режиме
-    q = prepare_question(user_id)
-    if q is not None:
-        text, kb2 = q
-        await callback.message.answer(text, reply_markup=kb2)
+@dp.callback_query(F.data.startswith("topic|"))
+async def cb_topic(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    _, topic = callback.data.split("|", maxsplit=1)
+    user_state[uid]["topic"] = topic
+    count = len(WORDS_BY_TOPIC.get(topic, []))
+    await callback.answer("Тема выбрана.")
+    await callback.message.edit_text(f"Тема установлена: {topic}.\nСлов в теме: {count}.")
+    # Сразу отправим новое слово
+    await send_new_word(uid, callback.message.chat.id)
 
 
-@dp.callback_query(F.data.startswith("topic:"))
-async def cb_choose_topic(callback: CallbackQuery):
-    user_id = callback.from_user.id
-    topic_id = callback.data.split(":", 1)[1]
-
-    if topic_id not in TOPIC_TITLES:
-        await callback.answer("Неизвестная тема")
-        return
-
-    state = start_new_topic(user_id, topic_id)
-    words_count = len(TOPIC_WORDS[topic_id])
-
-    if not state.remaining:
-        await callback.message.edit_text("В этой теме пока нет слов.")
-        await callback.answer()
-        return
-
-    await callback.message.edit_text(
-        f"Тема: {TOPIC_TITLES[topic_id]}\n"
-        f"Слов в тренировке: {words_count}\n\n"
-        "Начинаем!"
-    )
-
-    q = prepare_question(user_id)
-    if q is None:
-        await callback.message.answer("Не удалось подготовить вопрос.")
-    else:
-        text, kb = q
-        await callback.message.answer(text, reply_markup=kb)
-    await callback.answer()
-
-
-@dp.callback_query(F.data.startswith("ans:"))
-async def cb_answer(callback: CallbackQuery):
-    user_id = callback.from_user.id
-    state = USER_STATE.get(user_id)
-
-    if not state or state.current_index is None:
-        await callback.answer("Сначала выбери тему через /start или /themes")
-        return
-
-    try:
-        chosen_i = int(callback.data.split(":", 1)[1])
-    except ValueError:
-        await callback.answer("Ошибка ответа")
-        return
-
-    if chosen_i < 0 or chosen_i >= len(state.options):
-        await callback.answer("Ошибка ответа")
-        return
-
-    chosen_text = state.options[chosen_i]
-    words = TOPIC_WORDS[state.topic_id]
-    word = words[state.current_index]
-
-    is_correct = chosen_text == state.correct_option
+@dp.callback_query(F.data.startswith("ans|"))
+async def cb_answer(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    _, word_id_str, mode, is_correct_str = callback.data.split("|")
+    word_id = int(word_id_str)
+    is_correct = is_correct_str == "1"
+    w = WORDS[word_id]
 
     if is_correct:
-        state.correct += 1
-        prefix = "✅ Правильно!\n"
-    else:
-        state.wrong += 1
-        prefix = "❌ Неправильно.\n"
-
-    full_answer = format_full_answer(word)
-    await callback.message.answer(prefix + full_answer)
-
-    if not state.remaining:
-        total = state.correct + state.wrong
-        await callback.message.answer(
-            "Тема завершена.\n"
-            f"Всего вопросов: {total}\n"
-            f"Правильных: {state.correct}\n"
-            f"Неправильных: {state.wrong}\n\n"
-            "Чтобы выбрать другую тему, напиши /themes"
-        )
-        USER_STATE.pop(user_id, None)
-    else:
-        q = prepare_question(user_id)
-        if q is None:
-            await callback.message.answer("Ошибка при подготовке следующего вопроса.")
+        user_state[uid]["correct"] += 1
+        if mode == "de_ru":
+            text = f'✅ Правильно.\n{w["de"]} [{w["tr"]}] – {w["ru"]}'
         else:
-            text, kb = q
-            await callback.message.answer(text, reply_markup=kb)
+            text = f'✅ Правильно.\n{w["ru"]} – {w["de"]} [{w["tr"]}]'
+    else:
+        user_state[uid]["wrong"] += 1
+        if mode == "de_ru":
+            text = f'❌ Неправильно.\nПравильный ответ:\n{w["de"]} [{w["tr"]}] – {w["ru"]}'
+        else:
+            text = f'❌ Неправильно.\nПравильный ответ:\n{w["ru"]} – {w["de"]} [{w["tr"]}]'
+
+    stats = user_state[uid]
+    text += f'\n\nСтатистика за сессию:\n✅ Правильных: {stats["correct"]}\n❌ Ошибок: {stats["wrong"]}'
+
+    try:
+        await callback.message.edit_text(text)
+    except Exception:
+        # если нельзя отредактировать старое сообщение
+        await callback.message.answer(text)
 
     await callback.answer()
+    # Новое слово
+    await send_new_word(uid, callback.message.chat.id)
 
 
-# ---------- ЗАПУСК ----------
-
-async def main():
+async def main() -> None:
+    load_words("words.json")
+    print(f"Загружено слов: {len(WORDS)}")
     await dp.start_polling(bot)
 
 
