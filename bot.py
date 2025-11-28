@@ -15,7 +15,7 @@ from aiogram.types import (
 )
 
 # ВСТАВЬ СВОЙ ТОКЕН СЮДА
-TOKEN = "ТУТ_ТВОЙ_ТОКЕН"
+TOKEN = "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -1892,3 +1892,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
