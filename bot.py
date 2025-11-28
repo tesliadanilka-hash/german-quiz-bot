@@ -13,7 +13,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 # ---------------------------------------------------------
 # 1. НАСТРОЙКА ТОКЕНА
 # ---------------------------------------------------------
-TOKEN = os.getenv("BOT_TOKEN")  # для background worker
+TOKEN = os.getenv("8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE")  # для background worker
 
 # Если запускаешь локально, можешь раскомментировать:
 # TOKEN = "ТОКЕН_ОТ_BOTFATHER"
@@ -364,3 +364,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
