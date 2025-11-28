@@ -24,7 +24,7 @@ dp = Dispatcher()
 Word = Dict[str, Any]
 GrammarRule = Dict[str, Any]
 
-# Названия тем как в твоем меню
+# Названия тем для слов
 TOPIC_ALL = "Все темы (перемешку)"
 TOPIC_ABSTRACT = "Абстрактные понятия"
 TOPIC_VERBS = "Базовые глаголы"
@@ -74,7 +74,7 @@ ALL_TOPICS = [
     TOPIC_DICT,
 ]
 
-# Состояние пользователей в памяти (для слов)
+# Состояние пользователей по словам
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
         "mode": "de_ru",        # "de_ru" или "ru_de"
@@ -85,21 +85,21 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
     }
 )
 
+# Состояние по грамматике: grammar_state[user_id][rule_id] = {"correct": X, "wrong": Y}
+grammar_state: Dict[int, Dict[int, Dict[str, int]]] = defaultdict(dict)
+
 WORDS: List[Word] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 
-# Грамматические правила A1
-# Для каждого правила:
-# description - подробное объяснение
-# examples - примеры с переводом
-# questions - список вопросов с 4 вариантами ответа
+# Грамматические правила уровня A1
 GRAMMAR_RULES: List[GrammarRule] = [
+    # 1. sein
     {
         "id": 1,
         "level": "A1",
         "title": "Глагол sein (быть)",
         "description": (
-            "Глагол \"sein\" - один из самых важных и часто используемых глаголов в немецком языке. "
+            "Глагол \"sein\" один из самых важных и часто используемых глаголов в немецком языке. "
             "Он означает \"быть\" и является неправильным, поэтому его формы нужно выучить.\n\n"
             "Формы глагола \"sein\":\n"
             "ich bin\n"
@@ -159,6 +159,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+    # 2. haben
     {
         "id": 2,
         "level": "A1",
@@ -172,7 +173,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
             "wir haben\n"
             "ihr habt\n"
             "sie/Sie haben\n\n"
-            "Глагол \"haben\" часто используют с существительными: иметь книгу, машину, время, деньги и так далее."
+            "Глагол \"haben\" часто используют с существительными: иметь книгу, машину, время, деньги."
         ),
         "examples": [
             {"de": "Ich habe ein Auto.", "ru": "У меня есть машина."},
@@ -223,15 +224,16 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+    # 3. определенный артикль
     {
         "id": 3,
         "level": "A1",
         "title": "Определенный артикль der, die, das",
         "description": (
-            "Определенный артикль используется, когда мы говорим о конкретном предмете.\n\n"
-            "der - мужской род\n"
-            "die - женский род\n"
-            "das - средний род\n\n"
+            "Определенный артикль используют, когда говорят о конкретном предмете.\n\n"
+            "der мужской род\n"
+            "die женский род\n"
+            "das средний род\n\n"
             "Во множественном числе для всех родов используется die. "
             "Артикль всегда стоит перед существительным."
         ),
@@ -284,15 +286,16 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+    # 4. неопределенный артикль
     {
         "id": 4,
         "level": "A1",
         "title": "Неопределенный артикль ein, eine",
         "description": (
-            "Неопределенный артикль используется, когда мы говорим о предмете не конкретно или в первый раз.\n\n"
-            "ein - мужской и средний род\n"
-            "eine - женский род\n\n"
-            "Неопределенный артикль не используется во множественном числе."
+            "Неопределенный артикль используют, когда говорят о предмете не конкретно или в первый раз.\n\n"
+            "ein мужской и средний род\n"
+            "eine женский род\n\n"
+            "Неопределенный артикль не используют во множественном числе."
         ),
         "examples": [
             {"de": "Ich kaufe ein Buch.", "ru": "Я покупаю книгу."},
@@ -348,17 +351,18 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+    # 5. порядок слов
     {
         "id": 5,
         "level": "A1",
         "title": "Порядок слов: глагол на втором месте",
         "description": (
             "Самое важное правило немецкого предложения: глагол стоит на втором месте.\n\n"
-            "Это означает, что сначала идет одно целое 'место' (подлежащее или обстоятельство), "
-            "а на второй позиции всегда стоит сказуемое (спряженный глагол).\n\n"
+            "Это значит, что сначала идет одно целое место подлежащее или обстоятельство, "
+            "а на второй позиции всегда стоит сказуемое спряженный глагол.\n\n"
             "Пример:\n"
             "Ich gehe heute nach Hause.\n"
-            "Heute gehe ich nach Hause.\n\n"
+            "Heute gehe ich nach Hause.\n"
             "В обоих предложениях глагол \"gehe\" стоит на втором месте."
         ),
         "examples": [
@@ -369,7 +373,7 @@ GRAMMAR_RULES: List[GrammarRule] = [
         ],
         "questions": [
             {
-                "prompt": "Выбери правильный порядок слов (глагол на втором месте).",
+                "prompt": "Выбери правильный порядок слов.",
                 "question_de": "Я живу в Германии.",
                 "options": [
                     "Ich in Deutschland wohne.",
@@ -435,7 +439,732 @@ GRAMMAR_RULES: List[GrammarRule] = [
             }
         ]
     },
+    # 6. личные местоимения
+    {
+        "id": 6,
+        "level": "A1",
+        "title": "Личные местоимения в Nominativ",
+        "description": (
+            "Личные местоимения заменяют существительные и отвечают за лицо и число.\n\n"
+            "ich я\n"
+            "du ты\n"
+            "er он\n"
+            "sie она\n"
+            "es оно\n"
+            "wir мы\n"
+            "ihr вы множественное число\n"
+            "sie они\n"
+            "Sie Вы вежливая форма"
+        ),
+        "examples": [
+            {"de": "Ich komme aus Russland.", "ru": "Я из России."},
+            {"de": "Du lernst Deutsch.", "ru": "Ты учишь немецкий."},
+            {"de": "Wir spielen Fußball.", "ru": "Мы играем в футбол."},
+            {"de": "Sie wohnen in Berlin.", "ru": "Они живут в Берлине."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильное местоимение.",
+                "question_de": "___ komme aus Spanien. (я)",
+                "options": ["Du", "Ich", "Er", "Sie"],
+                "correct": 1,
+                "answer_de": "Ich komme aus Spanien.",
+                "answer_ru": "Я из Испании."
+            },
+            {
+                "prompt": "Выбери правильное местоимение.",
+                "question_de": "___ lernst Deutsch. (ты)",
+                "options": ["Ich", "Du", "Er", "Wir"],
+                "correct": 1,
+                "answer_de": "Du lernst Deutsch.",
+                "answer_ru": "Ты учишь немецкий."
+            },
+            {
+                "prompt": "Выбери правильное местоимение.",
+                "question_de": "___ ist Lehrerin. (она)",
+                "options": ["Er", "Sie", "Es", "Wir"],
+                "correct": 1,
+                "answer_de": "Sie ist Lehrerin.",
+                "answer_ru": "Она учительница."
+            },
+            {
+                "prompt": "Выбери правильное местоимение.",
+                "question_de": "___ wohnen in Wien. (они)",
+                "options": ["Sie", "Wir", "Ihr", "Es"],
+                "correct": 0,
+                "answer_de": "Sie wohnen in Wien.",
+                "answer_ru": "Они живут в Вене."
+            },
+            {
+                "prompt": "Выбери правильное местоимение.",
+                "question_de": "___ seid müde. (вы множественное)",
+                "options": ["Du", "Ihr", "Wir", "Sie"],
+                "correct": 1,
+                "answer_de": "Ihr seid müde.",
+                "answer_ru": "Вы устали."
+            }
+        ]
+    },
+    # 7. притяжательные местоимения
+    {
+        "id": 7,
+        "level": "A1",
+        "title": "Притяжательные местоимения mein, dein и другие",
+        "description": (
+            "Притяжательные местоимения показывают принадлежность.\n\n"
+            "mein мой\n"
+            "dein твой\n"
+            "sein его\n"
+            "ihr ее\n"
+            "unser наш\n"
+            "euer ваш множественное\n"
+            "ihr их\n"
+            "Ihr Ваш вежливая форма\n\n"
+            "В Nominativ единственного числа без окончания для мужского и среднего рода."
+        ),
+        "examples": [
+            {"de": "Das ist mein Auto.", "ru": "Это моя машина."},
+            {"de": "Ist das dein Buch?", "ru": "Это твоя книга?"},
+            {"de": "Sein Bruder wohnt in Hamburg.", "ru": "Его брат живет в Гамбурге."},
+            {"de": "Unsere Wohnung ist klein.", "ru": "Наша квартира маленькая."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильное притяжательное местоимение.",
+                "question_de": "Das ist ___ Haus. (мой)",
+                "options": ["dein", "sein", "mein", "ihr"],
+                "correct": 2,
+                "answer_de": "Das ist mein Haus.",
+                "answer_ru": "Это мой дом."
+            },
+            {
+                "prompt": "Выбери правильное притяжательное местоимение.",
+                "question_de": "Ist das ___ Auto? (твой)",
+                "options": ["mein", "dein", "sein", "unser"],
+                "correct": 1,
+                "answer_de": "Ist das dein Auto?",
+                "answer_ru": "Это твоя машина?"
+            },
+            {
+                "prompt": "Выбери правильное притяжательное местоимение.",
+                "question_de": "Wie heißt ___ Mutter? (твоя)",
+                "options": ["mein", "deine", "dein", "ihr"],
+                "correct": 2,
+                "answer_de": "Wie heißt dein Mutter?",
+                "answer_ru": "Как зовут твою маму?"
+            },
+            {
+                "prompt": "Выбери правильное притяжательное местоимение.",
+                "question_de": "___ Freund kommt morgen. (его)",
+                "options": ["Ihr", "Sein", "Ihrer", "Euer"],
+                "correct": 1,
+                "answer_de": "Sein Freund kommt morgen.",
+                "answer_ru": "Его друг придет завтра."
+            },
+            {
+                "prompt": "Выбери правильное притяжательное местоимение.",
+                "question_de": "___ Kinder spielen im Garten. (их)",
+                "options": ["Ihr", "Euer", "Ihrer", "Ihren"],
+                "correct": 0,
+                "answer_de": "Ihr Kinder spielen im Garten.",
+                "answer_ru": "Их дети играют в саду."
+            }
+        ]
+    },
+    # 8. отрицание nicht и kein
+    {
+        "id": 8,
+        "level": "A1",
+        "title": "Отрицание: nicht и kein",
+        "description": (
+            "В немецком есть два основных способа отрицания: \"nicht\" и \"kein\".\n\n"
+            "nicht ставится перед прилагательным, наречием, глаголом или целым предложением.\n"
+            "kein используется вместо неопределенного артикля, когда мы отрицаем существительное.\n\n"
+            "kein мужской и средний род, keine женский род и множественное число."
+        ),
+        "examples": [
+            {"de": "Ich bin nicht müde.", "ru": "Я не устал."},
+            {"de": "Er arbeitet heute nicht.", "ru": "Он сегодня не работает."},
+            {"de": "Ich habe kein Auto.", "ru": "У меня нет машины."},
+            {"de": "Wir haben keine Zeit.", "ru": "У нас нет времени."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильное отрицание.",
+                "question_de": "Ich bin ___ müde.",
+                "options": ["kein", "keine", "nicht", "nichts"],
+                "correct": 2,
+                "answer_de": "Ich bin nicht müde.",
+                "answer_ru": "Я не устал."
+            },
+            {
+                "prompt": "Выбери правильное отрицание.",
+                "question_de": "Ich habe ___ Auto.",
+                "options": ["nicht", "kein", "keine", "kein Auto nicht"],
+                "correct": 1,
+                "answer_de": "Ich habe kein Auto.",
+                "answer_ru": "У меня нет машины."
+            },
+            {
+                "prompt": "Выбери правильное отрицание.",
+                "question_de": "Wir haben ___ Zeit.",
+                "options": ["kein", "keine", "nicht", "keinen"],
+                "correct": 1,
+                "answer_de": "Wir haben keine Zeit.",
+                "answer_ru": "У нас нет времени."
+            },
+            {
+                "prompt": "Выбери правильное отрицание.",
+                "question_de": "Er wohnt ___ in Berlin.",
+                "options": ["kein", "keine", "nicht", "niemals"],
+                "correct": 2,
+                "answer_de": "Er wohnt nicht in Berlin.",
+                "answer_ru": "Он не живет в Берлине."
+            },
+            {
+                "prompt": "Выбери правильное отрицание.",
+                "question_de": "Sie hat ___ Kinder.",
+                "options": ["nicht", "kein", "keine", "keinen"],
+                "correct": 2,
+                "answer_de": "Sie hat keine Kinder.",
+                "answer_ru": "У нее нет детей."
+            }
+        ]
+    },
+    # 9. вопросы ja nein и W-Fragen
+    {
+        "id": 9,
+        "level": "A1",
+        "title": "Вопросы: Ja-Nein и W-Fragen",
+        "description": (
+            "В немецком есть два типа вопросов.\n\n"
+            "1. Ja Nein Fragen вопросы да нет. Глагол ставится на первое место.\n"
+            "Beispiel: Kommst du heute?\n\n"
+            "2. W Fragen вопросы с вопросительным словом: wo, wer, was, wann, wie и другие. "
+            "Сначала идет вопросительное слово, затем глагол.\n"
+            "Beispiel: Wo wohnst du?"
+        ),
+        "examples": [
+            {"de": "Kommst du heute?", "ru": "Ты придешь сегодня?"},
+            {"de": "Wohnst du in Köln?", "ru": "Ты живешь в Кельне?"},
+            {"de": "Wo arbeitest du?", "ru": "Где ты работаешь?"},
+            {"de": "Wann fährst du nach Hause?", "ru": "Когда ты едешь домой?"}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильный вопрос Ja Nein.",
+                "question_de": "Ты живешь в Берлине?",
+                "options": [
+                    "Wohnst du in Berlin?",
+                    "Du wohnst in Berlin?",
+                    "In Berlin wohnst du?",
+                    "Wo wohnst du in Berlin?"
+                ],
+                "correct": 0,
+                "answer_de": "Wohnst du in Berlin?",
+                "answer_ru": "Ты живешь в Берлине?"
+            },
+            {
+                "prompt": "Выбери правильный вопрос с wo.",
+                "question_de": "Где ты работаешь?",
+                "options": [
+                    "Du arbeitest wo?",
+                    "Wo arbeitest du?",
+                    "Arbeitest du wo?",
+                    "Wo du arbeitest?"
+                ],
+                "correct": 1,
+                "answer_de": "Wo arbeitest du?",
+                "answer_ru": "Где ты работаешь?"
+            },
+            {
+                "prompt": "Выбери правильный вопрос Ja Nein.",
+                "question_de": "Ты говоришь по немецки?",
+                "options": [
+                    "Sprichst du Deutsch?",
+                    "Du sprichst Deutsch?",
+                    "Deutsch sprichst du?",
+                    "Wo sprichst du Deutsch?"
+                ],
+                "correct": 0,
+                "answer_de": "Sprichst du Deutsch?",
+                "answer_ru": "Ты говоришь по немецки?"
+            },
+            {
+                "prompt": "Выбери правильный вопрос с wann.",
+                "question_de": "Когда ты идешь домой?",
+                "options": [
+                    "Wann gehst du nach Hause?",
+                    "Gehst du wann nach Hause?",
+                    "Du gehst wann nach Hause?",
+                    "Wann du gehst nach Hause?"
+                ],
+                "correct": 0,
+                "answer_de": "Wann gehst du nach Hause?",
+                "answer_ru": "Когда ты идешь домой?"
+            },
+            {
+                "prompt": "Выбери правильный вопрос с wie.",
+                "question_de": "Как тебя зовут?",
+                "options": [
+                    "Wie heißt du?",
+                    "Du heißt wie?",
+                    "Heißt du wie?",
+                    "Wie du heißt?"
+                ],
+                "correct": 0,
+                "answer_de": "Wie heißt du?",
+                "answer_ru": "Как тебя зовут?"
+            }
+        ]
+    },
+    # 10. предлоги времени
+    {
+        "id": 10,
+        "level": "A1",
+        "title": "Предлоги времени: am, um, im",
+        "description": (
+            "Часто используемые предлоги времени:\n\n"
+            "am для дней недели и дат: am Montag, am 3. Mai\n"
+            "um для точного времени по часам: um 8 Uhr\n"
+            "im для месяцев и времен года: im Juli, im Winter"
+        ),
+        "examples": [
+            {"de": "Am Montag habe ich Deutschkurs.", "ru": "В понедельник у меня курс немецкого."},
+            {"de": "Der Termin ist um 9 Uhr.", "ru": "Встреча в 9 часов."},
+            {"de": "Im Januar ist es kalt.", "ru": "В январе холодно."},
+            {"de": "Im Sommer fahre ich ans Meer.", "ru": "Летом я еду на море."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильный предлог времени.",
+                "question_de": "___ Freitag gehe ich ins Kino.",
+                "options": ["Um", "Am", "Im", "In"],
+                "correct": 1,
+                "answer_de": "Am Freitag gehe ich ins Kino.",
+                "answer_ru": "В пятницу я иду в кино."
+            },
+            {
+                "prompt": "Выбери правильный предлог времени.",
+                "question_de": "Der Kurs beginnt ___ 18 Uhr.",
+                "options": ["am", "um", "im", "in"],
+                "correct": 1,
+                "answer_de": "Der Kurs beginnt um 18 Uhr.",
+                "answer_ru": "Курс начинается в 18 часов."
+            },
+            {
+                "prompt": "Выбери правильный предлог времени.",
+                "question_de": "___ August machen wir Urlaub.",
+                "options": ["Am", "Um", "Im", "In"],
+                "correct": 2,
+                "answer_de": "Im August machen wir Urlaub.",
+                "answer_ru": "В августе мы берем отпуск."
+            },
+            {
+                "prompt": "Выбери правильный предлог времени.",
+                "question_de": "___ Winter ist es oft kalt.",
+                "options": ["Am", "Um", "Im", "In"],
+                "correct": 2,
+                "answer_de": "Im Winter ist es oft kalt.",
+                "answer_ru": "Зимой часто холодно."
+            },
+            {
+                "prompt": "Выбери правильный предлог времени.",
+                "question_de": "Das Meeting ist ___ Mittwoch.",
+                "options": ["um", "am", "im", "in"],
+                "correct": 1,
+                "answer_de": "Das Meeting ist am Mittwoch.",
+                "answer_ru": "Встреча в среду."
+            }
+        ]
+    },
+    # 11. предлоги места
+    {
+        "id": 11,
+        "level": "A1",
+        "title": "Предлоги места: in, auf, unter, neben и другие",
+        "description": (
+            "Предлоги места показывают, где находится предмет.\n\n"
+            "in в, внутри\n"
+            "auf на горизонтальной поверхности\n"
+            "unter под\n"
+            "neben рядом\n"
+            "vor перед\n"
+            "hinter за"
+        ),
+        "examples": [
+            {"de": "Das Buch liegt auf dem Tisch.", "ru": "Книга лежит на столе."},
+            {"de": "Die Katze sitzt unter dem Stuhl.", "ru": "Кошка сидит под стулом."},
+            {"de": "Die Kinder spielen im Garten.", "ru": "Дети играют в саду."},
+            {"de": "Die Lampe steht neben dem Bett.", "ru": "Лампа стоит рядом с кроватью."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильный предлог места.",
+                "question_de": "Das Buch liegt ___ dem Tisch.",
+                "options": ["in", "auf", "unter", "neben"],
+                "correct": 1,
+                "answer_de": "Das Buch liegt auf dem Tisch.",
+                "answer_ru": "Книга лежит на столе."
+            },
+            {
+                "prompt": "Выбери правильный предлог места.",
+                "question_de": "Die Katze sitzt ___ dem Stuhl.",
+                "options": ["auf", "unter", "neben", "hinter"],
+                "correct": 1,
+                "answer_de": "Die Katze sitzt unter dem Stuhl.",
+                "answer_ru": "Кошка сидит под стулом."
+            },
+            {
+                "prompt": "Выбери правильный предлог места.",
+                "question_de": "Die Lampe steht ___ dem Bett.",
+                "options": ["neben", "unter", "vor", "hinter"],
+                "correct": 0,
+                "answer_de": "Die Lampe steht neben dem Bett.",
+                "answer_ru": "Лампа стоит рядом с кроватью."
+            },
+            {
+                "prompt": "Выбери правильный предлог места.",
+                "question_de": "Die Kinder spielen ___ Garten.",
+                "options": ["auf dem", "im", "unter dem", "neben dem"],
+                "correct": 1,
+                "answer_de": "Die Kinder spielen im Garten.",
+                "answer_ru": "Дети играют в саду."
+            },
+            {
+                "prompt": "Выбери правильный предлог места.",
+                "question_de": "Das Auto steht ___ dem Haus.",
+                "options": ["in", "unter", "vor", "hinter"],
+                "correct": 2,
+                "answer_de": "Das Auto steht vor dem Haus.",
+                "answer_ru": "Машина стоит перед домом."
+            }
+        ]
+    },
+    # 12. модальный глагол können
+    {
+        "id": 12,
+        "level": "A1",
+        "title": "Модальный глагол können",
+        "description": (
+            "Модальные глаголы выражают возможность, обязанность, желание. "
+            "На уровне A1 часто используют глагол \"können\" уметь, мочь.\n\n"
+            "Формы \"können\":\n"
+            "ich kann\n"
+            "du kannst\n"
+            "er/sie/es kann\n"
+            "wir können\n"
+            "ihr könnt\n"
+            "sie/Sie können\n\n"
+            "В предложении модальный глагол на втором месте, смысловой глагол в инфинитиве в конце."
+        ),
+        "examples": [
+            {"de": "Ich kann Deutsch sprechen.", "ru": "Я могу говорить по немецки."},
+            {"de": "Du kannst gut kochen.", "ru": "Ты хорошо умеешь готовить."},
+            {"de": "Wir können heute nicht kommen.", "ru": "Мы не можем сегодня прийти."},
+            {"de": "Sie kann sehr gut singen.", "ru": "Она очень хорошо поет."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильную форму и порядок слов.",
+                "question_de": "Я могу плавать.",
+                "options": [
+                    "Ich kann schwimmen.",
+                    "Ich schwimmen kann.",
+                    "Kann ich schwimmen.",
+                    "Ich kann schwimme."
+                ],
+                "correct": 0,
+                "answer_de": "Ich kann schwimmen.",
+                "answer_ru": "Я могу плавать."
+            },
+            {
+                "prompt": "Выбери правильную форму и порядок слов.",
+                "question_de": "Ты можешь помочь?",
+                "options": [
+                    "Kannst du helfen?",
+                    "Du kannst helfen?",
+                    "Du helfen kannst?",
+                    "Kann du helfen?"
+                ],
+                "correct": 0,
+                "answer_de": "Kannst du helfen?",
+                "answer_ru": "Ты можешь помочь?"
+            },
+            {
+                "prompt": "Выбери правильное предложение.",
+                "question_de": "Он может сегодня прийти.",
+                "options": [
+                    "Er kann heute kommen.",
+                    "Er kann kommen heute.",
+                    "Heute er kann kommen.",
+                    "Er heute kann kommen."
+                ],
+                "correct": 0,
+                "answer_de": "Er kann heute kommen.",
+                "answer_ru": "Он может сегодня прийти."
+            },
+            {
+                "prompt": "Выбери правильную форму и порядок слов.",
+                "question_de": "Мы не можем работать.",
+                "options": [
+                    "Wir können nicht arbeiten.",
+                    "Wir können arbeiten nicht.",
+                    "Wir nicht können arbeiten.",
+                    "Können wir nicht arbeiten."
+                ],
+                "correct": 0,
+                "answer_de": "Wir können nicht arbeiten.",
+                "answer_ru": "Мы не можем работать."
+            },
+            {
+                "prompt": "Выбери правильную форму и порядок слов.",
+                "question_de": "Они могут играть в футбол.",
+                "options": [
+                    "Sie kann Fußball spielen.",
+                    "Sie können Fußball spielen.",
+                    "Sie können spielen Fußball.",
+                    "Können sie Fußball spielen."
+                ],
+                "correct": 1,
+                "answer_de": "Sie können Fußball spielen.",
+                "answer_ru": "Они могут играть в футбол."
+            }
+        ]
+    },
+    # 13. отделяемые приставки
+    {
+        "id": 13,
+        "level": "A1",
+        "title": "Отделяемые приставки: aufstehen, einkaufen и другие",
+        "description": (
+            "У многих глаголов в немецком есть отделяемая приставка: auf, an, ein, mit и другие.\n"
+            "В обычном предложении приставка уходит в конец, а глагол на втором месте.\n\n"
+            "Beispiele:\n"
+            "Ich stehe um 7 Uhr auf.\n"
+            "Wir kaufen im Supermarkt ein."
+        ),
+        "examples": [
+            {"de": "Ich stehe früh auf.", "ru": "Я рано встаю."},
+            {"de": "Er ruft seine Mutter an.", "ru": "Он звонит своей маме."},
+            {"de": "Wir kaufen am Samstag ein.", "ru": "Мы делаем покупки в субботу."},
+            {"de": "Sie bringt das Kind mit.", "ru": "Она приводит с собой ребенка."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильный порядок слов с отделяемой приставкой.",
+                "question_de": "Я встаю в 6 часов.",
+                "options": [
+                    "Ich stehe um 6 Uhr auf.",
+                    "Ich aufstehe um 6 Uhr.",
+                    "Ich stehe auf um 6 Uhr.",
+                    "Um 6 Uhr ich stehe auf."
+                ],
+                "correct": 0,
+                "answer_de": "Ich stehe um 6 Uhr auf.",
+                "answer_ru": "Я встаю в 6 часов."
+            },
+            {
+                "prompt": "Выбери правильное предложение.",
+                "question_de": "Он звонит другу.",
+                "options": [
+                    "Er ruft den Freund an.",
+                    "Er anruft den Freund.",
+                    "Er ruft an den Freund.",
+                    "Ruft er den Freund an."
+                ],
+                "correct": 0,
+                "answer_de": "Er ruft den Freund an.",
+                "answer_ru": "Он звонит другу."
+            },
+            {
+                "prompt": "Выбери правильное предложение.",
+                "question_de": "Мы делаем покупки в субботу.",
+                "options": [
+                    "Wir kaufen am Samstag ein.",
+                    "Wir einkaufen am Samstag.",
+                    "Wir kaufen ein am Samstag.",
+                    "Am Samstag wir kaufen ein."
+                ],
+                "correct": 0,
+                "answer_de": "Wir kaufen am Samstag ein.",
+                "answer_ru": "Мы делаем покупки в субботу."
+            },
+            {
+                "prompt": "Выбери правильный порядок слов.",
+                "question_de": "Она берет ребенка с собой.",
+                "options": [
+                    "Sie nimmt das Kind mit.",
+                    "Sie mitnimmt das Kind.",
+                    "Sie nimmt mit das Kind.",
+                    "Mit nimmt sie das Kind."
+                ],
+                "correct": 0,
+                "answer_de": "Sie nimmt das Kind mit.",
+                "answer_ru": "Она берет ребенка с собой."
+            },
+            {
+                "prompt": "Выбери правильное предложение.",
+                "question_de": "Ты открываешь окно.",
+                "options": [
+                    "Du machst das Fenster auf.",
+                    "Du aufmachst das Fenster.",
+                    "Du machst auf das Fenster.",
+                    "Machst du das Fenster auf."
+                ],
+                "correct": 0,
+                "answer_de": "Du machst das Fenster auf.",
+                "answer_ru": "Ты открываешь окно."
+            }
+        ]
+    },
+    # 14. множественное число существительных
+    {
+        "id": 14,
+        "level": "A1",
+        "title": "Множественное число существительных",
+        "description": (
+            "У существительных в немецком есть формы единственного и множественного числа. "
+            "Общего правила нет, формы нужно запоминать вместе со словом.\n\n"
+            "Частые окончания: e, er, en, s.\n"
+            "Иногда изменяется корневая гласная: das Buch die Bücher."
+        ),
+        "examples": [
+            {"de": "Der Tisch die Tische.", "ru": "Стол столы."},
+            {"de": "Die Frau die Frauen.", "ru": "Женщина женщины."},
+            {"de": "Das Kind die Kinder.", "ru": "Ребенок дети."},
+            {"de": "Das Buch die Bücher.", "ru": "Книга книги."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильную форму множественного числа.",
+                "question_de": "der Tisch",
+                "options": ["die Tischs", "die Tische", "die Tisch", "die Tischern"],
+                "correct": 1,
+                "answer_de": "die Tische",
+                "answer_ru": "столы"
+            },
+            {
+                "prompt": "Выбери правильную форму множественного числа.",
+                "question_de": "die Frau",
+                "options": ["die Fraus", "die Frau", "die Frauen", "die Frauenen"],
+                "correct": 2,
+                "answer_de": "die Frauen",
+                "answer_ru": "женщины"
+            },
+            {
+                "prompt": "Выбери правильную форму множественного числа.",
+                "question_de": "das Kind",
+                "options": ["die Kinder", "die Kinds", "die Kinden", "die Kinderen"],
+                "correct": 0,
+                "answer_de": "die Kinder",
+                "answer_ru": "дети"
+            },
+            {
+                "prompt": "Выбери правильную форму множественного числа.",
+                "question_de": "das Buch",
+                "options": ["die Bucher", "die Bücher", "die Buchs", "die Büchern"],
+                "correct": 1,
+                "answer_de": "die Bücher",
+                "answer_ru": "книги"
+            },
+            {
+                "prompt": "Выбери правильную форму множественного числа.",
+                "question_de": "die Lampe",
+                "options": ["die Lampes", "die Lampen", "die Lampe", "die Lämpen"],
+                "correct": 1,
+                "answer_de": "die Lampen",
+                "answer_ru": "лампы"
+            }
+        ]
+    },
+    # 15. конструкция es gibt
+    {
+        "id": 15,
+        "level": "A1",
+        "title": "Конструкция es gibt",
+        "description": (
+            "Конструкция \"es gibt\" означает \"есть, имеется\" и используется, чтобы сказать, что что то существует.\n\n"
+            "В Nominativ единственного и множественного числа форма одинаковая: es gibt ein Haus, es gibt viele Häuser.\n"
+            "Часто используется с Akkusativ."
+        ),
+        "examples": [
+            {"de": "Es gibt einen Park in der Stadt.", "ru": "В городе есть парк."},
+            {"de": "Es gibt viele Restaurants hier.", "ru": "Здесь много ресторанов."},
+            {"de": "Es gibt ein Problem.", "ru": "Есть проблема."},
+            {"de": "Es gibt keinen Aufzug.", "ru": "Лифта нет."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильное предложение с es gibt.",
+                "question_de": "В городе есть парк.",
+                "options": [
+                    "Es gibt einen Park in der Stadt.",
+                    "Es ist einen Park in der Stadt.",
+                    "Es hat einen Park in der Stadt.",
+                    "Es sind einen Park in der Stadt."
+                ],
+                "correct": 0,
+                "answer_de": "Es gibt einen Park in der Stadt.",
+                "answer_ru": "В городе есть парк."
+            },
+            {
+                "prompt": "Выбери правильное предложение с es gibt.",
+                "question_de": "Здесь есть много кафе.",
+                "options": [
+                    "Es gibt viele Cafés hier.",
+                    "Es sind viele Cafés hier.",
+                    "Es hat viele Cafés hier.",
+                    "Es gibt viel Café hier."
+                ],
+                "correct": 0,
+                "answer_de": "Es gibt viele Cafés hier.",
+                "answer_ru": "Здесь есть много кафе."
+            },
+            {
+                "prompt": "Выбери правильное предложение с es gibt.",
+                "question_de": "Есть проблема.",
+                "options": [
+                    "Es gibt ein Problem.",
+                    "Es ist ein Problem.",
+                    "Es hat ein Problem.",
+                    "Es gibt einen Problem."
+                ],
+                "correct": 0,
+                "answer_de": "Es gibt ein Problem.",
+                "answer_ru": "Есть проблема."
+            },
+            {
+                "prompt": "Выбери правильное предложение с es gibt.",
+                "question_de": "Нет лифта.",
+                "options": [
+                    "Es gibt kein Aufzug.",
+                    "Es gibt keinen Aufzug.",
+                    "Es gibt keine Aufzug.",
+                    "Es gibt nicht Aufzug."
+                ],
+                "correct": 1,
+                "answer_de": "Es gibt keinen Aufzug.",
+                "answer_ru": "Лифта нет."
+            },
+            {
+                "prompt": "Выбери правильное предложение с es gibt.",
+                "question_de": "В доме есть три комнаты.",
+                "options": [
+                    "Es gibt drei Zimmer im Haus.",
+                    "Es sind drei Zimmer im Haus.",
+                    "Es hat drei Zimmer im Haus.",
+                    "Es gibt drei Zimmer in dem Haus nicht."
+                ],
+                "correct": 0,
+                "answer_de": "Es gibt drei Zimmer im Haus.",
+                "answer_ru": "В доме есть три комнаты."
+            }
+        ]
+    },
 ]
+
+# ----------------- Загрузка слов -----------------
 
 
 def load_words(path: str = "words.json") -> None:
@@ -467,15 +1196,12 @@ def load_words(path: str = "words.json") -> None:
         WORDS_BY_TOPIC[topic].append(idx)
         WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
-    # Виртуальная тема "Все темы"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
 
 def classify_topic(ru: str) -> str:
-    """Грубая автоматическая классификация по русскому переводу."""
     r = ru.lower()
 
-    # Приветствия и базовые фразы
     greet_kw = [
         "привет", "добрый день", "добрый вечер", "доброе утро",
         "доброй ночи", "до свидания", "как дела", "спасибо",
@@ -485,7 +1211,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in greet_kw):
         return TOPIC_GREETINGS
 
-    # Личные данные
     personal_kw = [
         "имя", "фамилия", "адрес", "улица", "номер дома",
         "почтовый индекс", "место проживания", "номер телефона",
@@ -495,7 +1220,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in personal_kw):
         return TOPIC_PERSONAL
 
-    # Семья
     family_kw = [
         "семья", "мать", "отец", "сын", "дочь", "бабушка",
         "дед", "дедушка", "внук", "внучка", "брат", "сестра",
@@ -505,7 +1229,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in family_kw):
         return TOPIC_FAMILY
 
-    # Тело и здоровье
     body_kw = [
         "голова", "лицо", "глаз", "бровь", "нос", "рот", "зуб",
         "зубы", "ухо", "волос", "волосы", "шея", "плечо", "рука",
@@ -518,7 +1241,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in body_kw):
         return TOPIC_BODY
 
-    # Эмоции и характер
     emo_kw = [
         "счастливый", "грустный", "злой", "спокойный", "нервный",
         "расслабленный", "гордый", "застенчивый", "дружелюбный",
@@ -535,7 +1257,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in emo_kw):
         return TOPIC_EMOTIONS
 
-    # Профессии и работа
     jobs_kw = [
         "врач", "учитель", "инженер", "повар", "медбрат", "медсестра",
         "таксист", "продавец", "продавщица", "парикмахер", "певец",
@@ -553,7 +1274,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in jobs_kw):
         return TOPIC_JOBS
 
-    # Школа и учеба
     school_kw = [
         "школа", "школьник", "школьница", "класс", "урок",
         "домашнее задание", "экзамен", "тест", "повторять",
@@ -563,7 +1283,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in school_kw):
         return TOPIC_SCHOOL
 
-    # Хобби и спорт
     hobby_kw = [
         "спорт", "тренировка", "играть", "игрок", "велосипед",
         "команда", "музыка", "слушать", "танцевать", "печь",
@@ -573,7 +1292,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in hobby_kw):
         return TOPIC_HOBBY
 
-    # Цвета и числа
     color_kw = [
         "красный", "синий", "зеленый", "желтый", "черный", "белый",
         "серый", "коричневый", "оранжевый", "фиолетовый", "розовый",
@@ -585,7 +1303,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in color_kw):
         return TOPIC_COLORS_NUM
 
-    # Одежда
     clothes_kw = [
         "рубашка", "штаны", "джинсы", "футболка", "свитер",
         "куртка", "пальто", "блузка", "юбка", "платье", "обувь",
@@ -596,7 +1313,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in clothes_kw):
         return TOPIC_CLOTHES
 
-    # Животные
     animals_kw = [
         "собака", "кошка", "птица", "лошадь", "корова", "свинья",
         "овца", "мышь", "медведь", "лев", "змея", "тигр", "заяц",
@@ -605,7 +1321,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in animals_kw):
         return TOPIC_ANIMALS
 
-    # Дом и жилье
     home_kw = [
         "дом", "квартира", "комната", "гостиная", "спальня",
         "кухня", "ванная", "туалет", "коридор", "балкон", "сад",
@@ -616,7 +1331,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in home_kw):
         return TOPIC_HOME
 
-    # Инструменты и быт
     tools_kw = [
         "пылесос", "метла", "ведро", "губка", "тряпка", "розетка",
         "лампочка", "микроволновка", "чайник электрический",
@@ -627,7 +1341,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in tools_kw):
         return TOPIC_TOOLS
 
-    # Компьютер и интернет
     it_kw = [
         "компьютер", "ноутбук", "мышь", "клавиатура", "экран",
         "монитор", "файл", "папка", "сохранять", "удалять",
@@ -638,7 +1351,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in it_kw):
         return TOPIC_IT
 
-    # Город и транспорт
     city_kw = [
         "город", "деревня", "улица", "площадь", "парк", "мост",
         "вокзал", "аэропорт", "остановка", "метро",
@@ -651,7 +1363,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in city_kw):
         return TOPIC_CITY
 
-    # Погода и природа
     weather_kw = [
         "погода", "весна", "лето", "осень", "зима", "тепло", "холодно",
         "пасмурно", "идет дождь", "идет снег", "светит солнце",
@@ -663,7 +1374,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in weather_kw):
         return TOPIC_WEATHER
 
-    # Еда и магазин
     food_kw = [
         "кофе", "чай", "молоко", "вода", "сок", "пиво", "хлеб",
         "булочка", "круассан", "яйцо", "яблоко", "груша", "фрукты",
@@ -680,7 +1390,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in food_kw):
         return TOPIC_FOOD
 
-    # Время и календарь
     time_kw = [
         "понедельник", "вторник", "среда", "четверг", "пятница",
         "суббота", "воскресенье", "утро", "вечер", "ночь",
@@ -692,7 +1401,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in time_kw):
         return TOPIC_TIME
 
-    # Предметы и вещи
     objects_kw = [
         "книга", "тетрадь", "бумага", "карандаш", "ручка", "линейка",
         "камера", "принтер", "телефон", "сумка", "рюкзак", "кошелек",
@@ -704,12 +1412,10 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in objects_kw):
         return TOPIC_OBJECTS
 
-    # Базовые глаголы
     first_word = r.split()[0]
     if first_word.endswith("ть") or first_word.endswith("ться"):
         return TOPIC_VERBS
 
-    # Абстрактные понятия
     abstract_kw = [
         "идея", "мечта", "желание", "возможность", "проблема",
         "решение", "будущее", "прошлое", "настоящее", "страница",
@@ -731,7 +1437,6 @@ def get_user_words(uid: int) -> List[int]:
 
 
 def reset_progress(uid: int) -> None:
-    """Сброс статистики и новый круг слов по текущей теме."""
     state = user_state[uid]
     state["correct"] = 0
     state["wrong"] = 0
@@ -742,7 +1447,6 @@ def reset_progress(uid: int) -> None:
 
 
 def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyboardMarkup:
-    """Строим клавиатуру с 4 вариантами ответа для слов."""
     pool = set(word_ids)
     pool.discard(correct_id)
     wrong_ids = random.sample(list(pool), k=3) if len(pool) >= 3 else list(pool)
@@ -828,28 +1532,12 @@ def build_mode_keyboard() -> InlineKeyboardMarkup:
 
 
 def build_grammar_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура с правилами грамматики A1."""
     rows = []
     for rule in GRAMMAR_RULES:
         text = f'{rule["level"]}: {rule["title"]}'
         cb = f'gram|{rule["id"]}'
         rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
     return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def build_grammar_question_keyboard(rule_id: int, q_index: int) -> InlineKeyboardMarkup:
-    """Клавиатура с 4 вариантами ответа для грамматического вопроса."""
-    rule = get_grammar_rule_by_id(rule_id)
-    if rule is None:
-        return InlineKeyboardMarkup(inline_keyboard=[])
-
-    question = rule["questions"][q_index]
-    buttons = []
-    for idx, option in enumerate(question["options"]):
-        cb_data = f"gramq|{rule_id}|{q_index}|{idx}"
-        buttons.append([InlineKeyboardButton(text=option, callback_data=cb_data)])
-
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def get_grammar_rule_by_id(rule_id: int) -> Optional[GrammarRule]:
@@ -860,17 +1548,14 @@ def get_grammar_rule_by_id(rule_id: int) -> Optional[GrammarRule]:
 
 
 def build_grammar_explanation_text(rule: GrammarRule) -> str:
-    """Формируем текст правила с примерами."""
     lines: List[str] = []
     lines.append(f'📘 Уровень {rule["level"]}')
     lines.append(f'Тема: {rule["title"]}\n')
     lines.append(rule["description"])
-    lines.append("\nПримеры:")
-
+    lines.append("\nПримеры:\n")
     for ex in rule["examples"]:
         lines.append(f'{ex["de"]}\n{ex["ru"]}\n')
-
-    lines.append("Сейчас будут вопросы по этой теме. Выбирай один правильный ответ из четырёх.")
+    lines.append("Сейчас будут вопросы по этой теме. Выбирай один правильный ответ из четырех.")
     return "\n".join(lines)
 
 
@@ -885,16 +1570,30 @@ def build_grammar_question_text(rule: GrammarRule, q_index: int) -> str:
     return text
 
 
+def build_grammar_question_keyboard(rule_id: int, q_index: int) -> InlineKeyboardMarkup:
+    rule = get_grammar_rule_by_id(rule_id)
+    if rule is None:
+        return InlineKeyboardMarkup(inline_keyboard=[])
+    question = rule["questions"][q_index]
+    buttons = []
+    for idx, option in enumerate(question["options"]):
+        cb_data = f"gramq|{rule_id}|{q_index}|{idx}"
+        buttons.append([InlineKeyboardButton(text=option, callback_data=cb_data)])
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
 async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> None:
     rule = get_grammar_rule_by_id(rule_id)
     if rule is None:
         return
     if q_index < 0 or q_index >= len(rule["questions"]):
         return
-
     text = build_grammar_question_text(rule, q_index)
     kb = build_grammar_question_keyboard(rule_id, q_index)
     await bot.send_message(chat_id, text, reply_markup=kb)
+
+
+# ----------------- Хендлеры -----------------
 
 
 @dp.message(CommandStart())
@@ -917,15 +1616,16 @@ async def cmd_start(message: Message) -> None:
         "Режимы по словам:\n"
         "• 🇩🇪 → 🇷🇺 немецкое слово и варианты на русском.\n"
         "• 🇷🇺 → 🇩🇪 русское слово и варианты на немецком.\n\n"
-        "Команды:\n"
+        "Команды по словам:\n"
         "/next - следующее слово\n"
         "/themes - выбрать тему слов\n"
-        "/mode - выбрать направление перевода\n"
-        "/grammar - грамматические правила уровня A1 с тестами\n\n"
-        "По умолчанию включен режим 🇩🇪 → 🇷🇺 и все темы вперемешку.\n"
-        "Статистика по словам показывается после прохождения всех слов в выбранной теме.\n\n"
-        "В разделе /grammar можно выбрать правило, прочитать объяснение с примерами и пройти тест с 4 вариантами ответа."
+        "/mode - выбрать направление перевода\n\n"
+        "Грамматика:\n"
+        "/grammar - выбрать правило уровня A1 и пройти мини тест по нему.\n\n"
+        "После прохождения всех слов в теме или всех вопросов по правилу бот показывает, "
+        "сколько ответов было правильных и неправильных."
     )
+
     await message.answer(text)
 
     reset_progress(uid)
@@ -937,6 +1637,7 @@ async def cmd_next(message: Message) -> None:
     uid = message.from_user.id
     state = user_state[uid]
 
+    # если слова в теме закончились, начинаем новый круг
     if state["remaining"] is not None and not state["remaining"]:
         reset_progress(uid)
 
@@ -952,21 +1653,20 @@ async def cmd_themes(message: Message) -> None:
 @dp.message(Command("mode"))
 async def cmd_mode(message: Message) -> None:
     kb = build_mode_keyboard()
-    await message.answer("Выбери направление перевода для карточек со словами.", reply_markup=kb)
+    await message.answer("Выбери направление перевода для слов.", reply_markup=kb)
 
 
 @dp.message(Command("grammar"))
 async def cmd_grammar(message: Message) -> None:
-    """Показать список грамматических правил A1."""
-    if not GRAMMAR_RULES:
-        await message.answer("Грамматические правила пока не добавлены.")
-        return
-
     kb = build_grammar_keyboard()
     await message.answer(
-        "Выбери правило уровня A1. Сначала я покажу объяснение и примеры, потом дам тест с 4 вариантами ответа.",
+        "Выбери грамматическое правило уровня A1. "
+        "Сначала будет объяснение с примерами, потом мини тест из 5 упражнений.",
         reply_markup=kb,
     )
+
+
+# ---------- Callbacks по словам ----------
 
 
 @dp.callback_query(F.data.startswith("mode|"))
@@ -974,12 +1674,17 @@ async def cb_mode(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
     _, mode = callback.data.split("|", maxsplit=1)
     user_state[uid]["mode"] = mode
+
     if mode == "de_ru":
-        txt = "Режим установлен: 🇩🇪 → 🇷🇺."
+        txt = "Режим установлен: 🇩🇪 → 🇷🇺. Немецкое слово и варианты на русском."
     else:
-        txt = "Режим установлен: 🇷🇺 → 🇩🇪."
+        txt = "Режим установлен: 🇷🇺 → 🇩🇪. Русское слово и варианты на немецком."
+
     await callback.answer("Режим обновлен.")
-    await callback.message.edit_text(txt)
+    try:
+        await callback.message.edit_text(txt)
+    except Exception:
+        await callback.message.answer(txt)
 
 
 @dp.callback_query(F.data.startswith("topic|"))
@@ -988,11 +1693,20 @@ async def cb_topic(callback: CallbackQuery) -> None:
     _, topic = callback.data.split("|", maxsplit=1)
     user_state[uid]["topic"] = topic
 
+    # новый круг по новой теме
     reset_progress(uid)
     count = len(WORDS_BY_TOPIC.get(topic, []))
 
     await callback.answer("Тема выбрана.")
-    await callback.message.edit_text(f"Тема установлена: {topic}.\nСлов в теме: {count}.")
+    try:
+        await callback.message.edit_text(
+            f"Тема установлена: {topic}.\nСлов в этой теме: {count}."
+        )
+    except Exception:
+        await callback.message.answer(
+            f"Тема установлена: {topic}.\nСлов в этой теме: {count}."
+        )
+
     await send_new_word(uid, callback.message.chat.id)
 
 
@@ -1015,10 +1729,17 @@ async def cb_answer(callback: CallbackQuery) -> None:
     else:
         state["wrong"] += 1
         if mode == "de_ru":
-            text = f'❌ Неправильно.\nПравильный ответ:\n{w["de"]} [{w["tr"]}] - {w["ru"]}'
+            text = (
+                "❌ Неправильно.\n"
+                f'Правильный ответ:\n{w["de"]} [{w["tr"]}] - {w["ru"]}'
+            )
         else:
-            text = f'❌ Неправильно.\nПравильный ответ:\n{w["ru"]} - {w["de"]} [{w["tr"]}]'
+            text = (
+                "❌ Неправильно.\n"
+                f'Правильный ответ:\n{w["ru"]} - {w["de"]} [{w["tr"]}]'
+            )
 
+    # если после этого слова список пустой, значит, тема закончилась
     finished_now = not state["remaining"]
 
     if finished_now:
@@ -1036,13 +1757,18 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
     await callback.answer()
 
+    # если тема еще не закончилась - отправляем следующее слово сразу
     if not finished_now:
         await send_new_word(uid, callback.message.chat.id)
+
+
+# ---------- Callbacks по грамматике ----------
 
 
 @dp.callback_query(F.data.startswith("gram|"))
 async def cb_grammar_rule(callback: CallbackQuery) -> None:
     """Показ выбранного грамматического правила и запуск теста."""
+    uid = callback.from_user.id
     _, id_str = callback.data.split("|", maxsplit=1)
     rule_id = int(id_str)
     rule = get_grammar_rule_by_id(rule_id)
@@ -1050,6 +1776,9 @@ async def cb_grammar_rule(callback: CallbackQuery) -> None:
     if rule is None:
         await callback.answer("Правило не найдено.")
         return
+
+    # обнуляем статистику по этому правилу для этого пользователя
+    grammar_state[uid][rule_id] = {"correct": 0, "wrong": 0}
 
     explanation_text = build_grammar_explanation_text(rule)
 
@@ -1066,7 +1795,8 @@ async def cb_grammar_rule(callback: CallbackQuery) -> None:
 
 @dp.callback_query(F.data.startswith("gramq|"))
 async def cb_grammar_answer(callback: CallbackQuery) -> None:
-    """Обработка ответа на грамматический вопрос."""
+    """Обработка ответа на грамматический вопрос и статистика по правилу."""
+    uid = callback.from_user.id
     _, rule_id_str, q_index_str, chosen_str = callback.data.split("|", maxsplit=3)
     rule_id = int(rule_id_str)
     q_index = int(q_index_str)
@@ -1086,13 +1816,19 @@ async def cb_grammar_answer(callback: CallbackQuery) -> None:
     correct_index = question["correct"]
     is_correct = chosen == correct_index
 
+    # статистика по этому правилу только в памяти
+    rule_stats = grammar_state.setdefault(uid, {}).setdefault(
+        rule_id, {"correct": 0, "wrong": 0}
+    )
     if is_correct:
+        rule_stats["correct"] += 1
         header = "✅ Правильно."
     else:
+        rule_stats["wrong"] += 1
         header = "❌ Неправильно."
 
     feedback_text = (
-        f'{header}\n\n'
+        f"{header}\n\n"
         f'Правильный ответ:\n{question["answer_de"]}\n{question["answer_ru"]}'
     )
 
@@ -1103,13 +1839,33 @@ async def cb_grammar_answer(callback: CallbackQuery) -> None:
 
     await callback.answer()
 
-    # если есть следующий вопрос, отправляем его
+    # следующий вопрос или статистика по правилу
     next_index = q_index + 1
     if next_index < len(questions):
         await send_grammar_question(callback.message.chat.id, rule_id, next_index)
     else:
-        end_text = "Это был последний вопрос по этой теме. Можешь выбрать другое правило через /grammar."
-        await bot.send_message(callback.message.chat.id, end_text)
+        total_correct = rule_stats["correct"]
+        total_wrong = rule_stats["wrong"]
+        total = total_correct + total_wrong
+
+        summary_text = (
+            f'📊 Ты прошел все вопросы по теме: {rule["title"]}\n\n'
+            f"Всего вопросов: {total}\n"
+            f"✅ Правильных ответов: {total_correct}\n"
+            f"❌ Ошибок: {total_wrong}\n\n"
+            "Можешь выбрать другое правило через /grammar или продолжить учить слова."
+        )
+
+        await bot.send_message(callback.message.chat.id, summary_text)
+
+        # очищаем статистику по этому правилу, чтобы новый круг начинался с нуля
+        try:
+            del grammar_state[uid][rule_id]
+        except KeyError:
+            pass
+
+
+# ----------------- Точка входа -----------------
 
 
 async def main() -> None:
