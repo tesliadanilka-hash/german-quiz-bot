@@ -74,7 +74,7 @@ ALL_TOPICS = [
     TOPIC_DICT,
 ]
 
-# Состояние пользователей в памяти
+# Состояние пользователей в памяти (для слов)
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
         "mode": "de_ru",        # "de_ru" или "ru_de"
@@ -88,140 +88,352 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
 WORDS: List[Word] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 
-# Грамматические правила A1 (5 штук с мини тестом)
+# Грамматические правила A1
+# Для каждого правила:
+# description - подробное объяснение
+# examples - примеры с переводом
+# questions - список вопросов с 4 вариантами ответа
 GRAMMAR_RULES: List[GrammarRule] = [
     {
         "id": 1,
         "level": "A1",
         "title": "Глагол sein (быть)",
-        "text": (
-            "📘 Уровень A1\n\n"
-            "Тема: глагол \"sein\" (быть)\n\n"
-            "Объяснение:\n"
-            "Глагол \"sein\" - один из самых важных в немецком языке. Он неправильный, поэтому его формы нужно выучить наизусть.\n\n"
-            "Формы:\n"
+        "description": (
+            "Глагол \"sein\" - один из самых важных и часто используемых глаголов в немецком языке. "
+            "Он означает \"быть\" и является неправильным, поэтому его формы нужно выучить.\n\n"
+            "Формы глагола \"sein\":\n"
             "ich bin\n"
             "du bist\n"
             "er/sie/es ist\n"
             "wir sind\n"
             "ihr seid\n"
             "sie/Sie sind\n\n"
-            "Примеры:\n"
-            "Ich bin Danylo.\n"
-            "Du bist müde.\n"
-            "Er ist Arzt.\n"
-            "Wir sind Freunde.\n"
-            "Sie sind in Berlin.\n\n"
-            "Упражнения:\n"
-            "1) Вставь правильную форму \"sein\": Ich ___ Danylo.\n"
-            "2) Вставь правильную форму \"sein\": Du ___ mein Freund.\n"
-            "3) Вставь правильную форму \"sein\": Er ___ zu Hause.\n"
-            "4) Вставь правильную форму \"sein\": Wir ___ in Deutschland.\n"
-            "5) Вставь правильную форму \"sein\": Ihr ___ Schüler."
+            "Глагол \"sein\" используют, чтобы говорить о том, кто человек, где он находится и в каком состоянии."
         ),
+        "examples": [
+            {"de": "Ich bin müde.", "ru": "Я устал."},
+            {"de": "Du bist krank.", "ru": "Ты болен."},
+            {"de": "Er ist Lehrer.", "ru": "Он учитель."},
+            {"de": "Wir sind zu Hause.", "ru": "Мы дома."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильную форму глагола \"sein\".",
+                "question_de": "Ich ___ müde.",
+                "options": ["bin", "bist", "ist", "seid"],
+                "correct": 0,
+                "answer_de": "Ich bin müde.",
+                "answer_ru": "Я устал."
+            },
+            {
+                "prompt": "Выбери правильную форму глагола \"sein\".",
+                "question_de": "Du ___ krank.",
+                "options": ["bin", "bist", "ist", "sind"],
+                "correct": 1,
+                "answer_de": "Du bist krank.",
+                "answer_ru": "Ты болен."
+            },
+            {
+                "prompt": "Выбери правильную форму глагола \"sein\".",
+                "question_de": "Er ___ zu Hause.",
+                "options": ["bin", "bist", "ist", "seid"],
+                "correct": 2,
+                "answer_de": "Er ist zu Hause.",
+                "answer_ru": "Он дома."
+            },
+            {
+                "prompt": "Выбери правильную форму глагола \"sein\".",
+                "question_de": "Wir ___ Freunde.",
+                "options": ["bin", "bist", "ist", "sind"],
+                "correct": 3,
+                "answer_de": "Wir sind Freunde.",
+                "answer_ru": "Мы друзья."
+            },
+            {
+                "prompt": "Выбери правильную форму глагола \"sein\".",
+                "question_de": "Ihr ___ Schüler.",
+                "options": ["bin", "bist", "ist", "seid"],
+                "correct": 3,
+                "answer_de": "Ihr seid Schüler.",
+                "answer_ru": "Вы ученики."
+            }
+        ]
     },
     {
         "id": 2,
         "level": "A1",
         "title": "Глагол haben (иметь)",
-        "text": (
-            "📘 Уровень A1\n\n"
-            "Тема: глагол \"haben\" (иметь)\n\n"
-            "Объяснение:\n"
-            "Глагол \"haben\" означает \"иметь\" и используется для описания владения или состояния.\n\n"
-            "Формы:\n"
+        "description": (
+            "Глагол \"haben\" означает \"иметь\". С его помощью говорят о том, чем человек владеет или что у него есть.\n\n"
+            "Формы глагола \"haben\":\n"
             "ich habe\n"
             "du hast\n"
             "er/sie/es hat\n"
             "wir haben\n"
             "ihr habt\n"
             "sie/Sie haben\n\n"
-            "Примеры:\n"
-            "Ich habe ein Auto.\n"
-            "Du hast Zeit.\n"
-            "Er hat ein Problem.\n"
-            "Wir haben Hunger.\n"
-            "Sie hat eine Katze.\n\n"
-            "Упражнения:\n"
-            "1) Вставь правильную форму \"haben\": Ich ___ ein Buch.\n"
-            "2) Вставь правильную форму \"haben\": Du ___ eine Frage.\n"
-            "3) Вставь правильную форму \"haben\": Er ___ ein Problem.\n"
-            "4) Вставь правильную форму \"haben\": Wir ___ eine Wohnung.\n"
-            "5) Вставь правильную форму \"haben\": Sie ___ zwei Kinder."
+            "Глагол \"haben\" часто используют с существительными: иметь книгу, машину, время, деньги и так далее."
         ),
+        "examples": [
+            {"de": "Ich habe ein Auto.", "ru": "У меня есть машина."},
+            {"de": "Du hast Zeit.", "ru": "У тебя есть время."},
+            {"de": "Er hat ein Problem.", "ru": "У него есть проблема."},
+            {"de": "Wir haben eine Wohnung.", "ru": "У нас есть квартира."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильную форму глагола \"haben\".",
+                "question_de": "Ich ___ ein Buch.",
+                "options": ["habe", "hast", "hat", "haben"],
+                "correct": 0,
+                "answer_de": "Ich habe ein Buch.",
+                "answer_ru": "У меня есть книга."
+            },
+            {
+                "prompt": "Выбери правильную форму глагола \"haben\".",
+                "question_de": "Du ___ eine Frage.",
+                "options": ["habe", "hast", "hat", "habt"],
+                "correct": 1,
+                "answer_de": "Du hast eine Frage.",
+                "answer_ru": "У тебя есть вопрос."
+            },
+            {
+                "prompt": "Выбери правильную форму глагола \"haben\".",
+                "question_de": "Er ___ ein Problem.",
+                "options": ["habe", "hast", "hat", "haben"],
+                "correct": 2,
+                "answer_de": "Er hat ein Problem.",
+                "answer_ru": "У него есть проблема."
+            },
+            {
+                "prompt": "Выбери правильную форму глагола \"haben\".",
+                "question_de": "Wir ___ eine Wohnung.",
+                "options": ["habe", "hast", "hat", "haben"],
+                "correct": 3,
+                "answer_de": "Wir haben eine Wohnung.",
+                "answer_ru": "У нас есть квартира."
+            },
+            {
+                "prompt": "Выбери правильную форму глагола \"haben\".",
+                "question_de": "Sie ___ zwei Kinder.",
+                "options": ["habe", "hast", "hat", "haben"],
+                "correct": 3,
+                "answer_de": "Sie haben zwei Kinder.",
+                "answer_ru": "У них есть двое детей."
+            }
+        ]
     },
     {
         "id": 3,
         "level": "A1",
         "title": "Определенный артикль der, die, das",
-        "text": (
-            "📘 Уровень A1\n\n"
-            "Тема: определенный артикль der, die, das\n\n"
-            "Объяснение:\n"
-            "В немецком языке у каждого существительного есть род. Определенный артикль показывает, что речь идет о конкретном предмете.\n\n"
+        "description": (
+            "Определенный артикль используется, когда мы говорим о конкретном предмете.\n\n"
             "der - мужской род\n"
             "die - женский род\n"
             "das - средний род\n\n"
-            "Во множественном числе всегда используется die.\n\n"
-            "Примеры:\n"
-            "der Tisch\n"
-            "die Lampe\n"
-            "das Auto\n"
-            "die Kinder\n\n"
-            "Упражнения (выбери правильный артикль в голове):\n"
-            "1) ___ Hund\n"
-            "2) ___ Lampe\n"
-            "3) ___ Haus\n"
-            "4) ___ Mann\n"
-            "5) ___ Blumen (множественное число)."
+            "Во множественном числе для всех родов используется die. "
+            "Артикль всегда стоит перед существительным."
         ),
+        "examples": [
+            {"de": "Der Tisch ist groß.", "ru": "Стол большой."},
+            {"de": "Die Lampe ist neu.", "ru": "Лампа новая."},
+            {"de": "Das Auto ist alt.", "ru": "Машина старая."},
+            {"de": "Die Kinder sind laut.", "ru": "Дети шумные."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильный артикль.",
+                "question_de": "___ Tisch (стол)",
+                "options": ["Der", "Die", "Das", "Den"],
+                "correct": 0,
+                "answer_de": "Der Tisch.",
+                "answer_ru": "Стол."
+            },
+            {
+                "prompt": "Выбери правильный артикль.",
+                "question_de": "___ Lampe (лампа)",
+                "options": ["Der", "Die", "Das", "Dem"],
+                "correct": 1,
+                "answer_de": "Die Lampe.",
+                "answer_ru": "Лампа."
+            },
+            {
+                "prompt": "Выбери правильный артикль.",
+                "question_de": "___ Auto (машина)",
+                "options": ["Der", "Die", "Das", "Den"],
+                "correct": 2,
+                "answer_de": "Das Auto.",
+                "answer_ru": "Машина."
+            },
+            {
+                "prompt": "Выбери правильный артикль.",
+                "question_de": "___ Mann (мужчина)",
+                "options": ["Der", "Die", "Das", "Dem"],
+                "correct": 0,
+                "answer_de": "Der Mann.",
+                "answer_ru": "Мужчина."
+            },
+            {
+                "prompt": "Выбери правильный артикль во множественном числе.",
+                "question_de": "___ Kinder (дети)",
+                "options": ["Der", "Die", "Das", "Den"],
+                "correct": 1,
+                "answer_de": "Die Kinder.",
+                "answer_ru": "Дети."
+            }
+        ]
     },
     {
         "id": 4,
         "level": "A1",
         "title": "Неопределенный артикль ein, eine",
-        "text": (
-            "📘 Уровень A1\n\n"
-            "Тема: неопределенный артикль ein, eine\n\n"
-            "Объяснение:\n"
-            "Неопределенный артикль используется, когда предмет упоминается впервые или он не конкретный.\n\n"
+        "description": (
+            "Неопределенный артикль используется, когда мы говорим о предмете не конкретно или в первый раз.\n\n"
             "ein - мужской и средний род\n"
             "eine - женский род\n\n"
-            "Примеры:\n"
-            "ein Auto\n"
-            "eine Frau\n"
-            "ein Kind\n"
-            "eine Lampe\n\n"
-            "Упражнения:\n"
-            "1) Подставь ein или eine: ___ Auto\n"
-            "2) Подставь ein или eine: ___ Frau\n"
-            "3) Подставь ein или eine: ___ Buch\n"
-            "4) Подставь ein или eine: ___ Katze\n"
-            "5) Подставь ein или eine: ___ Fenster."
+            "Неопределенный артикль не используется во множественном числе."
         ),
+        "examples": [
+            {"de": "Ich kaufe ein Buch.", "ru": "Я покупаю книгу."},
+            {"de": "Sie hat eine Katze.", "ru": "У нее есть кошка."},
+            {"de": "Er fährt ein Auto.", "ru": "Он ездит на машине."},
+            {"de": "Wir suchen eine Wohnung.", "ru": "Мы ищем квартиру."}
+        ],
+        "questions": [
+            {
+                "prompt": "Подставь правильный неопределенный артикль.",
+                "question_de": "Ich kaufe ___ Buch. (книга, ср. род)",
+                "options": ["ein", "eine", "-", "der"],
+                "correct": 0,
+                "answer_de": "Ich kaufe ein Buch.",
+                "answer_ru": "Я покупаю книгу."
+            },
+            {
+                "prompt": "Подставь правильный неопределенный артикль.",
+                "question_de": "Sie hat ___ Katze. (кошка, ж. род)",
+                "options": ["ein", "eine", "-", "die"],
+                "correct": 1,
+                "answer_de": "Sie hat eine Katze.",
+                "answer_ru": "У нее есть кошка."
+            },
+            {
+                "prompt": "Подставь правильный неопределенный артикль.",
+                "question_de": "Er sucht ___ Wohnung. (квартира, ж. род)",
+                "options": ["ein", "eine", "-", "der"],
+                "correct": 1,
+                "answer_de": "Er sucht eine Wohnung.",
+                "answer_ru": "Он ищет квартиру."
+            },
+            {
+                "prompt": "Подставь правильный неопределенный артикль.",
+                "question_de": "Wir kaufen ___ Auto. (машина, ср. род)",
+                "options": ["ein", "eine", "-", "das"],
+                "correct": 0,
+                "answer_de": "Wir kaufen ein Auto.",
+                "answer_ru": "Мы покупаем машину."
+            },
+            {
+                "prompt": "Выбери правильное предложение.",
+                "question_de": "Как правильно?",
+                "options": [
+                    "Ich habe eine Auto.",
+                    "Ich habe ein Auto.",
+                    "Ich habe ein Katze.",
+                    "Ich habe eine Buch."
+                ],
+                "correct": 1,
+                "answer_de": "Ich habe ein Auto.",
+                "answer_ru": "У меня есть машина."
+            }
+        ]
     },
     {
         "id": 5,
         "level": "A1",
-        "title": "Порядок слов. Глагол на втором месте",
-        "text": (
-            "📘 Уровень A1\n\n"
-            "Тема: порядок слов в простом предложении. Глагол на втором месте\n\n"
-            "Объяснение:\n"
-            "Самое главное правило немецкого предложения: глагол всегда стоит на втором месте.\n"
-            "Перед глаголом может быть подлежащее или другое слово, но глагол занимает позицию номер 2.\n\n"
-            "Примеры:\n"
+        "title": "Порядок слов: глагол на втором месте",
+        "description": (
+            "Самое важное правило немецкого предложения: глагол стоит на втором месте.\n\n"
+            "Это означает, что сначала идет одно целое 'место' (подлежащее или обстоятельство), "
+            "а на второй позиции всегда стоит сказуемое (спряженный глагол).\n\n"
+            "Пример:\n"
             "Ich gehe heute nach Hause.\n"
-            "Heute gehe ich nach Hause.\n"
-            "Mein Freund kommt morgen.\n"
-            "Morgen fahre ich nach Berlin.\n\n"
-            "Упражнения (сделай так, чтобы глагол был на втором месте):\n"
-            "1) Переведи: Я живу в Германии.\n"
-            "2) Переведи: Сегодня я работаю.\n"
-            "3) Переведи: Мой брат учится.\n"
-            "4) Переведи: Завтра я еду в Берлин.\n"
-            "5) Переведи: Она идет домой."
+            "Heute gehe ich nach Hause.\n\n"
+            "В обоих предложениях глагол \"gehe\" стоит на втором месте."
         ),
+        "examples": [
+            {"de": "Ich wohne in Deutschland.", "ru": "Я живу в Германии."},
+            {"de": "Heute arbeite ich zu Hause.", "ru": "Сегодня я работаю дома."},
+            {"de": "Morgen fahre ich nach Berlin.", "ru": "Завтра я еду в Берлин."},
+            {"de": "Mein Bruder lernt Deutsch.", "ru": "Мой брат учит немецкий."}
+        ],
+        "questions": [
+            {
+                "prompt": "Выбери правильный порядок слов (глагол на втором месте).",
+                "question_de": "Я живу в Германии.",
+                "options": [
+                    "Ich in Deutschland wohne.",
+                    "Ich wohne in Deutschland.",
+                    "Wohne ich in Deutschland.",
+                    "In Deutschland ich wohne."
+                ],
+                "correct": 1,
+                "answer_de": "Ich wohne in Deutschland.",
+                "answer_ru": "Я живу в Германии."
+            },
+            {
+                "prompt": "Выбери правильный порядок слов.",
+                "question_de": "Сегодня я работаю дома.",
+                "options": [
+                    "Heute ich arbeite zu Hause.",
+                    "Ich arbeite heute zu Hause.",
+                    "Heute arbeite ich zu Hause.",
+                    "Ich heute arbeite zu Hause."
+                ],
+                "correct": 2,
+                "answer_de": "Heute arbeite ich zu Hause.",
+                "answer_ru": "Сегодня я работаю дома."
+            },
+            {
+                "prompt": "Выбери правильный порядок слов.",
+                "question_de": "Завтра я еду в Берлин.",
+                "options": [
+                    "Morgen ich fahre nach Berlin.",
+                    "Ich fahre nach Berlin morgen.",
+                    "Morgen fahre ich nach Berlin.",
+                    "Fahre ich morgen nach Berlin."
+                ],
+                "correct": 2,
+                "answer_de": "Morgen fahre ich nach Berlin.",
+                "answer_ru": "Завтра я еду в Берлин."
+            },
+            {
+                "prompt": "Выбери правильный порядок слов.",
+                "question_de": "Мой брат учит немецкий.",
+                "options": [
+                    "Mein Bruder lernt Deutsch.",
+                    "Mein Bruder Deutsch lernt.",
+                    "Lernt Deutsch mein Bruder.",
+                    "Deutsch lernt mein Bruder."
+                ],
+                "correct": 0,
+                "answer_de": "Mein Bruder lernt Deutsch.",
+                "answer_ru": "Мой брат учит немецкий."
+            },
+            {
+                "prompt": "Выбери правильный порядок слов.",
+                "question_de": "Вечером я читаю книгу.",
+                "options": [
+                    "Abends lese ich ein Buch.",
+                    "Abends ich lese ein Buch.",
+                    "Ich lese ein Buch abends.",
+                    "Ich ein Buch lese abends."
+                ],
+                "correct": 0,
+                "answer_de": "Abends lese ich ein Buch.",
+                "answer_ru": "Вечером я читаю книгу."
+            }
+        ]
     },
 ]
 
@@ -232,7 +444,7 @@ def load_words(path: str = "words.json") -> None:
 
     file_path = Path(path)
     if not file_path.exists():
-        raise FileNotFoundError(f"Файл {path} не найден. Положи words.json рядом с bot.py")
+        raise FileNotFoundError(f"Файл {path} не найден. Положи words.json рядом с main.py")
 
     with file_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
@@ -530,7 +742,7 @@ def reset_progress(uid: int) -> None:
 
 
 def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyboardMarkup:
-    """Строим клавиатуру с 4 вариантами ответа."""
+    """Строим клавиатуру с 4 вариантами ответа для слов."""
     pool = set(word_ids)
     pool.discard(correct_id)
     wrong_ids = random.sample(list(pool), k=3) if len(pool) >= 3 else list(pool)
@@ -616,7 +828,7 @@ def build_mode_keyboard() -> InlineKeyboardMarkup:
 
 
 def build_grammar_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура с 5 правилами A1."""
+    """Клавиатура с правилами грамматики A1."""
     rows = []
     for rule in GRAMMAR_RULES:
         text = f'{rule["level"]}: {rule["title"]}'
@@ -625,11 +837,64 @@ def build_grammar_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
+def build_grammar_question_keyboard(rule_id: int, q_index: int) -> InlineKeyboardMarkup:
+    """Клавиатура с 4 вариантами ответа для грамматического вопроса."""
+    rule = get_grammar_rule_by_id(rule_id)
+    if rule is None:
+        return InlineKeyboardMarkup(inline_keyboard=[])
+
+    question = rule["questions"][q_index]
+    buttons = []
+    for idx, option in enumerate(question["options"]):
+        cb_data = f"gramq|{rule_id}|{q_index}|{idx}"
+        buttons.append([InlineKeyboardButton(text=option, callback_data=cb_data)])
+
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
 def get_grammar_rule_by_id(rule_id: int) -> Optional[GrammarRule]:
     for rule in GRAMMAR_RULES:
         if rule["id"] == rule_id:
             return rule
     return None
+
+
+def build_grammar_explanation_text(rule: GrammarRule) -> str:
+    """Формируем текст правила с примерами."""
+    lines: List[str] = []
+    lines.append(f'📘 Уровень {rule["level"]}')
+    lines.append(f'Тема: {rule["title"]}\n')
+    lines.append(rule["description"])
+    lines.append("\nПримеры:")
+
+    for ex in rule["examples"]:
+        lines.append(f'{ex["de"]}\n{ex["ru"]}\n')
+
+    lines.append("Сейчас будут вопросы по этой теме. Выбирай один правильный ответ из четырёх.")
+    return "\n".join(lines)
+
+
+def build_grammar_question_text(rule: GrammarRule, q_index: int) -> str:
+    question = rule["questions"][q_index]
+    num = q_index + 1
+    text = (
+        f'📗 Упражнение {num} по теме: {rule["title"]}\n\n'
+        f'{question["prompt"]}\n\n'
+        f'{question["question_de"]}'
+    )
+    return text
+
+
+async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> None:
+    rule = get_grammar_rule_by_id(rule_id)
+    if rule is None:
+        return
+    if q_index < 0 or q_index >= len(rule["questions"]):
+        return
+
+    text = build_grammar_question_text(rule, q_index)
+    kb = build_grammar_question_keyboard(rule_id, q_index)
+    await bot.send_message(chat_id, text, reply_markup=kb)
 
 
 @dp.message(CommandStart())
@@ -642,11 +907,11 @@ async def cmd_start(message: Message) -> None:
 
     text = (
         "🇩🇪 Привет. Это бот для изучения немецких слов и грамматики.\n\n"
-        "Как пользоваться:\n"
+        "Как работать со словами:\n"
         "• Я показываю слово и 4 варианта перевода.\n"
         "• Нажми на кнопку с вариантом.\n"
-        "• Если ответ неверный, я покажу правильный ответ и сразу дам новое слово.\n"
-        "• Если ответ верный, карточка помечается галочкой, а ниже появляется новое слово.\n\n"
+        "• Если ответ неверный, я показываю правильный вариант и сразу даю новое слово.\n"
+        "• Если ответ верный, появляется новое слово.\n\n"
         f"Сейчас в базе {total_words} слов.\n"
         f"Тем по словам: {total_topics}.\n\n"
         "Режимы по словам:\n"
@@ -656,10 +921,10 @@ async def cmd_start(message: Message) -> None:
         "/next - следующее слово\n"
         "/themes - выбрать тему слов\n"
         "/mode - выбрать направление перевода\n"
-        "/grammar - правила грамматики уровня A1\n\n"
-        "По умолчанию включен режим 🇩🇪 → 🇷🇺 и все темы вперемешку.\n\n"
-        "Статистика по словам показывается после прохождения всех слов в выбранной теме.\n"
-        "Грамматика открывается через /grammar, там есть объяснения, примеры и упражнения."
+        "/grammar - грамматические правила уровня A1 с тестами\n\n"
+        "По умолчанию включен режим 🇩🇪 → 🇷🇺 и все темы вперемешку.\n"
+        "Статистика по словам показывается после прохождения всех слов в выбранной теме.\n\n"
+        "В разделе /grammar можно выбрать правило, прочитать объяснение с примерами и пройти тест с 4 вариантами ответа."
     )
     await message.answer(text)
 
@@ -699,7 +964,7 @@ async def cmd_grammar(message: Message) -> None:
 
     kb = build_grammar_keyboard()
     await message.answer(
-        "Выбери правило уровня A1. Я покажу объяснение, примеры и 5 упражнений.",
+        "Выбери правило уровня A1. Сначала я покажу объяснение и примеры, потом дам тест с 4 вариантами ответа.",
         reply_markup=kb,
     )
 
@@ -777,7 +1042,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
 @dp.callback_query(F.data.startswith("gram|"))
 async def cb_grammar_rule(callback: CallbackQuery) -> None:
-    """Показ выбранного грамматического правила."""
+    """Показ выбранного грамматического правила и запуск теста."""
     _, id_str = callback.data.split("|", maxsplit=1)
     rule_id = int(id_str)
     rule = get_grammar_rule_by_id(rule_id)
@@ -786,14 +1051,65 @@ async def cb_grammar_rule(callback: CallbackQuery) -> None:
         await callback.answer("Правило не найдено.")
         return
 
-    text = rule["text"]
+    explanation_text = build_grammar_explanation_text(rule)
 
     try:
-        await callback.message.edit_text(text)
+        await callback.message.edit_text(explanation_text)
     except Exception:
-        await callback.message.answer(text)
+        await callback.message.answer(explanation_text)
 
     await callback.answer()
+
+    # сразу даем первый вопрос по этому правилу
+    await send_grammar_question(callback.message.chat.id, rule_id, 0)
+
+
+@dp.callback_query(F.data.startswith("gramq|"))
+async def cb_grammar_answer(callback: CallbackQuery) -> None:
+    """Обработка ответа на грамматический вопрос."""
+    _, rule_id_str, q_index_str, chosen_str = callback.data.split("|", maxsplit=3)
+    rule_id = int(rule_id_str)
+    q_index = int(q_index_str)
+    chosen = int(chosen_str)
+
+    rule = get_grammar_rule_by_id(rule_id)
+    if rule is None:
+        await callback.answer("Правило не найдено.")
+        return
+
+    questions = rule["questions"]
+    if q_index < 0 or q_index >= len(questions):
+        await callback.answer("Вопрос не найден.")
+        return
+
+    question = questions[q_index]
+    correct_index = question["correct"]
+    is_correct = chosen == correct_index
+
+    if is_correct:
+        header = "✅ Правильно."
+    else:
+        header = "❌ Неправильно."
+
+    feedback_text = (
+        f'{header}\n\n'
+        f'Правильный ответ:\n{question["answer_de"]}\n{question["answer_ru"]}'
+    )
+
+    try:
+        await callback.message.edit_text(feedback_text)
+    except Exception:
+        await callback.message.answer(feedback_text)
+
+    await callback.answer()
+
+    # если есть следующий вопрос, отправляем его
+    next_index = q_index + 1
+    if next_index < len(questions):
+        await send_grammar_question(callback.message.chat.id, rule_id, next_index)
+    else:
+        end_text = "Это был последний вопрос по этой теме. Можешь выбрать другое правило через /grammar."
+        await bot.send_message(callback.message.chat.id, end_text)
 
 
 async def main() -> None:
