@@ -14,8 +14,19 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 
-# ВСТАВЬ СВОЙ ТОКЕН СЮДА
+# ==========================
+# НАСТРОЙКИ БОТА
+# ==========================
+
+# ВСТАВЬ СВОЙ ТОКЕН ОТ BOTFATHER
 TOKEN = "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE"
+
+# ID администратора, которому будут приходить запросы на доступ
+# Узнать можно, например, через @userinfobot
+ADMIN_ID = 123456789  # ЗАМЕНИ НА СВОЙ TELEGRAM ID
+
+# Файл со списком пользователей, у которых есть доступ
+ALLOWED_USERS_FILE = "allowed_users.txt"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -24,7 +35,9 @@ dp = Dispatcher()
 Word = Dict[str, Any]
 GrammarRule = Dict[str, Any]
 
-# ----------------- Темы для слов -----------------
+# ==========================
+# ТЕМЫ ДЛЯ СЛОВ
+# ==========================
 
 TOPIC_ALL = "Все темы (перемешку)"
 TOPIC_ABSTRACT = "Абстрактные понятия"
@@ -75,9 +88,11 @@ ALL_TOPICS = [
     TOPIC_DICT,
 ]
 
-# ----------------- Состояние пользователей -----------------
+# ==========================
+# СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
+# ==========================
 
-# Слова
+# Состояние по словам
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
         "mode": "de_ru",        # "de_ru" или "ru_de"
@@ -88,19 +103,23 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
     }
 )
 
-# Грамматика: grammar_state[user_id][rule_id] = {"correct": X, "wrong": Y}
+# Состояние по грамматике: grammar_state[user_id][rule_id] = {"correct": X, "wrong": Y, "q_index": N}
 grammar_state: Dict[int, Dict[int, Dict[str, int]]] = defaultdict(dict)
 
+# Список разрешенных пользователей
+allowed_users: set[int] = set()
+
+# Слова
 WORDS: List[Word] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 
-# ----------------- Грамматические правила уровня A1 -----------------
-# ТУТ ОСТАВЬ СВОЙ СПИСОК GRAMMAR_RULES С 15 ПРАВИЛАМИ, КОТОРЫЙ ТЫ УЖЕ НАПИСАЛ
-# Например:
-# GRAMMAR_RULES: List[GrammarRule] = [
-#     { "id": 1, "level": "A1", "title": "...", ... },
-#     ...
-# ]
+# ==========================
+# ГРАММАТИКА A1
+# ==========================
+
+# ВАЖНО
+# СЮДА ТЫ ВСТАВЛЯЕШЬ СВОЙ СПИСОК GRAMMAR_RULES, КОТОРЫЙ МЫ РАНЬШЕ ПИСАЛИ.
+# ПРИМЕР СТРУКТУРЫ ОСТАВЛЯЮ, НО ВСЕ ВНУТРИ СПИСКА МОЖЕШЬ ЗАМЕНИТЬ.
 
 GRAMMAR_RULES: List[GrammarRule] = [
     # 1. sein
@@ -1188,11 +1207,42 @@ GRAMMAR_RULES: List[GrammarRule] = [
         ]
     },
 ]
-  # временно, чтобы не было ошибки, потом заменишь на свой список
+
+# ==========================
+# ФУНКЦИИ РАБОТЫ С ДОСТУПОМ
+# ==========================
+
+def load_allowed_users() -> None:
+    """Загружаем список разрешенных пользователей из файла."""
+    global allowed_users
+    try:
+        ids: List[int] = []
+        with open(ALLOWED_USERS_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    ids.append(int(line))
+                except ValueError:
+                    continue
+        allowed_users = set(ids)
+        print(f"Загружено разрешенных пользователей: {len(allowed_users)}")
+    except FileNotFoundError:
+        allowed_users = set()
+        print("Файл allowed_users.txt не найден, начинаем с пустого списка.")
 
 
-# ----------------- Загрузка слов из JSON -----------------
+def save_allowed_users() -> None:
+    """Сохраняем список разрешенных пользователей в файл."""
+    with open(ALLOWED_USERS_FILE, "w", encoding="utf-8") as f:
+        for uid in sorted(allowed_users):
+            f.write(str(uid) + "\n")
+    print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
 
+# ==========================
+# ЗАГРУЗКА СЛОВ
+# ==========================
 
 def load_words(path: str = "words.json") -> None:
     """Загружаем слова из JSON и автоматически присваиваем темы."""
@@ -1223,14 +1273,12 @@ def load_words(path: str = "words.json") -> None:
         WORDS_BY_TOPIC[topic].append(idx)
         WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
-    # Виртуальная тема "Все темы"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
-
-
-# ----------------- Классификация тем по русскому переводу -----------------
+    print(f"Загружено слов: {len(WORDS)}")
 
 
 def classify_topic(ru: str) -> str:
+    """Очень грубое распределение слов по темам на основе русского перевода."""
     r = ru.lower()
 
     greet_kw = [
@@ -1458,9 +1506,9 @@ def classify_topic(ru: str) -> str:
 
     return TOPIC_DICT
 
-
-# ----------------- Логика по словам -----------------
-
+# ==========================
+# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ СЛОВ
+# ==========================
 
 def get_user_words(uid: int) -> List[int]:
     state = user_state[uid]
@@ -1504,12 +1552,12 @@ def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyb
 
 
 async def send_new_word(user_id: int, chat_id: int) -> None:
+    """Отправляем пользователю новое слово для тренировки."""
     state = user_state[user_id]
     if state["remaining"] is None:
         reset_progress(user_id)
 
     if not state["remaining"]:
-        # все слова в теме закончились
         await bot.send_message(
             chat_id,
             "Ты уже прошел все слова в этой теме.\n"
@@ -1530,6 +1578,9 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
     kb = build_options(word_pool, word_id, mode)
     await bot.send_message(chat_id, text, reply_markup=kb)
 
+# ==========================
+# КЛАВИАТУРЫ
+# ==========================
 
 def build_themes_keyboard() -> InlineKeyboardMarkup:
     rows = []
@@ -1568,10 +1619,28 @@ def build_mode_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-# ----------------- Логика по грамматике -----------------
+def build_main_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🧠 Тренировать слова",
+                    callback_data="menu_words",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📘 Грамматика A1",
+                    callback_data="menu_grammar",
+                )
+            ],
+        ]
+    )
 
 
 def build_grammar_keyboard() -> InlineKeyboardMarkup:
+    if not GRAMMAR_RULES:
+        return InlineKeyboardMarkup(inline_keyboard=[])
     rows = []
     for rule in GRAMMAR_RULES:
         text = f'{rule["level"]}: {rule["title"]}'
@@ -1579,6 +1648,9 @@ def build_grammar_keyboard() -> InlineKeyboardMarkup:
         rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+# ==========================
+# ВСПОМОГАТЕЛЬНЫЕ ДЛЯ ГРАММАТИКИ
+# ==========================
 
 def get_grammar_rule_by_id(rule_id: int) -> Optional[GrammarRule]:
     for rule in GRAMMAR_RULES:
@@ -1627,81 +1699,115 @@ async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> Non
     if rule is None:
         return
     if q_index < 0 or q_index >= len(rule["questions"]):
+        await bot.send_message(chat_id, "Вопросы по этой теме закончились.")
         return
     text = build_grammar_question_text(rule, q_index)
     kb = build_grammar_question_keyboard(rule_id, q_index)
     await bot.send_message(chat_id, text, reply_markup=kb)
 
-
-# ----------------- Хендлеры -----------------
-
+# ==========================
+# ХЕНДЛЕРЫ КОМАНД
+# ==========================
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message) -> None:
+    uid = message.from_user.id
+
+    # Закрытый доступ
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await message.answer(
+            "Этот бот с закрытым доступом.\n"
+            "Напиши команду /access чтобы отправить запрос администратору."
+        )
+        return
+
+    total_words = len(WORDS)
+    used_topics = {w["topic"] for w in WORDS}
+    total_topics = len(used_topics)
+
     text = (
-        "🇩🇪 *Willkommen! Добро пожаловать!* 👋\n\n"
-        "Этот бот помогает учить немецкие слова и грамматику.\n"
-        "Все просто и удобно:\n\n"
-        "📚 *Что умеет бот:*\n"
+        "🎓 *Willkommen. Добро пожаловать в бота по немецкому языку*\n\n"
+        "Этот бот помогает учить немецкие слова и грамматику.\n\n"
+        "📚 Что умеет бот:\n"
         "• Учить слова по темам\n"
         "• Давать тесты с 4 вариантами ответа\n"
         "• Показывать транскрипцию и перевод\n"
         "• Объяснять грамматику уровня A1\n"
-        "• Давать упражнения по каждой теме\n\n"
-        "🎯 *Режимы обучения:*\n"
+        "• Давать практические упражнения по правилам\n\n"
+        f"Сейчас в базе *{total_words}* слов.\n"
+        f"Тем по словам: *{total_topics}*.\n\n"
+        "⚙ Режимы тренировки слов:\n"
         "• 🇩🇪 → 🇷🇺 перевод немецкого слова\n"
         "• 🇷🇺 → 🇩🇪 перевод русского слова\n\n"
-        "📘 *Что хочешь делать?*\n"
-        "Выбери действие ниже 👇"
+        "📌 Основные команды:\n"
+        "• /next - следующее слово\n"
+        "• /themes - выбрать тему слов\n"
+        "• /mode - выбрать направление перевода\n"
+        "• /grammar - грамматика уровня A1\n\n"
+        "👇 Выбери, с чего начать:"
     )
+
+    kb = build_main_menu_keyboard()
+    await message.answer(text, parse_mode="Markdown", reply_markup=kb)
+
+    # Сброс прогресса по словам, чтобы /next сразу работал
+    reset_progress(uid)
+
+
+@dp.message(Command("access"))
+async def cmd_access(message: Message) -> None:
+    uid = message.from_user.id
+
+    if uid == ADMIN_ID or uid in allowed_users:
+        await message.answer(
+            "У тебя уже есть доступ к боту.\n"
+            "Можешь пользоваться командами как обычно."
+        )
+        return
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="📖 Учить слова",
-                    callback_data="menu_words",
+                    text="✅ Разрешить доступ",
+                    callback_data=f"allow|{uid}"
                 )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📘 Учить грамматику",
-                    callback_data="menu_grammar",
-                )
-            ],
+            ]
         ]
     )
 
-    await message.answer(text, reply_markup=kb, parse_mode="Markdown")
-
-
-@dp.callback_query(F.data == "menu_words")
-async def menu_words(callback: CallbackQuery) -> None:
-    await callback.message.edit_text(
-        "📖 Выбери тему для изучения слов:",
+    txt = (
+        "🆕 Новый запрос на доступ.\n"
+        f"Пользователь: {message.from_user.full_name}\n"
+        f"ID: {uid}"
     )
-    await callback.message.answer(
-        "⬇ *Список тем:*",
-        reply_markup=build_themes_keyboard(),
-        parse_mode="Markdown",
-    )
-    await callback.answer()
 
-
-@dp.callback_query(F.data == "menu_grammar")
-async def menu_grammar(callback: CallbackQuery) -> None:
-    await callback.message.edit_text(
-        "📘 Выбери грамматическое правило уровня A1:",
-        reply_markup=build_grammar_keyboard(),
-    )
-    await callback.answer()
+    try:
+        await bot.send_message(
+            ADMIN_ID,
+            txt,
+            reply_markup=kb,
+        )
+        await message.answer(
+            "Запрос на доступ отправлен администратору.\n"
+            "Подожди, пока он его одобрит."
+        )
+    except Exception:
+        await message.answer(
+            "Не получилось отправить запрос администратору.\n"
+            "Попробуй позже."
+        )
 
 
 @dp.message(Command("next"))
 async def cmd_next(message: Message) -> None:
     uid = message.from_user.id
-    state = user_state[uid]
 
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await message.answer("Нет доступа. Напиши /access для запроса.")
+        return
+
+    state = user_state[uid]
     if state["remaining"] is not None and not state["remaining"]:
         reset_progress(uid)
 
@@ -1710,32 +1816,125 @@ async def cmd_next(message: Message) -> None:
 
 @dp.message(Command("themes"))
 async def cmd_themes(message: Message) -> None:
+    uid = message.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await message.answer("Нет доступа. Напиши /access для запроса.")
+        return
+
     kb = build_themes_keyboard()
-    await message.answer("Выбери тему для изучения слов.", reply_markup=kb)
+    await message.answer("Выбери тему для изучения.", reply_markup=kb)
 
 
 @dp.message(Command("mode"))
 async def cmd_mode(message: Message) -> None:
+    uid = message.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await message.answer("Нет доступа. Напиши /access для запроса.")
+        return
+
     kb = build_mode_keyboard()
     await message.answer("Выбери направление перевода.", reply_markup=kb)
 
 
 @dp.message(Command("grammar"))
 async def cmd_grammar(message: Message) -> None:
+    uid = message.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await message.answer("Нет доступа. Напиши /access для запроса.")
+        return
+
     if not GRAMMAR_RULES:
-        await message.answer("Правила грамматики пока не загружены.")
+        await message.answer(
+            "Раздел грамматики пока не настроен.\n"
+            "Добавь правила в список GRAMMAR_RULES в main.py."
+        )
         return
 
     kb = build_grammar_keyboard()
-    await message.answer(
-        "📘 Выбери грамматическое правило уровня A1 для изучения:",
-        reply_markup=kb,
+    await message.answer("Выбери грамматическое правило уровня A1:", reply_markup=kb)
+
+# ==========================
+# CALLBACK ХЕНДЛЕРЫ
+# ==========================
+
+@dp.callback_query(F.data.startswith("allow|"))
+async def cb_allow_user(callback: CallbackQuery) -> None:
+    if callback.from_user.id != ADMIN_ID:
+        await callback.answer("Нет прав.", show_alert=True)
+        return
+
+    _, user_id_str = callback.data.split("|", maxsplit=1)
+    user_id = int(user_id_str)
+
+    allowed_users.add(user_id)
+    save_allowed_users()
+
+    await callback.answer("Доступ разрешен.")
+    await callback.message.edit_text(
+        f"✅ Доступ пользователю {user_id} разрешен."
     )
+
+    try:
+        await bot.send_message(
+            user_id,
+            "✅ Доступ одобрен.\n"
+            "Теперь ты можешь пользоваться ботом.\n"
+            "Напиши /start чтобы начать."
+        )
+    except Exception:
+        pass
+
+
+@dp.callback_query(F.data == "menu_words")
+async def cb_menu_words(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    reset_progress(uid)
+    await callback.message.answer(
+        "🧠 Режим тренировки слов.\n"
+        "Я покажу слово и 4 варианта ответа.\n"
+        "Выбери правильный перевод.\n\n"
+        "Чтобы получить следующее слово, можешь нажать на вариант ответа или команду /next."
+    )
+    await send_new_word(uid, callback.message.chat.id)
+
+
+@dp.callback_query(F.data == "menu_grammar")
+async def cb_menu_grammar(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    if not GRAMMAR_RULES:
+        await callback.message.answer(
+            "Раздел грамматики пока не настроен.\n"
+            "Добавь правила в список GRAMMAR_RULES в main.py."
+        )
+        return
+
+    kb = build_grammar_keyboard()
+    await callback.message.answer("Выбери грамматическое правило уровня A1:", reply_markup=kb)
 
 
 @dp.callback_query(F.data.startswith("mode|"))
 async def cb_mode(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
     _, mode = callback.data.split("|", maxsplit=1)
     user_state[uid]["mode"] = mode
     if mode == "de_ru":
@@ -1743,12 +1942,19 @@ async def cb_mode(callback: CallbackQuery) -> None:
     else:
         txt = "Режим установлен: 🇷🇺 → 🇩🇪."
     await callback.answer("Режим обновлен.")
-    await callback.message.edit_text(txt)
+    try:
+        await callback.message.edit_text(txt)
+    except Exception:
+        await callback.message.answer(txt)
 
 
 @dp.callback_query(F.data.startswith("topic|"))
 async def cb_topic(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
     _, topic = callback.data.split("|", maxsplit=1)
     user_state[uid]["topic"] = topic
 
@@ -1763,6 +1969,10 @@ async def cb_topic(callback: CallbackQuery) -> None:
 @dp.callback_query(F.data.startswith("ans|"))
 async def cb_answer(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
     state = user_state[uid]
 
     _, word_id_str, mode, is_correct_str = callback.data.split("|")
@@ -1806,90 +2016,108 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
 @dp.callback_query(F.data.startswith("gram|"))
 async def cb_grammar_rule(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
     _, rule_id_str = callback.data.split("|", maxsplit=1)
     rule_id = int(rule_id_str)
-    uid = callback.from_user.id
 
     rule = get_grammar_rule_by_id(rule_id)
     if rule is None:
-        await callback.answer("Правило не найдено.")
+        await callback.answer("Правило не найдено.", show_alert=True)
         return
 
-    grammar_state[uid][rule_id] = {"correct": 0, "wrong": 0}
+    # Сбрасываем статистику по этому правилу
+    grammar_state[uid][rule_id] = {"correct": 0, "wrong": 0, "q_index": 0}
 
     text = build_grammar_explanation_text(rule)
-    await callback.message.edit_text(text)
+    await callback.message.answer(text)
 
-    await send_grammar_question(callback.message.chat.id, rule_id, 0)
     await callback.answer()
+    await send_grammar_question(callback.message.chat.id, rule_id, 0)
 
 
 @dp.callback_query(F.data.startswith("gramq|"))
-async def cb_grammar_answer(callback: CallbackQuery) -> None:
+async def cb_grammar_question(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
-    _, rule_id_str, q_index_str, chosen_str = callback.data.split("|")
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, rule_id_str, q_index_str, chosen_idx_str = callback.data.split("|")
     rule_id = int(rule_id_str)
     q_index = int(q_index_str)
-    chosen = int(chosen_str)
+    chosen_idx = int(chosen_idx_str)
 
     rule = get_grammar_rule_by_id(rule_id)
     if rule is None:
-        await callback.answer("Правило не найдено.")
+        await callback.answer("Правило не найдено.", show_alert=True)
         return
 
     questions = rule["questions"]
     if q_index < 0 or q_index >= len(questions):
-        await callback.answer()
+        await callback.answer("Вопросы по этой теме закончились.", show_alert=True)
         return
 
     question = questions[q_index]
     correct_idx = question["correct"]
+    is_correct = chosen_idx == correct_idx
 
-    stats = grammar_state.setdefault(uid, {}).setdefault(rule_id, {"correct": 0, "wrong": 0})
+    user_rule_state = grammar_state[uid].setdefault(rule_id, {"correct": 0, "wrong": 0, "q_index": 0})
 
-    if chosen == correct_idx:
-        stats["correct"] += 1
-        prefix = "✅ Правильно.\n"
+    if is_correct:
+        user_rule_state["correct"] += 1
+        result_text = "✅ Правильно."
     else:
-        stats["wrong"] += 1
-        prefix = "❌ Неправильно.\n"
+        user_rule_state["wrong"] += 1
+        result_text = "❌ Неправильно."
 
-    answer_text = (
-        f'{prefix}\n'
-        f'Правильный ответ:\n{question["answer_de"]}\n{question["answer_ru"]}'
+    answer_de = question["answer_de"]
+    answer_ru = question["answer_ru"]
+
+    text = (
+        f"{result_text}\n\n"
+        f"Правильный ответ:\n"
+        f"{answer_de}\n{answer_ru}"
     )
 
     try:
-        await callback.message.edit_text(answer_text)
+        await callback.message.edit_text(text)
     except Exception:
-        await callback.message.answer(answer_text)
+        await callback.message.answer(text)
 
     await callback.answer()
 
     next_index = q_index + 1
-    if next_index < len(questions):
-        await send_grammar_question(callback.message.chat.id, rule_id, next_index)
-    else:
-        total = stats["correct"] + stats["wrong"]
-        result_text = (
-            f'📊 Тест по теме "{rule["title"]}" завершен.\n\n'
-            f'Всего вопросов: {total}\n'
-            f'✅ Правильных ответов: {stats["correct"]}\n'
-            f'❌ Ошибок: {stats["wrong"]}\n\n'
-            "Можешь выбрать другое правило через команду /grammar."
+    user_rule_state["q_index"] = next_index
+
+    if next_index >= len(questions):
+        total_correct = user_rule_state["correct"]
+        total_wrong = user_rule_state["wrong"]
+        summary = (
+            f"Ты прошел все упражнения по теме: {rule['title']}.\n\n"
+            f"✅ Правильных ответов: {total_correct}\n"
+            f"❌ Ошибок: {total_wrong}\n\n"
+            "Можешь выбрать другую тему через /grammar или повторить эту же тему."
         )
-        await bot.send_message(callback.message.chat.id, result_text)
+        await callback.message.answer(summary)
+        return
 
+    await send_grammar_question(callback.message.chat.id, rule_id, next_index)
 
-# ----------------- Запуск бота -----------------
-
+# ==========================
+# ЗАПУСК БОТА
+# ==========================
 
 async def main() -> None:
+    load_allowed_users()
     load_words("words.json")
-    print(f"Загружено слов: {len(WORDS)}")
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-
