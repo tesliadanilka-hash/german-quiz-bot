@@ -23,7 +23,7 @@ TOKEN = "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE"
 
 # ID администратора, которому будут приходить запросы на доступ
 # Узнать можно, например, через @userinfobot
-ADMIN_ID = danyloteslia  # ЗАМЕНИ НА СВОЙ TELEGRAM ID
+ADMIN_ID = 5319848687  # ЗАМЕНИ НА СВОЙ TELEGRAM ID
 
 # Файл со списком пользователей, у которых есть доступ
 ALLOWED_USERS_FILE = "allowed_users.txt"
@@ -2121,5 +2121,6 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
