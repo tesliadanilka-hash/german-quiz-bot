@@ -70,16 +70,17 @@ ALL_TOPICS = [
     TOPIC_COLORS_NUM,
     TOPIC_SCHOOL,
     TOPIC_EMOTIONS,
-    TOPIC_DICT,  # запасная тема для всего, что не попало в другие
+    TOPIC_DICT,
 ]
 
 # Состояние пользователей в памяти
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
         "mode": "de_ru",        # "de_ru" или "ru_de"
-        "topic": TOPIC_ALL,     # текущая тема или TOPIC_ALL
+        "topic": TOPIC_ALL,     # текущая тема
         "correct": 0,
         "wrong": 0,
+        "remaining": None,      # список id еще не показанных слов в текущем круге
     }
 )
 
@@ -114,15 +115,14 @@ def load_words(path: str = "words.json") -> None:
         }
         WORDS.append(word)
         WORDS_BY_TOPIC[topic].append(idx)
-        WORDS_BY_TOPIC[TOPIC_DICT].append(idx)  # словарь A1 B1 всегда содержит все слова
+        WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
-    # Для удобства сделаем еще виртуальную тему "Все темы"
+    # Виртуальная тема "Все темы"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
 
 def classify_topic(ru: str) -> str:
     """Грубая автоматическая классификация по русскому переводу."""
-
     r = ru.lower()
 
     # Приветствия и базовые фразы
@@ -215,7 +215,7 @@ def classify_topic(ru: str) -> str:
 
     # Хобби и спорт
     hobby_kw = [
-        "спорт", "тренировка", "играть", "игрок", "футбол", "велосипед",
+        "спорт", "тренировка", "играть", "игрок", "велосипед",
         "команда", "музыка", "слушать", "танцевать", "печь",
         "фотографировать", "пианино", "рисовать", "шить", "плавать",
         "петь", "гитара", "видео", "хобби", "фильм", "серия", "сериал",
@@ -294,9 +294,9 @@ def classify_topic(ru: str) -> str:
         "вокзал", "аэропорт", "остановка", "метро",
         "городская электричка", "поезд", "автобус", "такси",
         "перекресток", "светофор", "аптека", "пекарня", "банк",
-        "почта", "полиция", "школа", "университет", "детская площадка",
-        "кинотеатр", "театр", "музей", "порт", "парковка", "рынок",
-        "окрестность", "район", "туннель", "пляж", "подросток",
+        "почта", "полиция", "детская площадка", "кинотеатр",
+        "театр", "музей", "порт", "парковка", "рынок",
+        "окрестность", "район", "туннель", "пляж",
     ]
     if any(k in r for k in city_kw):
         return TOPIC_CITY
@@ -354,7 +354,7 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in objects_kw):
         return TOPIC_OBJECTS
 
-    # Базовые глаголы (по форме инфинитива)
+    # Базовые глаголы
     first_word = r.split()[0]
     if first_word.endswith("ть") or first_word.endswith("ться"):
         return TOPIC_VERBS
@@ -369,7 +369,6 @@ def classify_topic(ru: str) -> str:
     if any(k in r for k in abstract_kw):
         return TOPIC_ABSTRACT
 
-    # Если ничего не подошло
     return TOPIC_DICT
 
 
@@ -381,9 +380,19 @@ def get_user_words(uid: int) -> List[int]:
     return WORDS_BY_TOPIC[topic]
 
 
+def reset_progress(uid: int) -> None:
+    """Сброс статистики и новый круг слов по текущей теме."""
+    state = user_state[uid]
+    state["correct"] = 0
+    state["wrong"] = 0
+    ids = get_user_words(uid)
+    ids = ids.copy()
+    random.shuffle(ids)
+    state["remaining"] = ids
+
+
 def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyboardMarkup:
     """Строим клавиатуру с 4 вариантами ответа."""
-    # собираем все возможные варианты
     pool = set(word_ids)
     pool.discard(correct_id)
     wrong_ids = random.sample(list(pool), k=3) if len(pool) >= 3 else list(pool)
@@ -398,29 +407,39 @@ def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyb
             text = w["ru"]
         else:
             text = f'{w["de"]} [{w["tr"]}]'
-        is_correct = 1 if wid == correct_id else 0
-        cb_data = f"ans|{correct_id}|{mode}|{is_correct}"
+        # в callback прокидываем только id правильного слова и режим
+        cb_data = f"ans|{correct_id}|{mode}|{1 if wid == correct_id else 0}"
         buttons.append([InlineKeyboardButton(text=text, callback_data=cb_data)])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 async def send_new_word(user_id: int, chat_id: int) -> None:
-    words_ids = get_user_words(user_id)
-    if not words_ids:
-        await bot.send_message(chat_id, "В этой теме пока нет слов.")
+    state = user_state[user_id]
+    # если remaining еще не инициализирован (например, после /start)
+    if state["remaining"] is None:
+        reset_progress(user_id)
+
+    if not state["remaining"]:
+        await bot.send_message(
+            chat_id,
+            "Ты уже прошел все слова в этой теме.\n"
+            "Напиши /next чтобы начать новый круг или выбери другую тему через /themes.",
+        )
         return
 
-    word_id = random.choice(words_ids)
+    # берем одно слово из remaining без повторов
+    word_id = state["remaining"].pop()
     w = WORDS[word_id]
-    mode = user_state[user_id]["mode"]
+    mode = state["mode"]
+    word_pool = get_user_words(user_id)
 
     if mode == "de_ru":
         text = f'🇩🇪 Слово: {w["de"]} [{w["tr"]}]\nВыбери правильный перевод на русский.'
     else:
         text = f'🇷🇺 Слово: {w["ru"]}\nВыбери правильный перевод на немецкий.'
 
-    kb = build_options(words_ids, word_id, mode)
+    kb = build_options(word_pool, word_id, mode)
     await bot.send_message(chat_id, text, reply_markup=kb)
 
 
@@ -431,10 +450,13 @@ def build_themes_keyboard() -> InlineKeyboardMarkup:
         text = f"{topic} ({count})"
         cb = f"topic|{topic}"
         rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
-    # В начале добавим кнопку "Все темы"
+
     rows.insert(
         0,
-        [InlineKeyboardButton(text=f"{TOPIC_ALL} ({len(WORDS)})", callback_data=f"topic|{TOPIC_ALL}")]
+        [InlineKeyboardButton(
+            text=f"{TOPIC_ALL} ({len(WORDS)})",
+            callback_data=f"topic|{TOPIC_ALL}",
+        )],
     )
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -482,15 +504,25 @@ async def cmd_start(message: Message) -> None:
         "/next - следующее слово\n"
         "/themes - выбрать тему слов\n"
         "/mode - выбрать направление перевода\n\n"
-        "По умолчанию включен режим 🇩🇪 → 🇷🇺 и все темы вперемешку."
+        "По умолчанию включен режим 🇩🇪 → 🇷🇺 и все темы вперемешку.\n\n"
+        "Статистика показывается после прохождения всех слов в выбранной теме."
     )
     await message.answer(text)
+
+    reset_progress(uid)
     await send_new_word(uid, message.chat.id)
 
 
 @dp.message(Command("next"))
 async def cmd_next(message: Message) -> None:
-    await send_new_word(message.from_user.id, message.chat.id)
+    uid = message.from_user.id
+    state = user_state[uid]
+
+    # если слова закончились, новый круг
+    if state["remaining"] is not None and not state["remaining"]:
+        reset_progress(uid)
+
+    await send_new_word(uid, message.chat.id)
 
 
 @dp.message(Command("themes"))
@@ -523,46 +555,59 @@ async def cb_topic(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
     _, topic = callback.data.split("|", maxsplit=1)
     user_state[uid]["topic"] = topic
+
+    # новый круг для новой темы
+    reset_progress(uid)
     count = len(WORDS_BY_TOPIC.get(topic, []))
+
     await callback.answer("Тема выбрана.")
     await callback.message.edit_text(f"Тема установлена: {topic}.\nСлов в теме: {count}.")
-    # Сразу отправим новое слово
     await send_new_word(uid, callback.message.chat.id)
 
 
 @dp.callback_query(F.data.startswith("ans|"))
 async def cb_answer(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
+    state = user_state[uid]
+
     _, word_id_str, mode, is_correct_str = callback.data.split("|")
     word_id = int(word_id_str)
     is_correct = is_correct_str == "1"
     w = WORDS[word_id]
 
     if is_correct:
-        user_state[uid]["correct"] += 1
+        state["correct"] += 1
         if mode == "de_ru":
-            text = f'✅ Правильно.\n{w["de"]} [{w["tr"]}] – {w["ru"]}'
+            text = f'✅ Правильно.\n{w["de"]} [{w["tr"]}] - {w["ru"]}'
         else:
-            text = f'✅ Правильно.\n{w["ru"]} – {w["de"]} [{w["tr"]}]'
+            text = f'✅ Правильно.\n{w["ru"]} - {w["de"]} [{w["tr"]}]'
     else:
-        user_state[uid]["wrong"] += 1
+        state["wrong"] += 1
         if mode == "de_ru":
-            text = f'❌ Неправильно.\nПравильный ответ:\n{w["de"]} [{w["tr"]}] – {w["ru"]}'
+            text = f'❌ Неправильно.\nПравильный ответ:\n{w["de"]} [{w["tr"]}] - {w["ru"]}'
         else:
-            text = f'❌ Неправильно.\nПравильный ответ:\n{w["ru"]} – {w["de"]} [{w["tr"]}]'
+            text = f'❌ Неправильно.\nПравильный ответ:\n{w["ru"]} - {w["de"]} [{w["tr"]}]'
 
-    stats = user_state[uid]
-    text += f'\n\nСтатистика за сессию:\n✅ Правильных: {stats["correct"]}\n❌ Ошибок: {stats["wrong"]}'
+    finished_now = not state["remaining"]  # если список уже пустой, значит это был последний вопрос
+
+    if finished_now:
+        text += (
+            "\n\nТы прошел все слова в этой теме.\n"
+            f'✅ Правильных ответов: {state["correct"]}\n'
+            f'❌ Ошибок: {state["wrong"]}\n\n'
+            "Чтобы начать круг заново, набери /next или выбери другую тему через /themes."
+        )
 
     try:
         await callback.message.edit_text(text)
     except Exception:
-        # если нельзя отредактировать старое сообщение
         await callback.message.answer(text)
 
     await callback.answer()
-    # Новое слово
-    await send_new_word(uid, callback.message.chat.id)
+
+    # если еще остались слова в теме, даем новое
+    if not finished_now:
+        await send_new_word(uid, callback.message.chat.id)
 
 
 async def main() -> None:
