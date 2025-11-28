@@ -1,7 +1,8 @@
-{
-  "topic": "A1: Приветствия и базовые фразы",
-  "words": [
-    {"de": "Hallo", "tr": "ˈhalo", "ru": "привет"},
+[
+  {
+    "topic": "A1: Приветствия и базовые фразы",
+    "words": [
+    { "de": "Hallo", "tr": "ˈhalo", "ru": "привет" },
     {"de": "Guten Tag", "tr": "ˌɡuːtn̩ ˈtaːk", "ru": "добрый день"},
     {"de": "Guten Morgen", "tr": "ˌɡuːtn̩ ˈmɔʁɡn̩", "ru": "доброе утро"},
     {"de": "Guten Abend", "tr": "ˌɡuːtn̩ ˈaːbn̩t", "ru": "добрый вечер"},
@@ -1236,3 +1237,4 @@
     { "de": "die Tasse", "tr": "tasa", "ru": "чашка" }
   ]
 }
+
