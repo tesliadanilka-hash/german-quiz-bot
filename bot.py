@@ -150,27 +150,22 @@ WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 # ==========================
 # ГРАММАТИКА - ЗАГОТОВКА
 # ==========================
-# В ЭТО МЕСТО ТЫ ВСТАВЛЯЕШЬ СВОЙ СПИСОК GRAMMAR_RULES
-# ПРИМЕР СТРУКТУРЫ:
-#
+# Сюда потом вставишь свой список GRAMMAR_RULES по примеру:
 # GRAMMAR_RULES = [
 #   {
 #     "id": 1,
 #     "level": "A1",
-#     "title": "Sein в настоящем времени",
-#     "description": "Краткое объяснение правила...",
-#     "examples": [
-#         {"de": "Ich bin müde.", "ru": "Я устал."},
-#         {"de": "Du bist Student.", "ru": "Ты студент."},
-#     ],
+#     "title": "Название темы",
+#     "description": "Объяснение правила",
+#     "examples": [{"de": "Пример", "ru": "Перевод"}],
 #     "questions": [
 #         {
-#             "prompt": "Выбери правильную форму глагола sein.",
-#             "question_de": "Ich ___ müde.",
-#             "options": ["bin", "bist", "ist", "seid"],
+#             "prompt": "Текст подсказки",
+#             "question_de": "Вопрос на немецком",
+#             "options": ["вариант 1", "вариант 2", "вариант 3", "вариант 4"],
 #             "correct": 0,
-#             "answer_de": "Ich bin müde.",
-#             "answer_ru": "Я устал.",
+#             "answer_de": "Правильное предложение",
+#             "answer_ru": "Перевод",
 #         },
 #     ],
 #   },
@@ -218,34 +213,36 @@ def save_allowed_users() -> None:
 
 def load_words(path: str = "words.json") -> None:
     """
-    Ожидаемый формат файла:
+    Загружаем слова из JSON файла words.json и заполняем WORDS и WORDS_BY_TOPIC.
 
-    Вариант 1:
-    [
-      {
-        "topic": "Приветствия и базовые фразы",
-        "words": [
-          {"de": "Hallo", "tr": "ˈhalo", "ru": "привет"},
-          ...
-        ]
-      },
-      ...
-    ]
+    Поддерживаются два варианта структуры:
 
-    Вариант 2:
-    {
-      "topics": [
-        {
-          "topic": "Приветствия и базовые фразы",
-          "words": [
-            {"de": "Hallo", "tr": "ˈhalo", "ru": "привет"},
-            ...
-          ]
-        },
-        ...
-      ]
-    }
+    1) Плоский список:
+       [
+         {
+           "de": "Hallo",
+           "tr": "[ха-ло]",
+           "ru": "привет",
+           "topic": "Приветствия и базовые фразы"
+         },
+         ...
+       ]
+
+    2) Объект с блоками по темам:
+       {
+         "topics": [
+           {
+             "topic": "Приветствия и базовые фразы",
+             "words": [
+               {"de": "Hallo", "tr": "[ха-ло]", "ru": "привет"},
+               ...
+             ]
+           },
+           ...
+         ]
+       }
     """
+
     global WORDS, WORDS_BY_TOPIC
 
     WORDS = []
@@ -277,13 +274,11 @@ def load_words(path: str = "words.json") -> None:
         WORDS_BY_TOPIC[topic].append(idx)
         WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
-    # Вариант 1: список блоков тем
+    # Вариант 1: плоский список
     if isinstance(data, list):
-        for block in data:
-            topic_raw = block.get("topic") or block.get("name") or ""
-            words_list = block.get("words", [])
-            for raw in words_list:
-                add_word(raw, topic_raw)
+        for raw in data:
+            topic_raw = raw.get("topic") or raw.get("theme") or ""
+            add_word(raw, topic_raw)
 
     # Вариант 2: объект с ключом "topics"
     elif isinstance(data, dict) and "topics" in data:
@@ -296,7 +291,6 @@ def load_words(path: str = "words.json") -> None:
         print("Непонятный формат words.json. Ожидается список или объект с ключом 'topics'.")
         return
 
-    # Отдельная тема "Все темы (перемешку)"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
     print(f"Загружено слов: {len(WORDS)}")
@@ -562,7 +556,7 @@ async def cmd_start(message: Message) -> None:
 
     # Есть доступ - показываем полную информацию и меню
     total_words = len(WORDS)
-    used_topics = {w["topic"] for w in WORDS if w["topic"] != TOPIC_DICT}
+    used_topics = {w["topic"] for w in WORDS}
     total_topics = len(used_topics)
 
     text = (
