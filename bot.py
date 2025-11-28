@@ -3,7 +3,7 @@ import json
 import random
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
@@ -22,6 +22,7 @@ dp = Dispatcher()
 
 # Типы
 Word = Dict[str, Any]
+GrammarRule = Dict[str, Any]
 
 # Названия тем как в твоем меню
 TOPIC_ALL = "Все темы (перемешку)"
@@ -86,6 +87,143 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
 
 WORDS: List[Word] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
+
+# Грамматические правила A1 (5 штук с мини тестом)
+GRAMMAR_RULES: List[GrammarRule] = [
+    {
+        "id": 1,
+        "level": "A1",
+        "title": "Глагол sein (быть)",
+        "text": (
+            "📘 Уровень A1\n\n"
+            "Тема: глагол \"sein\" (быть)\n\n"
+            "Объяснение:\n"
+            "Глагол \"sein\" - один из самых важных в немецком языке. Он неправильный, поэтому его формы нужно выучить наизусть.\n\n"
+            "Формы:\n"
+            "ich bin\n"
+            "du bist\n"
+            "er/sie/es ist\n"
+            "wir sind\n"
+            "ihr seid\n"
+            "sie/Sie sind\n\n"
+            "Примеры:\n"
+            "Ich bin Danylo.\n"
+            "Du bist müde.\n"
+            "Er ist Arzt.\n"
+            "Wir sind Freunde.\n"
+            "Sie sind in Berlin.\n\n"
+            "Упражнения:\n"
+            "1) Вставь правильную форму \"sein\": Ich ___ Danylo.\n"
+            "2) Вставь правильную форму \"sein\": Du ___ mein Freund.\n"
+            "3) Вставь правильную форму \"sein\": Er ___ zu Hause.\n"
+            "4) Вставь правильную форму \"sein\": Wir ___ in Deutschland.\n"
+            "5) Вставь правильную форму \"sein\": Ihr ___ Schüler."
+        ),
+    },
+    {
+        "id": 2,
+        "level": "A1",
+        "title": "Глагол haben (иметь)",
+        "text": (
+            "📘 Уровень A1\n\n"
+            "Тема: глагол \"haben\" (иметь)\n\n"
+            "Объяснение:\n"
+            "Глагол \"haben\" означает \"иметь\" и используется для описания владения или состояния.\n\n"
+            "Формы:\n"
+            "ich habe\n"
+            "du hast\n"
+            "er/sie/es hat\n"
+            "wir haben\n"
+            "ihr habt\n"
+            "sie/Sie haben\n\n"
+            "Примеры:\n"
+            "Ich habe ein Auto.\n"
+            "Du hast Zeit.\n"
+            "Er hat ein Problem.\n"
+            "Wir haben Hunger.\n"
+            "Sie hat eine Katze.\n\n"
+            "Упражнения:\n"
+            "1) Вставь правильную форму \"haben\": Ich ___ ein Buch.\n"
+            "2) Вставь правильную форму \"haben\": Du ___ eine Frage.\n"
+            "3) Вставь правильную форму \"haben\": Er ___ ein Problem.\n"
+            "4) Вставь правильную форму \"haben\": Wir ___ eine Wohnung.\n"
+            "5) Вставь правильную форму \"haben\": Sie ___ zwei Kinder."
+        ),
+    },
+    {
+        "id": 3,
+        "level": "A1",
+        "title": "Определенный артикль der, die, das",
+        "text": (
+            "📘 Уровень A1\n\n"
+            "Тема: определенный артикль der, die, das\n\n"
+            "Объяснение:\n"
+            "В немецком языке у каждого существительного есть род. Определенный артикль показывает, что речь идет о конкретном предмете.\n\n"
+            "der - мужской род\n"
+            "die - женский род\n"
+            "das - средний род\n\n"
+            "Во множественном числе всегда используется die.\n\n"
+            "Примеры:\n"
+            "der Tisch\n"
+            "die Lampe\n"
+            "das Auto\n"
+            "die Kinder\n\n"
+            "Упражнения (выбери правильный артикль в голове):\n"
+            "1) ___ Hund\n"
+            "2) ___ Lampe\n"
+            "3) ___ Haus\n"
+            "4) ___ Mann\n"
+            "5) ___ Blumen (множественное число)."
+        ),
+    },
+    {
+        "id": 4,
+        "level": "A1",
+        "title": "Неопределенный артикль ein, eine",
+        "text": (
+            "📘 Уровень A1\n\n"
+            "Тема: неопределенный артикль ein, eine\n\n"
+            "Объяснение:\n"
+            "Неопределенный артикль используется, когда предмет упоминается впервые или он не конкретный.\n\n"
+            "ein - мужской и средний род\n"
+            "eine - женский род\n\n"
+            "Примеры:\n"
+            "ein Auto\n"
+            "eine Frau\n"
+            "ein Kind\n"
+            "eine Lampe\n\n"
+            "Упражнения:\n"
+            "1) Подставь ein или eine: ___ Auto\n"
+            "2) Подставь ein или eine: ___ Frau\n"
+            "3) Подставь ein или eine: ___ Buch\n"
+            "4) Подставь ein или eine: ___ Katze\n"
+            "5) Подставь ein или eine: ___ Fenster."
+        ),
+    },
+    {
+        "id": 5,
+        "level": "A1",
+        "title": "Порядок слов. Глагол на втором месте",
+        "text": (
+            "📘 Уровень A1\n\n"
+            "Тема: порядок слов в простом предложении. Глагол на втором месте\n\n"
+            "Объяснение:\n"
+            "Самое главное правило немецкого предложения: глагол всегда стоит на втором месте.\n"
+            "Перед глаголом может быть подлежащее или другое слово, но глагол занимает позицию номер 2.\n\n"
+            "Примеры:\n"
+            "Ich gehe heute nach Hause.\n"
+            "Heute gehe ich nach Hause.\n"
+            "Mein Freund kommt morgen.\n"
+            "Morgen fahre ich nach Berlin.\n\n"
+            "Упражнения (сделай так, чтобы глагол был на втором месте):\n"
+            "1) Переведи: Я живу в Германии.\n"
+            "2) Переведи: Сегодня я работаю.\n"
+            "3) Переведи: Мой брат учится.\n"
+            "4) Переведи: Завтра я еду в Берлин.\n"
+            "5) Переведи: Она идет домой."
+        ),
+    },
+]
 
 
 def load_words(path: str = "words.json") -> None:
@@ -407,7 +545,6 @@ def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyb
             text = w["ru"]
         else:
             text = f'{w["de"]} [{w["tr"]}]'
-        # в callback прокидываем только id правильного слова и режим
         cb_data = f"ans|{correct_id}|{mode}|{1 if wid == correct_id else 0}"
         buttons.append([InlineKeyboardButton(text=text, callback_data=cb_data)])
 
@@ -416,7 +553,6 @@ def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyb
 
 async def send_new_word(user_id: int, chat_id: int) -> None:
     state = user_state[user_id]
-    # если remaining еще не инициализирован (например, после /start)
     if state["remaining"] is None:
         reset_progress(user_id)
 
@@ -428,7 +564,6 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
         )
         return
 
-    # берем одно слово из remaining без повторов
     word_id = state["remaining"].pop()
     w = WORDS[word_id]
     mode = state["mode"]
@@ -480,6 +615,23 @@ def build_mode_keyboard() -> InlineKeyboardMarkup:
     )
 
 
+def build_grammar_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура с 5 правилами A1."""
+    rows = []
+    for rule in GRAMMAR_RULES:
+        text = f'{rule["level"]}: {rule["title"]}'
+        cb = f'gram|{rule["id"]}'
+        rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def get_grammar_rule_by_id(rule_id: int) -> Optional[GrammarRule]:
+    for rule in GRAMMAR_RULES:
+        if rule["id"] == rule_id:
+            return rule
+    return None
+
+
 @dp.message(CommandStart())
 async def cmd_start(message: Message) -> None:
     uid = message.from_user.id
@@ -489,23 +641,25 @@ async def cmd_start(message: Message) -> None:
     total_topics = len(used_topics)
 
     text = (
-        "🇩🇪 Привет. Это бот для изучения немецких слов.\n\n"
+        "🇩🇪 Привет. Это бот для изучения немецких слов и грамматики.\n\n"
         "Как пользоваться:\n"
         "• Я показываю слово и 4 варианта перевода.\n"
         "• Нажми на кнопку с вариантом.\n"
         "• Если ответ неверный, я покажу правильный ответ и сразу дам новое слово.\n"
         "• Если ответ верный, карточка помечается галочкой, а ниже появляется новое слово.\n\n"
         f"Сейчас в базе {total_words} слов.\n"
-        f"Тем: {total_topics}.\n\n"
-        "Режимы:\n"
+        f"Тем по словам: {total_topics}.\n\n"
+        "Режимы по словам:\n"
         "• 🇩🇪 → 🇷🇺 немецкое слово и варианты на русском.\n"
         "• 🇷🇺 → 🇩🇪 русское слово и варианты на немецком.\n\n"
         "Команды:\n"
         "/next - следующее слово\n"
         "/themes - выбрать тему слов\n"
-        "/mode - выбрать направление перевода\n\n"
+        "/mode - выбрать направление перевода\n"
+        "/grammar - правила грамматики уровня A1\n\n"
         "По умолчанию включен режим 🇩🇪 → 🇷🇺 и все темы вперемешку.\n\n"
-        "Статистика показывается после прохождения всех слов в выбранной теме."
+        "Статистика по словам показывается после прохождения всех слов в выбранной теме.\n"
+        "Грамматика открывается через /grammar, там есть объяснения, примеры и упражнения."
     )
     await message.answer(text)
 
@@ -518,7 +672,6 @@ async def cmd_next(message: Message) -> None:
     uid = message.from_user.id
     state = user_state[uid]
 
-    # если слова закончились, новый круг
     if state["remaining"] is not None and not state["remaining"]:
         reset_progress(uid)
 
@@ -528,13 +681,27 @@ async def cmd_next(message: Message) -> None:
 @dp.message(Command("themes"))
 async def cmd_themes(message: Message) -> None:
     kb = build_themes_keyboard()
-    await message.answer("Выбери тему для изучения.", reply_markup=kb)
+    await message.answer("Выбери тему для изучения слов.", reply_markup=kb)
 
 
 @dp.message(Command("mode"))
 async def cmd_mode(message: Message) -> None:
     kb = build_mode_keyboard()
-    await message.answer("Выбери направление перевода.", reply_markup=kb)
+    await message.answer("Выбери направление перевода для карточек со словами.", reply_markup=kb)
+
+
+@dp.message(Command("grammar"))
+async def cmd_grammar(message: Message) -> None:
+    """Показать список грамматических правил A1."""
+    if not GRAMMAR_RULES:
+        await message.answer("Грамматические правила пока не добавлены.")
+        return
+
+    kb = build_grammar_keyboard()
+    await message.answer(
+        "Выбери правило уровня A1. Я покажу объяснение, примеры и 5 упражнений.",
+        reply_markup=kb,
+    )
 
 
 @dp.callback_query(F.data.startswith("mode|"))
@@ -556,7 +723,6 @@ async def cb_topic(callback: CallbackQuery) -> None:
     _, topic = callback.data.split("|", maxsplit=1)
     user_state[uid]["topic"] = topic
 
-    # новый круг для новой темы
     reset_progress(uid)
     count = len(WORDS_BY_TOPIC.get(topic, []))
 
@@ -588,7 +754,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
         else:
             text = f'❌ Неправильно.\nПравильный ответ:\n{w["ru"]} - {w["de"]} [{w["tr"]}]'
 
-    finished_now = not state["remaining"]  # если список уже пустой, значит это был последний вопрос
+    finished_now = not state["remaining"]
 
     if finished_now:
         text += (
@@ -605,14 +771,35 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
     await callback.answer()
 
-    # если еще остались слова в теме, даем новое
     if not finished_now:
         await send_new_word(uid, callback.message.chat.id)
+
+
+@dp.callback_query(F.data.startswith("gram|"))
+async def cb_grammar_rule(callback: CallbackQuery) -> None:
+    """Показ выбранного грамматического правила."""
+    _, id_str = callback.data.split("|", maxsplit=1)
+    rule_id = int(id_str)
+    rule = get_grammar_rule_by_id(rule_id)
+
+    if rule is None:
+        await callback.answer("Правило не найдено.")
+        return
+
+    text = rule["text"]
+
+    try:
+        await callback.message.edit_text(text)
+    except Exception:
+        await callback.message.answer(text)
+
+    await callback.answer()
 
 
 async def main() -> None:
     load_words("words.json")
     print(f"Загружено слов: {len(WORDS)}")
+    print(f"Загружено грамматических правил A1: {len(GRAMMAR_RULES)}")
     await dp.start_polling(bot)
 
 
