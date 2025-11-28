@@ -212,7 +212,7 @@ def save_allowed_users() -> None:
 # ==========================
 
 def load_words(path: str = "words.json") -> None:
-    """
+
     Загружаем слова из JSON файла words.json и заполняем WORDS и WORDS_BY_TOPIC.
 
     Поддерживаются два варианта структуры:
@@ -7253,10 +7253,10 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
 
 
 async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> None:
-
+    """
     Переотправляем то же самое слово после неправильного ответа.
     Список remaining не трогаем, чтобы слово не повторялось как новое.
-
+    """
     w = WORDS[word_id]
     word_pool = get_user_words(uid)
 
