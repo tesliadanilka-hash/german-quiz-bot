@@ -7253,10 +7253,10 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
 
 
 async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> None:
-    """
+
     Переотправляем то же самое слово после неправильного ответа.
     Список remaining не трогаем, чтобы слово не повторялось как новое.
-    """
+
     w = WORDS[word_id]
     word_pool = get_user_words(uid)
 
@@ -7866,4 +7866,5 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
