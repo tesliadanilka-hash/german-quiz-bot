@@ -257,22 +257,35 @@ def load_words(path: str = "words.json") -> None:
         data = json.load(f)
 
     def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
-        """Добавляет одно слово в WORDS и WORDS_BY_TOPIC."""
-        topic_raw = (topic_raw or "").strip()
-        topic = TOPIC_NAME_MAP.get(topic_raw, TOPIC_DICT)
+    """Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
 
-        idx = len(WORDS)
-        word: Word = {
-            "id": idx,
-            "de": raw["de"],
-            "tr": raw["tr"],
-            "ru": raw["ru"],
-            "topic": topic,
-        }
-        WORDS.append(word)
+    Пропускает записи без полей de / tr / ru, чтобы бот не падал.
+    """
+    # достаем безопасно
+    de = raw.get("de")
+    tr = raw.get("tr")
+    ru = raw.get("ru")
 
-        WORDS_BY_TOPIC[topic].append(idx)
-        WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+    # если чего то нет – просто пропускаем и пишем в лог
+    if not de or not tr or not ru:
+        print("Пропускаю запись без нужных полей:", raw)
+        return
+
+    topic_raw = (topic_raw or "").strip()
+    topic = TOPIC_NAME_MAP.get(topic_raw, TOPIC_DICT)
+
+    idx = len(WORDS)
+    word: Word = {
+        "id": idx,
+        "de": de,
+        "tr": tr,
+        "ru": ru,
+        "topic": topic,
+    }
+    WORDS.append(word)
+
+    WORDS_BY_TOPIC[topic].append(idx)
+    WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
     # Вариант 1: плоский список
     if isinstance(data, list):
@@ -992,3 +1005,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
