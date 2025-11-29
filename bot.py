@@ -232,7 +232,11 @@ def load_words(path: str = "words.json") -> None:
         data = json.load(f)
 
     # Функция для добавления одного слова
-    def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
+        def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
+        """
+        Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
+        Тему определяем автоматически по русскому переводу (classify_topic).
+        """
         de = raw.get("de")
         tr = raw.get("tr")
         ru = raw.get("ru")
@@ -241,14 +245,8 @@ def load_words(path: str = "words.json") -> None:
             print("Пропускаю запись без нужных полей:", raw)
             return
 
-        topic_raw = (topic_raw or "").strip()
-
-        # Если тема известна — используем её
-        if topic_raw in ALL_TOPICS:
-            topic = topic_raw
-        else:
-            print("Неизвестная тема в words.json, кладу в общий словарь:", repr(topic_raw))
-            topic = TOPIC_DICT
+        # тема НЕ из файла, а по смыслу русского слова
+        topic = classify_topic(ru)
 
         idx = len(WORDS)
         word: Word = {
@@ -262,6 +260,7 @@ def load_words(path: str = "words.json") -> None:
         WORDS.append(word)
         WORDS_BY_TOPIC[topic].append(idx)
         WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+
 
     # === Разбор 3 поддерживаемых форматов ===
 
@@ -994,6 +993,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
