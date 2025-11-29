@@ -231,72 +231,73 @@ def load_words(path: str = "words.json") -> None:
     with file_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Функция для добавления одного слова
+        # ======================
+        # ВНУТРЕННЯЯ ФУНКЦИЯ add_word
+        # ======================
         def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
-        """
-        Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
-        Тему определяем автоматически по русскому переводу (classify_topic).
-        """
-        de = raw.get("de")
-        tr = raw.get("tr")
-        ru = raw.get("ru")
+            """
+            Добавляет одно слово. Тему определяем автоматически по русскому слову.
+            """
+            de = raw.get("de")
+            tr = raw.get("tr")
+            ru = raw.get("ru")
 
-        if not de or not tr or not ru:
-            print("Пропускаю запись без нужных полей:", raw)
+            if not de or not tr or not ru:
+                print("Пропускаю запись без нужных полей:", raw)
+                return
+
+            # Тема определяется НЕ из файла, а автоматически
+            topic = classify_topic(ru)
+
+            idx = len(WORDS)
+            word: Word = {
+                "id": idx,
+                "de": de,
+                "tr": tr,
+                "ru": ru,
+                "topic": topic,
+            }
+
+            WORDS.append(word)
+            WORDS_BY_TOPIC[topic].append(idx)
+            WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+
+        # ======================
+        # РАЗБОР ФОРМАТОВ words.json
+        # ======================
+
+        # Формат 1 — простой список [{de, tr, ru, topic}, ...]
+        if isinstance(data, list) and data and "de" in data[0]:
+            for raw in data:
+                topic_raw = raw.get("topic") or raw.get("theme") or ""
+                add_word(raw, topic_raw)
+
+        # Формат 2 — список блоков [{topic: "...", words:[...]}, ...]
+        elif isinstance(data, list) and data and "words" in data[0]:
+            for block in data:
+                topic_raw = block.get("topic") or ""
+                for raw in block.get("words", []):
+                    add_word(raw, topic_raw)
+
+        # Формат 3 — объект {"topics": [...]}
+        elif isinstance(data, dict) and "topics" in data:
+            for block in data["topics"]:
+                topic_raw = block.get("topic") or ""
+                for raw in block.get("words", []):
+                    add_word(raw, topic_raw)
+
+        else:
+            print("Неизвестный формат words.json")
             return
 
-        # тема НЕ из файла, а по смыслу русского слова
-        topic = classify_topic(ru)
-
-        idx = len(WORDS)
-        word: Word = {
-            "id": idx,
-            "de": de,
-            "tr": tr,
-            "ru": ru,
-            "topic": topic,
-        }
-
-        WORDS.append(word)
-        WORDS_BY_TOPIC[topic].append(idx)
-        WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
-
-
-    # === Разбор 3 поддерживаемых форматов ===
-
-    # Вариант 1: Плоский список слов
-    if isinstance(data, list) and data and "de" in data[0]:
-        for raw in data:
-            topic_raw = raw.get("topic") or raw.get("theme") or ""
-            add_word(raw, topic_raw)
-
-    # Вариант 3: Список блоков тем
-    elif isinstance(data, list) and data and "words" in data[0]:
-        for block in data:
-            topic_raw = block.get("topic") or ""
-            words_list = block.get("words", [])
-            for raw in words_list:
-                add_word(raw, topic_raw)
-
-    # Вариант 2: Объект с ключом topics
-    elif isinstance(data, dict) and "topics" in data:
-        for block in data["topics"]:
-            topic_raw = block.get("topic") or ""
-            words_list = block.get("words", [])
-            for raw in words_list:
-                add_word(raw, topic_raw)
-
-    else:
-        print("Непонятный формат words.json")
-        return
-
-    # Создаем виртуальную тему
+    # Добавляем виртуальную тему "Все темы"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
+    # Логи
     print(f"Загружено слов: {len(WORDS)}")
     for topic in ALL_TOPICS:
-        count = len(WORDS_BY_TOPIC.get(topic, []))
-        print(f"Тема '{topic}': {count} слов")
+        print(f"{topic}: {len(WORDS_BY_TOPIC.get(topic, []))} слов")
+
 
 
 # ==========================
@@ -993,6 +994,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
