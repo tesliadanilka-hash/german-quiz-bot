@@ -21,10 +21,15 @@ from openai import OpenAI
 # НАСТРОЙКИ БОТА
 # ==========================
 
-# Токен бота.
-# Вариант 1: забирать из переменной окружения BOT_TOKEN (Render и т.п.)
-# Вариант 2: прямо вписать свой токен вместо "YOUR_BOT_TOKEN_HERE".
-TOKEN = os.getenv("BOT_TOKEN")
+# Берем токен только из переменных окружения.
+# Поддерживаем несколько вариантов имен:
+# BOT_TOKEN, TELEGRAM_TOKEN, TELEGRAM_BOT_TOKEN, TOKEN.
+TOKEN = (
+    os.getenv("BOT_TOKEN")
+    or os.getenv("TELEGRAM_TOKEN")
+    or os.getenv("TELEGRAM_BOT_TOKEN")
+    or os.getenv("TOKEN")
+)
 
 # ID администратора, которому будут приходить запросы на доступ
 # Узнать можно, например, через @userinfobot
@@ -33,11 +38,12 @@ ADMIN_ID = 5319848687  # ЗАМЕНИ НА СВОЙ TELEGRAM ID
 # Файл со списком пользователей, у которых есть доступ
 ALLOWED_USERS_FILE = "allowed_users.txt"
 
-if not isinstance(TOKEN, str) or not TOKEN or TOKEN == "YOUR_BOT_TOKEN_HERE":
+if not TOKEN:
     raise RuntimeError(
-        "Нужно указать токен бота. "
-        "Либо поставь переменную окружения BOT_TOKEN, "
-        "либо впиши токен вместо строки YOUR_BOT_TOKEN_HERE в коде."
+        "Не найден токен бота. "
+        "Проверь, что в настройках Render есть переменная окружения "
+        "BOT_TOKEN (или TELEGRAM_TOKEN, TELEGRAM_BOT_TOKEN, TOKEN) "
+        "и в ней записан токен от BotFather."
     )
 
 bot = Bot(token=TOKEN)
@@ -187,7 +193,7 @@ WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 # ==========================
 
 GRAMMAR_RULES: List[GrammarRule] = [
-    # Вставишь сюда свои правила грамматики, если нужно
+    # Сюда можно добавить свои правила грамматики
 ]
 
 # ==========================
@@ -562,7 +568,6 @@ async def check_text_with_ai(text: str) -> str:
 async def cmd_start(message: Message) -> None:
     uid = message.from_user.id
 
-    # Пользователь без доступа
     if uid != ADMIN_ID and uid not in allowed_users:
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
@@ -584,7 +589,6 @@ async def cmd_start(message: Message) -> None:
         await message.answer(text)
         return
 
-    # Пользователь с доступом
     total_words = len(WORDS)
     used_topics = {w["topic"] for w in WORDS}
     total_topics = len(used_topics)
@@ -1106,4 +1110,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-
