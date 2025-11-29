@@ -24,7 +24,7 @@ from openai import OpenAI
 # Токен бота.
 # Вариант 1: забирать из переменной окружения BOT_TOKEN (Render и т.п.)
 # Вариант 2: прямо вписать свой токен вместо "YOUR_BOT_TOKEN_HERE".
-TOKEN = os.getenv("BOT_TOKEN") or "YOUR_BOT_TOKEN_HERE"
+TOKEN = os.getenv("BOT_TOKEN")
 
 # ID администратора, которому будут приходить запросы на доступ
 # Узнать можно, например, через @userinfobot
@@ -1106,3 +1106,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
