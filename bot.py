@@ -22,7 +22,7 @@ from openai import OpenAI
 # ==========================
 
 # ВСТАВЬ СВОЙ ТОКЕН ОТ BOTFATHER
-TOKEN = "8583421204:AAHB_2Y8RjDQHDQLcqDLJkYfiP6oBqq3SyE"
+TOKEN = os.getenv("BOT_TOKEN")
 
 # ID администратора, которому будут приходить запросы на доступ
 # Узнать можно, например, через @userinfobot
@@ -1094,3 +1094,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
