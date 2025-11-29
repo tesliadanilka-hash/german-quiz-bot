@@ -215,32 +215,39 @@ def load_words(path: str = "words.json") -> None:
     """
     Загружаем слова из JSON файла words.json и заполняем WORDS и WORDS_BY_TOPIC.
 
-    Поддерживаются два варианта структуры:
+    Поддерживаем форматы:
 
-    1) Плоский список:
+    1) Плоский список слов:
        [
-         {
-           "de": "Hallo",
-           "tr": "[ха-ло]",
-           "ru": "привет",
-           "topic": "Приветствия и базовые фразы"
-         },
+         {"de": "...", "tr": "...", "ru": "...", "topic": "Приветствия и базовые фразы"},
          ...
        ]
 
-    2) Объект с блоками по темам:
+    2) Объект с блоками тем:
        {
          "topics": [
            {
              "topic": "Приветствия и базовые фразы",
              "words": [
-               {"de": "Hallo", "tr": "[ха-ло]", "ru": "привет"},
+               {"de": "...", "tr": "...", "ru": "..."},
                ...
              ]
            },
            ...
          ]
        }
+
+    3) Список блоков тем:
+       [
+         {
+           "topic": "Приветствия и базовые фразы",
+           "words": [
+             {"de": "...", "tr": "...", "ru": "..."},
+             ...
+           ]
+         },
+         ...
+       ]
     """
 
     global WORDS, WORDS_BY_TOPIC
@@ -248,22 +255,8 @@ def load_words(path: str = "words.json") -> None:
     WORDS = []
     WORDS_BY_TOPIC = defaultdict(list)
 
-    # Проверяем наличие файла
-    file_path = Path(path)
-    if not file_path.exists():
-        print(f"Файл {path} не найден. Положи words.json рядом с bot.py")
-        return
-
-    # Читаем JSON
-    with file_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    # Вспомогательная функция: добавить одно слово
+    # вспомогательная функция: добавить одно слово
     def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
-        """
-        Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
-        Пропускает записи без de / tr / ru, чтобы бот не падал.
-        """
         de = raw.get("de")
         tr = raw.get("tr")
         ru = raw.get("ru")
@@ -288,30 +281,51 @@ def load_words(path: str = "words.json") -> None:
         WORDS_BY_TOPIC[topic].append(idx)
         WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
-    # Вариант 1: плоский список
-    if isinstance(data, list):
-        for raw in data:
-            topic_raw = raw.get("topic") or raw.get("theme") or ""
-            add_word(raw, topic_raw)
+    # читаем файл
+    file_path = Path(path)
+    if not file_path.exists():
+        print(f"Файл {path} не найден. Положи words.json рядом с bot.py")
+        return
 
-    # Вариант 2: объект с ключом "topics"
+    with file_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # формат 1: плоский список слов
+    if isinstance(data, list):
+        # проверяем, нет ли внутри блоков с "words"
+        if data and isinstance(data[0], dict) and "words" in data[0]:
+            # формат 3: список блоков тем
+            for block in data:
+                topic_raw = block.get("topic") or block.get("name") or ""
+                words_list = block.get("words", [])
+                for raw in words_list:
+                    add_word(raw, topic_raw)
+        else:
+            # обычный плоский список слов
+            for raw in data:
+                topic_raw = raw.get("topic") or raw.get("theme") or ""
+                add_word(raw, topic_raw)
+
+    # формат 2: объект с ключом "topics"
     elif isinstance(data, dict) and "topics" in data:
         for block in data["topics"]:
             topic_raw = block.get("topic") or block.get("name") or ""
             words_list = block.get("words", [])
             for raw in words_list:
                 add_word(raw, topic_raw)
+
     else:
         print("Непонятный формат words.json. Ожидается список или объект с ключом 'topics'.")
         return
 
-    # Виртуальная тема "Все темы"
+    # виртуальная тема "Все темы"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
     print(f"Загружено слов: {len(WORDS)}")
     for topic in ALL_TOPICS:
         count = len(WORDS_BY_TOPIC.get(topic, []))
         print(f"Тема '{topic}': {count} слов")
+
 
 # ==========================
 # ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ СЛОВ
@@ -1007,6 +1021,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
