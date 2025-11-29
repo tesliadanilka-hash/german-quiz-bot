@@ -248,26 +248,26 @@ def load_words(path: str = "words.json") -> None:
     WORDS = []
     WORDS_BY_TOPIC = defaultdict(list)
 
+    # Проверяем наличие файла
     file_path = Path(path)
-if not file_path.exists():
-    print(f"Файл {path} не найден. Положи words.json рядом с main.py")
-    return
+    if not file_path.exists():
+        print(f"Файл {path} не найден. Положи words.json рядом с bot.py")
+        return
 
-with file_path.open("r", encoding="utf-8") as f:
-    data = json.load(f)
+    # Читаем JSON
+    with file_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    # ВАЖНО: add_word должна быть ВНУТРИ load_words и ВНУТРИ блока with
+    # Вспомогательная функция: добавить одно слово
     def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
         """
         Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
         Пропускает записи без de / tr / ru, чтобы бот не падал.
         """
-        # Достаем безопасно
         de = raw.get("de")
         tr = raw.get("tr")
         ru = raw.get("ru")
 
-        # Пропустить кривые записи
         if not de or not tr or not ru:
             print("Пропускаю запись без нужных полей:", raw)
             return
@@ -288,9 +288,6 @@ with file_path.open("r", encoding="utf-8") as f:
         WORDS_BY_TOPIC[topic].append(idx)
         WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
-
-
-
     # Вариант 1: плоский список
     if isinstance(data, list):
         for raw in data:
@@ -308,6 +305,7 @@ with file_path.open("r", encoding="utf-8") as f:
         print("Непонятный формат words.json. Ожидается список или объект с ключом 'topics'.")
         return
 
+    # Виртуальная тема "Все темы"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
     print(f"Загружено слов: {len(WORDS)}")
@@ -1009,6 +1007,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
