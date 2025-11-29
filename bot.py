@@ -256,30 +256,42 @@ def load_words(path: str = "words.json") -> None:
     WORDS_BY_TOPIC = defaultdict(list)
 
     # вспомогательная функция: добавить одно слово
-    def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
-        de = raw.get("de")
-        tr = raw.get("tr")
-        ru = raw.get("ru")
+   def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
+    """
+    Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
+    Пропускает записи без de / tr / ru, чтобы бот не падал.
+    """
+    de = raw.get("de")
+    tr = raw.get("tr")
+    ru = raw.get("ru")
 
-        if not de or not tr or not ru:
-            print("Пропускаю запись без нужных полей:", raw)
-            return
+    if not de or not tr or not ru:
+        print("Пропускаю запись без нужных полей:", raw)
+        return
 
-        topic_raw = (topic_raw or "").strip()
-        topic = TOPIC_NAME_MAP.get(topic_raw, TOPIC_DICT)
+    topic_raw = (topic_raw or "").strip()
 
-        idx = len(WORDS)
-        word: Word = {
-            "id": idx,
-            "de": de,
-            "tr": tr,
-            "ru": ru,
-            "topic": topic,
-        }
+    # если тема из файла совпадает с одной из тем бота – используем её
+    if topic_raw in ALL_TOPICS:
+        topic = topic_raw
+    else:
+        # неизвестная тема – кладём слово в общий словарь
+        print("Неизвестная тема в words.json, кладу в общий словарь:", repr(topic_raw))
+        topic = TOPIC_DICT
 
-        WORDS.append(word)
-        WORDS_BY_TOPIC[topic].append(idx)
-        WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+    idx = len(WORDS)
+    word: Word = {
+        "id": idx,
+        "de": de,
+        "tr": tr,
+        "ru": ru,
+        "topic": topic,
+    }
+
+    WORDS.append(word)
+    WORDS_BY_TOPIC[topic].append(idx)
+    WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+
 
     # читаем файл
     file_path = Path(path)
@@ -1021,6 +1033,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
