@@ -5257,20 +5257,21 @@
                 "tr": "ˈaɪ̯sblaʊ̯ə",
                 "ru": "ледяной синий"
             },
-           {
-  "de": "regenbogenfarben",
-  "tr": "ʁeːɡn̩boːɡnfaʁbn̩",
-  "ru": "радужный"
-},
-
-{
-  "topic": "Эмоции",
-  "words": [
-    {
-      "de": "glücklich",
-      "tr": "glʏkliç",
-      "ru": "счастливый"
+            {
+                "de": "regenbogenfarben",
+                "tr": "ʁeːɡn̩boːɡnfaʁbn̩",
+                "ru": "радужный"
+            }
+        ]
     },
+    {
+        "topic": "Эмоции",
+        "words": [
+            {
+                "de": "glücklich",
+                "tr": "glʏkliç",
+                "ru": "счастливый"
+            },
             {
                 "de": "traurig",
                 "tr": "ˈtʁaʊ̯ʁɪç",
@@ -5759,5 +5760,3 @@
         ]
     }
 ]
-
-
