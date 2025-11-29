@@ -96,6 +96,9 @@ ALL_TOPICS = [
 ]
 
 # Маппинг названий тем из файла words.json в константы
+# В файле темы могут быть, например: "A1: Приветствия и базовые фразы"
+# Мы ищем в строке часть после уровня (Приветствия и базовые фразы) и
+# сопоставляем с этим словарем.
 TOPIC_NAME_MAP: Dict[str, str] = {
     "Приветствия и базовые фразы": TOPIC_GREETINGS,
     "Личные данные и знакомство": TOPIC_PERSONAL,
@@ -150,26 +153,7 @@ WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 # ==========================
 # ГРАММАТИКА - ЗАГОТОВКА
 # ==========================
-# Сюда потом вставишь свой список GRAMMAR_RULES по примеру:
-# GRAMMAR_RULES = [
-#   {
-#     "id": 1,
-#     "level": "A1",
-#     "title": "Название темы",
-#     "description": "Объяснение правила",
-#     "examples": [{"de": "Пример", "ru": "Перевод"}],
-#     "questions": [
-#         {
-#             "prompt": "Текст подсказки",
-#             "question_de": "Вопрос на немецком",
-#             "options": ["вариант 1", "вариант 2", "вариант 3", "вариант 4"],
-#             "correct": 0,
-#             "answer_de": "Правильное предложение",
-#             "answer_ru": "Перевод",
-#         },
-#     ],
-#   },
-# ]
+# Сюда потом вставишь свой список GRAMMAR_RULES
 
 GRAMMAR_RULES: List[GrammarRule] = [
     # ВСТАВЬ СЮДА СВОИ ПРАВИЛА ГРАММАТИКИ
@@ -211,9 +195,29 @@ def save_allowed_users() -> None:
 # ЗАГРУЗКА СЛОВ ИЗ words.json
 # ==========================
 
+def map_topic_from_json(topic_raw: str) -> str:
+    """
+    Получаем внутреннее имя темы по строке из файла words.json.
+    Например: "A1: Приветствия и базовые фразы" -> TOPIC_GREETINGS.
+    Если тема не найдена, кладем слово в общий словарь TOPIC_DICT.
+    """
+    t = (topic_raw or "").strip()
+    if not t:
+        return TOPIC_DICT
+
+    for key, internal in TOPIC_NAME_MAP.items():
+        if key in t:
+            return internal
+
+    # Неизвестная тема
+    print(f"Внимание: тема из файла не распознана: '{topic_raw}'. Слова пойдут в общий словарь.")
+    return TOPIC_DICT
+
+
 def load_words(path: str = "words.json") -> None:
     """
     Загружаем слова из JSON файла words.json и заполняем WORDS и WORDS_BY_TOPIC.
+    Темы берем из самого файла (поле 'topic'), а затем сопоставляем через TOPIC_NAME_MAP.
     """
 
     global WORDS, WORDS_BY_TOPIC
@@ -221,22 +225,17 @@ def load_words(path: str = "words.json") -> None:
     WORDS = []
     WORDS_BY_TOPIC = defaultdict(list)
 
-    # Проверяем наличие файла
     file_path = Path(path)
     if not file_path.exists():
         print(f"Файл {path} не найден. Положи words.json рядом с bot.py")
         return
 
-    # Читаем JSON
     with file_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-        # ======================
-        # ВНУТРЕННЯЯ ФУНКЦИЯ add_word
-        # ======================
         def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
             """
-            Добавляет одно слово. Тему определяем автоматически по русскому слову.
+            Добавляет одно слово, используя тему из файла words.json.
             """
             de = raw.get("de")
             tr = raw.get("tr")
@@ -246,8 +245,7 @@ def load_words(path: str = "words.json") -> None:
                 print("Пропускаю запись без нужных полей:", raw)
                 return
 
-            # Тема определяется НЕ из файла, а автоматически
-            topic = classify_topic(ru)
+            topic_internal = map_topic_from_json(topic_raw)
 
             idx = len(WORDS)
             word: Word = {
@@ -255,25 +253,21 @@ def load_words(path: str = "words.json") -> None:
                 "de": de,
                 "tr": tr,
                 "ru": ru,
-                "topic": topic,
+                "topic": topic_internal,
             }
 
             WORDS.append(word)
-            WORDS_BY_TOPIC[topic].append(idx)
+            WORDS_BY_TOPIC[topic_internal].append(idx)
             WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
-        # ======================
-        # РАЗБОР ФОРМАТОВ words.json
-        # ======================
-
         # Формат 1 — простой список [{de, tr, ru, topic}, ...]
-        if isinstance(data, list) and data and "de" in data[0]:
+        if isinstance(data, list) and data and isinstance(data[0], dict) and "de" in data[0]:
             for raw in data:
                 topic_raw = raw.get("topic") or raw.get("theme") or ""
                 add_word(raw, topic_raw)
 
         # Формат 2 — список блоков [{topic: "...", words:[...]}, ...]
-        elif isinstance(data, list) and data and "words" in data[0]:
+        elif isinstance(data, list) and data and isinstance(data[0], dict) and "words" in data[0]:
             for block in data:
                 topic_raw = block.get("topic") or ""
                 for raw in block.get("words", []):
@@ -293,12 +287,10 @@ def load_words(path: str = "words.json") -> None:
     # Добавляем виртуальную тему "Все темы"
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
-    # Логи
     print(f"Загружено слов: {len(WORDS)}")
     for topic in ALL_TOPICS:
         print(f"{topic}: {len(WORDS_BY_TOPIC.get(topic, []))} слов")
-
-
+    print(f"{TOPIC_DICT}: {len(WORDS_BY_TOPIC.get(TOPIC_DICT, []))} слов в общем словаре")
 
 # ==========================
 # ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ СЛОВ
@@ -539,7 +531,6 @@ async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> Non
 async def cmd_start(message: Message) -> None:
     uid = message.from_user.id
 
-    # Если нет доступа - показываем описание бота и просим запросить доступ
     if uid != ADMIN_ID and uid not in allowed_users:
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
@@ -556,7 +547,6 @@ async def cmd_start(message: Message) -> None:
         await message.answer(text)
         return
 
-    # Есть доступ - показываем полную информацию и меню
     total_words = len(WORDS)
     used_topics = {w["topic"] for w in WORDS}
     total_topics = len(used_topics)
@@ -718,7 +708,6 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         f"✅ Доступ пользователю {user_id} разрешен."
     )
 
-    # После одобрения даем пользователю полные инструкции
     try:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
@@ -847,7 +836,6 @@ async def cb_answer(callback: CallbackQuery) -> None:
     if is_correct:
         state["correct"] += 1
 
-        # Показываем полный правильный ответ
         if mode == "de_ru":
             text = (
                 f'✅ Правильно.\n\n'
@@ -879,8 +867,6 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
     else:
         state["wrong"] += 1
-        # Не даем новое слово, пока не ответит правильно
-        # Переотправляем это же слово с новыми вариантами
         try:
             await callback.message.edit_text("❌ Неправильно. Сейчас повторим это слово.")
         except Exception:
@@ -994,13 +980,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
-
-
-
-
-
-
