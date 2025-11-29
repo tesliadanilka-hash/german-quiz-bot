@@ -214,40 +214,6 @@ def save_allowed_users() -> None:
 def load_words(path: str = "words.json") -> None:
     """
     Загружаем слова из JSON файла words.json и заполняем WORDS и WORDS_BY_TOPIC.
-
-    Поддерживаем форматы:
-
-    1) Плоский список слов:
-       [
-         {"de": "...", "tr": "...", "ru": "...", "topic": "Приветствия и базовые фразы"},
-         ...
-       ]
-
-    2) Объект с блоками тем:
-       {
-         "topics": [
-           {
-             "topic": "Приветствия и базовые фразы",
-             "words": [
-               {"de": "...", "tr": "...", "ru": "..."},
-               ...
-             ]
-           },
-           ...
-         ]
-       }
-
-    3) Список блоков тем:
-       [
-         {
-           "topic": "Приветствия и базовые фразы",
-           "words": [
-             {"de": "...", "tr": "...", "ru": "..."},
-             ...
-           ]
-         },
-         ...
-       ]
     """
 
     global WORDS, WORDS_BY_TOPIC
@@ -255,82 +221,77 @@ def load_words(path: str = "words.json") -> None:
     WORDS = []
     WORDS_BY_TOPIC = defaultdict(list)
 
-    # вспомогательная функция: добавить одно слово
-   def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
-    """
-    Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
-    Пропускает записи без de / tr / ru, чтобы бот не падал.
-    """
-    de = raw.get("de")
-    tr = raw.get("tr")
-    ru = raw.get("ru")
-
-    if not de or not tr or not ru:
-        print("Пропускаю запись без нужных полей:", raw)
-        return
-
-    topic_raw = (topic_raw or "").strip()
-
-    # если тема из файла совпадает с одной из тем бота – используем её
-    if topic_raw in ALL_TOPICS:
-        topic = topic_raw
-    else:
-        # неизвестная тема – кладём слово в общий словарь
-        print("Неизвестная тема в words.json, кладу в общий словарь:", repr(topic_raw))
-        topic = TOPIC_DICT
-
-    idx = len(WORDS)
-    word: Word = {
-        "id": idx,
-        "de": de,
-        "tr": tr,
-        "ru": ru,
-        "topic": topic,
-    }
-
-    WORDS.append(word)
-    WORDS_BY_TOPIC[topic].append(idx)
-    WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
-
-
-    # читаем файл
+    # Проверяем наличие файла
     file_path = Path(path)
     if not file_path.exists():
         print(f"Файл {path} не найден. Положи words.json рядом с bot.py")
         return
 
+    # Читаем JSON
     with file_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # формат 1: плоский список слов
-    if isinstance(data, list):
-        # проверяем, нет ли внутри блоков с "words"
-        if data and isinstance(data[0], dict) and "words" in data[0]:
-            # формат 3: список блоков тем
-            for block in data:
-                topic_raw = block.get("topic") or block.get("name") or ""
-                words_list = block.get("words", [])
-                for raw in words_list:
-                    add_word(raw, topic_raw)
+    # Функция для добавления одного слова
+    def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
+        de = raw.get("de")
+        tr = raw.get("tr")
+        ru = raw.get("ru")
+
+        if not de or not tr or not ru:
+            print("Пропускаю запись без нужных полей:", raw)
+            return
+
+        topic_raw = (topic_raw or "").strip()
+
+        # Если тема известна — используем её
+        if topic_raw in ALL_TOPICS:
+            topic = topic_raw
         else:
-            # обычный плоский список слов
-            for raw in data:
-                topic_raw = raw.get("topic") or raw.get("theme") or ""
+            print("Неизвестная тема в words.json, кладу в общий словарь:", repr(topic_raw))
+            topic = TOPIC_DICT
+
+        idx = len(WORDS)
+        word: Word = {
+            "id": idx,
+            "de": de,
+            "tr": tr,
+            "ru": ru,
+            "topic": topic,
+        }
+
+        WORDS.append(word)
+        WORDS_BY_TOPIC[topic].append(idx)
+        WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+
+    # === Разбор 3 поддерживаемых форматов ===
+
+    # Вариант 1: Плоский список слов
+    if isinstance(data, list) and data and "de" in data[0]:
+        for raw in data:
+            topic_raw = raw.get("topic") or raw.get("theme") or ""
+            add_word(raw, topic_raw)
+
+    # Вариант 3: Список блоков тем
+    elif isinstance(data, list) and data and "words" in data[0]:
+        for block in data:
+            topic_raw = block.get("topic") or ""
+            words_list = block.get("words", [])
+            for raw in words_list:
                 add_word(raw, topic_raw)
 
-    # формат 2: объект с ключом "topics"
+    # Вариант 2: Объект с ключом topics
     elif isinstance(data, dict) and "topics" in data:
         for block in data["topics"]:
-            topic_raw = block.get("topic") or block.get("name") or ""
+            topic_raw = block.get("topic") or ""
             words_list = block.get("words", [])
             for raw in words_list:
                 add_word(raw, topic_raw)
 
     else:
-        print("Непонятный формат words.json. Ожидается список или объект с ключом 'topics'.")
+        print("Непонятный формат words.json")
         return
 
-    # виртуальная тема "Все темы"
+    # Создаем виртуальную тему
     WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
 
     print(f"Загружено слов: {len(WORDS)}")
@@ -1033,6 +994,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
