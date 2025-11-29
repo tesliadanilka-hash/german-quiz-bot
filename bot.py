@@ -249,25 +249,25 @@ def load_words(path: str = "words.json") -> None:
     WORDS_BY_TOPIC = defaultdict(list)
 
     file_path = Path(path)
-    if not file_path.exists():
-        print(f"Файл {path} не найден. Положи words.json рядом с main.py")
-        return
+if not file_path.exists():
+    print(f"Файл {path} не найден. Положи words.json рядом с main.py")
+    return
 
-    with file_path.open("r", encoding="utf-8") as f:
+with file_path.open("r", encoding="utf-8") as f:
     data = json.load(f)
 
-    # ВАЖНО: add_word должна быть ВНУТРИ load_words и ВНУТРИ этого блока, с ОТСТУПОМ!
+    # ВАЖНО: add_word должна быть ВНУТРИ load_words и ВНУТРИ блока with
     def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
         """
         Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
-        Пропускает записи без полей de / tr / ru, чтобы бот не падал.
+        Пропускает записи без de / tr / ru, чтобы бот не падал.
         """
         # Достаем безопасно
         de = raw.get("de")
         tr = raw.get("tr")
         ru = raw.get("ru")
 
-        # Если каких-то данных нет — пропускаем запись
+        # Пропустить кривые записи
         if not de or not tr or not ru:
             print("Пропускаю запись без нужных полей:", raw)
             return
@@ -287,6 +287,7 @@ def load_words(path: str = "words.json") -> None:
         WORDS.append(word)
         WORDS_BY_TOPIC[topic].append(idx)
         WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+
 
 
 
@@ -1008,6 +1009,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
