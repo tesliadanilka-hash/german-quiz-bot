@@ -254,38 +254,40 @@ def load_words(path: str = "words.json") -> None:
         return
 
     with file_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+    data = json.load(f)
 
+    # ВАЖНО: add_word должна быть ВНУТРИ load_words и ВНУТРИ этого блока, с ОТСТУПОМ!
     def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
-    """
-    Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
-    Пропускает записи без полей de / tr / ru, чтобы бот не падал.
-    """
-    # Достаем безопасно
-    de = raw.get("de")
-    tr = raw.get("tr")
-    ru = raw.get("ru")
+        """
+        Добавляет одно слово в WORDS и WORDS_BY_TOPIC.
+        Пропускает записи без полей de / tr / ru, чтобы бот не падал.
+        """
+        # Достаем безопасно
+        de = raw.get("de")
+        tr = raw.get("tr")
+        ru = raw.get("ru")
 
-    # Если каких–то данных нет — пропускаем запись
-    if not de or not tr or not ru:
-        print("Пропускаю запись без нужных полей:", raw)
-        return
+        # Если каких-то данных нет — пропускаем запись
+        if not de or not tr or not ru:
+            print("Пропускаю запись без нужных полей:", raw)
+            return
 
-    topic_raw = (topic_raw or "").strip()
-    topic = TOPIC_NAME_MAP.get(topic_raw, TOPIC_DICT)
+        topic_raw = (topic_raw or "").strip()
+        topic = TOPIC_NAME_MAP.get(topic_raw, TOPIC_DICT)
 
-    idx = len(WORDS)
-    word: Word = {
-        "id": idx,
-        "de": de,
-        "tr": tr,
-        "ru": ru,
-        "topic": topic,
-    }
+        idx = len(WORDS)
+        word: Word = {
+            "id": idx,
+            "de": de,
+            "tr": tr,
+            "ru": ru,
+            "topic": topic,
+        }
 
-    WORDS.append(word)
-    WORDS_BY_TOPIC[topic].append(idx)
-    WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+        WORDS.append(word)
+        WORDS_BY_TOPIC[topic].append(idx)
+        WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
+
 
 
     # Вариант 1: плоский список
@@ -1006,5 +1008,6 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
