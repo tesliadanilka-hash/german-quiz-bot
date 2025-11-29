@@ -149,14 +149,13 @@ TOPIC_NAME_MAP: Dict[str, str] = {
 # СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
 # ==========================
 
-# Состояние по словам и режимам
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
         "mode": "de_ru",        # "de_ru" или "ru_de"
         "topic": TOPIC_ALL,     # текущая тема
         "correct": 0,
         "wrong": 0,
-        "remaining": None,      # список id еще не показанных слов в текущем круге
+        "remaining": None,      # список id еще не показанных слов
         "check_mode": False,    # режим проверки предложений через ИИ
     }
 )
@@ -174,7 +173,6 @@ WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 # ==========================
 # ГРАММАТИКА - ЗАГОТОВКА
 # ==========================
-# Сюда потом вставишь свой список GRAMMAR_RULES
 
 GRAMMAR_RULES: List[GrammarRule] = [
     # ВСТАВЬ СЮДА СВОИ ПРАВИЛА ГРАММАТИКИ
@@ -185,7 +183,6 @@ GRAMMAR_RULES: List[GrammarRule] = [
 # ==========================
 
 def load_allowed_users() -> None:
-    """Загружаем список разрешенных пользователей из файла."""
     global allowed_users
     try:
         ids: List[int] = []
@@ -206,7 +203,6 @@ def load_allowed_users() -> None:
 
 
 def save_allowed_users() -> None:
-    """Сохраняем список разрешенных пользователей в файл."""
     with open(ALLOWED_USERS_FILE, "w", encoding="utf-8") as f:
         for uid in sorted(allowed_users):
             f.write(str(uid) + "\n")
@@ -217,11 +213,6 @@ def save_allowed_users() -> None:
 # ==========================
 
 def map_topic_from_json(topic_raw: str) -> str:
-    """
-    Получаем внутреннее имя темы по строке из файла words.json.
-    Например: "A1: Приветствия и базовые фразы" -> TOPIC_GREETINGS.
-    Если тема не найдена, кладем слово в общий словарь TOPIC_DICT.
-    """
     t = (topic_raw or "").strip()
     if not t:
         return TOPIC_DICT
@@ -235,11 +226,6 @@ def map_topic_from_json(topic_raw: str) -> str:
 
 
 def load_words(path: str = "words.json") -> None:
-    """
-    Загружаем слова из JSON файла words.json и заполняем WORDS и WORDS_BY_TOPIC.
-    Темы берем из самого файла (поле 'topic'), а затем сопоставляем через TOPIC_NAME_MAP.
-    """
-
     global WORDS, WORDS_BY_TOPIC
 
     WORDS = []
@@ -277,7 +263,7 @@ def load_words(path: str = "words.json") -> None:
             WORDS_BY_TOPIC[topic_internal].append(idx)
             WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
 
-        # Формат 1 — простой список [{de, tr, ru, topic}, ...]
+        # Формат 1 — список [{de, tr, ru, topic}, ...]
         if isinstance(data, list) and data and isinstance(data[0], dict) and "de" in data[0]:
             for raw in data:
                 topic_raw = raw.get("topic") or raw.get("theme") or ""
@@ -321,7 +307,6 @@ def get_user_words(uid: int) -> List[int]:
 
 
 def reset_progress(uid: int) -> None:
-    """Сброс статистики и новый круг слов по текущей теме."""
     state = user_state[uid]
     state["correct"] = 0
     state["wrong"] = 0
@@ -332,11 +317,6 @@ def reset_progress(uid: int) -> None:
 
 
 def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyboardMarkup:
-    """
-    Строим клавиатуру с 4 вариантами ответа.
-    В callback_data кодируем:
-    ans|<word_id>|<mode>|<is_correct>
-    """
     pool = set(word_ids)
     pool.discard(correct_id)
     wrong_ids = random.sample(list(pool), k=3) if len(pool) >= 3 else list(pool)
@@ -358,10 +338,6 @@ def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyb
 
 
 async def send_new_word(user_id: int, chat_id: int) -> None:
-    """
-    Отправляем пользователю новое слово.
-    Слово выбирается из списка remaining и удаляется из него.
-    """
     state = user_state[user_id]
     if state["remaining"] is None:
         reset_progress(user_id)
@@ -389,10 +365,6 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
 
 
 async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> None:
-    """
-    Переотправляем то же самое слово после неправильного ответа.
-    Список remaining не трогаем, чтобы слово не повторялось как новое.
-    """
     w = WORDS[word_id]
     word_pool = get_user_words(uid)
 
@@ -544,9 +516,6 @@ async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> Non
 # ==========================
 
 async def check_text_with_ai(text: str) -> str:
-    """
-    Отправляет текст в модель ИИ и возвращает ответ с исправленным вариантом и списком ошибок.
-    """
     if client is None:
         return (
             "Проверка через ИИ сейчас недоступна.\n"
@@ -778,12 +747,10 @@ async def handle_plain_text(message: Message) -> None:
     uid = message.from_user.id
 
     if uid != ADMIN_ID and uid not in allowed_users:
-        # Гостям не отвечаем, у них и так есть тексты в /start
         return
 
     state = user_state[uid]
 
-    # Если режим проверки не включен, можно ничего не делать
     if not state.get("check_mode", False):
         return
 
@@ -1041,7 +1008,9 @@ async def cb_grammar_question(callback: CallbackQuery) -> None:
     correct_idx = question["correct"]
     is_correct = chosen_idx == correct_idx
 
-    user_rule_state = grammar_state[uid].setdefault(rule_id, {"correct": 0, "wrong": 0, "q_index": 0})
+    user_rule_state = grammar_state[uid].setdefault(
+        rule_id, {"correct": 0, "wrong": 0, "q_index": 0}
+    )
 
     if is_correct:
         user_rule_state["correct"] += 1
