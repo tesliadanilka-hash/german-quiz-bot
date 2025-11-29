@@ -21,8 +21,10 @@ from openai import OpenAI
 # НАСТРОЙКИ БОТА
 # ==========================
 
-# ВСТАВЬ СВОЙ ТОКЕН ОТ BOTFATHER
-TOKEN = os.getenv("BOT_TOKEN")
+# Токен бота.
+# Вариант 1: забирать из переменной окружения BOT_TOKEN (Render и т.п.)
+# Вариант 2: прямо вписать свой токен вместо "YOUR_BOT_TOKEN_HERE".
+TOKEN = os.getenv("BOT_TOKEN") or "YOUR_BOT_TOKEN_HERE"
 
 # ID администратора, которому будут приходить запросы на доступ
 # Узнать можно, например, через @userinfobot
@@ -31,10 +33,20 @@ ADMIN_ID = 5319848687  # ЗАМЕНИ НА СВОЙ TELEGRAM ID
 # Файл со списком пользователей, у которых есть доступ
 ALLOWED_USERS_FILE = "allowed_users.txt"
 
+if not isinstance(TOKEN, str) or not TOKEN or TOKEN == "YOUR_BOT_TOKEN_HERE":
+    raise RuntimeError(
+        "Нужно указать токен бота. "
+        "Либо поставь переменную окружения BOT_TOKEN, "
+        "либо впиши токен вместо строки YOUR_BOT_TOKEN_HERE в коде."
+    )
+
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# Клиент OpenAI
+# ==========================
+# НАСТРОЙКИ ПРОВЕРКИ ПРЕДЛОЖЕНИЙ
+# ==========================
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
@@ -175,7 +187,7 @@ WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 # ==========================
 
 GRAMMAR_RULES: List[GrammarRule] = [
-    # ВСТАВЬ СЮДА СВОИ ПРАВИЛА ГРАММАТИКИ
+    # Вставишь сюда свои правила грамматики, если нужно
 ]
 
 # ==========================
@@ -518,7 +530,7 @@ async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> Non
     await bot.send_message(chat_id, text, reply_markup=kb)
 
 # ==========================
-# ФУНКЦИИ ДЛЯ ПРОВЕРКИ ПРЕДЛОЖЕНИЙ
+# ПРОВЕРКА ПРЕДЛОЖЕНИЙ
 # ==========================
 
 async def check_text_with_ai(text: str) -> str:
@@ -710,7 +722,7 @@ async def cmd_grammar(message: Message) -> None:
     if not GRAMMAR_RULES:
         await message.answer(
             "Раздел грамматики пока не настроен.\n"
-            "Добавь свои правила в список GRAMMAR_RULES в main.py."
+            "Добавь свои правила в список GRAMMAR_RULES в bot.py."
         )
         return
 
@@ -864,7 +876,7 @@ async def cb_menu_grammar(callback: CallbackQuery) -> None:
     if not GRAMMAR_RULES:
         await callback.message.answer(
             "Раздел грамматики пока не настроен.\n"
-            "Добавь свои правила в список GRAMMAR_RULES в main.py."
+            "Добавь свои правила в список GRAMMAR_RULES в bot.py."
         )
         return
 
@@ -1094,4 +1106,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-
