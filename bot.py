@@ -108,9 +108,16 @@ WORDS: List[Word] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 
 # Статистика для меню
-LEVEL_COUNTS: Dict[str, int] = defaultdict(int)                     # "A1" -> 120
-TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)         # ("A1","Тема") -> 40
-SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int) # ("A1","Тема","Подтема") -> 15
+LEVEL_COUNTS: Dict[str, int] = defaultdict(int)                     # "A1" -> число слов
+TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)         # ("A1","Тема") -> число слов
+SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int) # ("A1","Тема","Подтема") -> число слов
+
+# Короткие ID для тем и подтем, чтобы callback_data были короткими
+TOPIC_ID_BY_KEY: Dict[Tuple[str, str], str] = {}
+TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
+
+SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
+SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
 
 # ==========================
 # ГРАММАТИКА - ЗАГОТОВКА
@@ -209,12 +216,17 @@ def load_words(path: str = "words.json") -> None:
     """
 
     global WORDS, WORDS_BY_TOPIC, LEVEL_COUNTS, TOPIC_COUNTS, SUBTOPIC_COUNTS
+    global TOPIC_ID_BY_KEY, TOPIC_KEY_BY_ID, SUBTOPIC_ID_BY_KEY, SUBTOPIC_KEY_BY_ID
 
     WORDS = []
     WORDS_BY_TOPIC = defaultdict(list)
     LEVEL_COUNTS = defaultdict(int)
     TOPIC_COUNTS = defaultdict(int)
     SUBTOPIC_COUNTS = defaultdict(int)
+    TOPIC_ID_BY_KEY = {}
+    TOPIC_KEY_BY_ID = {}
+    SUBTOPIC_ID_BY_KEY = {}
+    SUBTOPIC_KEY_BY_ID = {}
 
     file_path = Path(path)
     if not file_path.exists():
@@ -296,6 +308,19 @@ def load_words(path: str = "words.json") -> None:
     for level in sorted(LEVEL_COUNTS):
         print(f"Уровень {level}: {LEVEL_COUNTS[level]} слов")
     print(f"Всего тем: {len(TOPIC_COUNTS)}, всего подтем: {len(SUBTOPIC_COUNTS)}")
+
+    # Генерируем короткие ID для тем и подтем
+    for i, key in enumerate(sorted(TOPIC_COUNTS.keys())):
+        tid = f"t{i}"
+        TOPIC_ID_BY_KEY[key] = tid
+        TOPIC_KEY_BY_ID[tid] = key
+
+    for i, key in enumerate(sorted(SUBTOPIC_COUNTS.keys())):
+        sid = f"s{i}"
+        SUBTOPIC_ID_BY_KEY[key] = sid
+        SUBTOPIC_KEY_BY_ID[sid] = key
+
+    print(f"Сгенерировано ID для тем: {len(TOPIC_ID_BY_KEY)}, для подтем: {len(SUBTOPIC_ID_BY_KEY)}")
 
 # ==========================
 # ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ТЕМ
@@ -460,12 +485,16 @@ def build_themes_keyboard() -> InlineKeyboardMarkup:
 def build_topics_keyboard_for_level(level: str) -> InlineKeyboardMarkup:
     rows = []
     for topic in get_topics_for_level(level):
-        count = TOPIC_COUNTS.get((level, topic), 0)
+        key = (level, topic)
+        topic_id = TOPIC_ID_BY_KEY.get(key)
+        if not topic_id:
+            continue
+        count = TOPIC_COUNTS.get(key, 0)
         rows.append(
             [
                 InlineKeyboardButton(
                     text=f"{topic} ({count})",
-                    callback_data=f"topic_select|{level}|{topic}",
+                    callback_data=f"topic_select|{topic_id}",
                 )
             ]
         )
@@ -475,12 +504,16 @@ def build_topics_keyboard_for_level(level: str) -> InlineKeyboardMarkup:
 def build_subtopics_keyboard(level: str, topic: str) -> InlineKeyboardMarkup:
     rows = []
     for subtopic in get_subtopics_for_level_topic(level, topic):
-        count = SUBTOPIC_COUNTS.get((level, topic, subtopic), 0)
+        key = (level, topic, subtopic)
+        sub_id = SUBTOPIC_ID_BY_KEY.get(key)
+        if not sub_id:
+            continue
+        count = SUBTOPIC_COUNTS.get(key, 0)
         rows.append(
             [
                 InlineKeyboardButton(
                     text=f"{subtopic} ({count})",
-                    callback_data=f"subtopic|{level}|{topic}|{subtopic}",
+                    callback_data=f"subtopic|{sub_id}",
                 )
             ]
         )
@@ -752,8 +785,8 @@ async def cmd_start(message: Message) -> None:
 
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
-            "Этот бот помогает тебе шаг за шагом улучшать немецкий через слова, темы, грамматику и проверку предложений.\n\n"
-            "Доступ к боту ограничен. Нажми кнопку ниже, чтобы отправить запрос администратору."
+            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику и проверку предложений.\n\n"
+            "Доступ ограничен. Нажми кнопку ниже, чтобы отправить запрос администратору."
         )
         await message.answer(text, reply_markup=kb)
         return
@@ -764,10 +797,10 @@ async def cmd_start(message: Message) -> None:
 
     text = (
         "🎓 Willkommen. Добро пожаловать в бота по немецкому языку.\n\n"
-        "Этот бот помогает улучшать немецкий язык с помощью тренировок по словам, темам и простых упражнений по грамматике.\n\n"
+        "Здесь ты можешь тренировать слова по темам, разбирать грамматику и проверять свои предложения.\n\n"
         f"Сейчас в базе {total_words} слов.\n"
         f"Тем: {total_topics}, подтем: {total_subtopics}.\n\n"
-        "Ниже ты видишь главное меню. Выбирай режим, и бот проведет тебя по шагам."
+        "Выбирай режим ниже и начинаем."
     )
 
     kb = build_main_menu_keyboard()
@@ -1149,7 +1182,13 @@ async def cb_topic_select(callback: CallbackQuery) -> None:
         await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    _, level, topic = callback.data.split("|", maxsplit=2)
+    _, topic_id = callback.data.split("|", maxsplit=1)
+
+    if topic_id not in TOPIC_KEY_BY_ID:
+        await callback.answer("Тема не найдена.", show_alert=True)
+        return
+
+    level, topic = TOPIC_KEY_BY_ID[topic_id]
 
     await callback.answer()
     kb = build_subtopics_keyboard(level, topic)
@@ -1175,7 +1214,13 @@ async def cb_subtopic(callback: CallbackQuery) -> None:
         await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    _, level, topic, subtopic = callback.data.split("|", maxsplit=3)
+    _, sub_id = callback.data.split("|", maxsplit=1)
+
+    if sub_id not in SUBTOPIC_KEY_BY_ID:
+        await callback.answer("Подтема не найдена.", show_alert=True)
+        return
+
+    level, topic, subtopic = SUBTOPIC_KEY_BY_ID[sub_id]
 
     topic_key = f"{level}|{topic}|{subtopic}"
     user_state[uid]["topic"] = topic_key
