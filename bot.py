@@ -35,8 +35,9 @@ TOKEN = (
 # Узнать можно, например, через @userinfobot
 ADMIN_ID = 5319848687  # ЗАМЕНИ НА СВОЙ TELEGRAM ID
 
-# Файл со списком пользователей, у которых есть доступ
+# Файлы
 ALLOWED_USERS_FILE = "allowed_users.txt"
+USER_STATE_FILE = "user_state.json"
 
 if not TOKEN:
     raise RuntimeError(
@@ -167,14 +168,26 @@ TOPIC_NAME_MAP: Dict[str, str] = {
 # СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
 # ==========================
 
+# topic_stats:
+# {
+#   "Тема": {
+#       "runs": int,
+#       "best_accuracy": float,
+#       "last_accuracy": float,
+#       "total_correct": int,
+#       "total_wrong": int
+#   }, ...
+# }
+
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
-        "mode": "de_ru",        # "de_ru" или "ru_de"
-        "topic": TOPIC_ALL,     # текущая тема
+        "mode": "de_ru",
+        "topic": TOPIC_ALL,
         "correct": 0,
         "wrong": 0,
-        "remaining": None,      # список id еще не показанных слов
-        "check_mode": False,    # режим проверки предложений
+        "remaining": None,
+        "check_mode": False,
+        "topic_stats": {},   # статистика по темам
     }
 )
 
@@ -225,6 +238,40 @@ def save_allowed_users() -> None:
         for uid in sorted(allowed_users):
             f.write(str(uid) + "\n")
     print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
+
+# ==========================
+# РАБОТА С СОСТОЯНИЕМ ПОЛЬЗОВАТЕЛЕЙ
+# ==========================
+
+def load_user_state() -> None:
+    try:
+        with open(USER_STATE_FILE, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+
+        count = 0
+        for uid_str, state in raw.items():
+            try:
+                uid = int(uid_str)
+            except ValueError:
+                continue
+            user_state[uid].update(state)
+            count += 1
+
+        print(f"Загружено состояний пользователей: {count}")
+    except FileNotFoundError:
+        print("Файл user_state.json не найден, начинаем с пустого состояния.")
+    except Exception as e:
+        print("Ошибка при загрузке состояний пользователей:", e)
+
+
+def save_user_state() -> None:
+    try:
+        raw = {str(uid): state for uid, state in user_state.items()}
+        with open(USER_STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(raw, f, ensure_ascii=False, indent=2)
+        print(f"Состояние пользователей сохранено. Всего пользователей: {len(raw)}")
+    except Exception as e:
+        print("Ошибка при сохранении состояний пользователей:", e)
 
 # ==========================
 # ЗАГРУЗКА СЛОВ ИЗ words.json
@@ -332,6 +379,7 @@ def reset_progress(uid: int) -> None:
     ids = ids.copy()
     random.shuffle(ids)
     state["remaining"] = ids
+    save_user_state()
 
 
 def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyboardMarkup:
@@ -545,6 +593,34 @@ async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> Non
 # СТАТИСТИКА ПОЛЬЗОВАТЕЛЯ
 # ==========================
 
+def update_topic_stats(uid: int, topic: str, correct: int, wrong: int) -> None:
+    total = correct + wrong
+    if total <= 0:
+        return
+
+    accuracy = correct * 100.0 / total
+
+    state = user_state[uid]
+    topic_stats = state.setdefault("topic_stats", {})
+    stats = topic_stats.get(topic, {
+        "runs": 0,
+        "best_accuracy": 0.0,
+        "last_accuracy": 0.0,
+        "total_correct": 0,
+        "total_wrong": 0,
+    })
+
+    stats["runs"] += 1
+    stats["last_accuracy"] = accuracy
+    if accuracy > stats.get("best_accuracy", 0.0):
+        stats["best_accuracy"] = accuracy
+    stats["total_correct"] += correct
+    stats["total_wrong"] += wrong
+
+    topic_stats[topic] = stats
+    save_user_state()
+
+
 def build_user_stats_text(uid: int) -> str:
     state = user_state[uid]
 
@@ -556,8 +632,6 @@ def build_user_stats_text(uid: int) -> str:
     if total > 0:
         accuracy = correct * 100 / total
         accuracy_str = f"{accuracy:.1f}%"
-
-        # Оценка результата
         if accuracy >= 90:
             comment = "🔥 Отличный результат. Ты очень хорошо знаешь эту тему."
         elif accuracy >= 75:
@@ -588,6 +662,24 @@ def build_user_stats_text(uid: int) -> str:
     lines.append("")
     lines.append("Статистика считается для текущего круга слов в выбранной теме.")
     lines.append("Чтобы начать круг заново, можно использовать /next или сменить тему через /themes.")
+    lines.append("")
+
+    # Блок по темам
+    topic_stats = state.get("topic_stats", {})
+    if topic_stats:
+        lines.append("📚 Результаты по темам, которые ты уже проходил:\n")
+        for topic, stats in topic_stats.items():
+            runs = stats.get("runs", 0)
+            best = stats.get("best_accuracy", 0.0)
+            last = stats.get("last_accuracy", 0.0)
+            lines.append(
+                f"• {topic}\n"
+                f"  Проходов: {runs}\n"
+                f"  Лучшая точность: {best:.1f}%\n"
+                f"  Последний результат: {last:.1f}%\n"
+            )
+    else:
+        lines.append("Пока нет завершенных тем. Пройди любую тему до конца, чтобы увидеть результаты.")
 
     return "\n".join(lines)
 
@@ -670,10 +762,7 @@ async def cmd_start(message: Message) -> None:
         "• /grammar - раздел грамматики.\n"
         "• /check - включить режим проверки предложений.\n"
         "• /checkoff - выключить режим проверки предложений.\n"
-        "• /stats - посмотреть свою статистику по словам.\n\n"
-        "🧠 Как проходит тренировка слов:\n"
-        "Если ответ неправильный, новое слово не появляется, пока ты не ответишь правильно на текущее.\n"
-        "После правильного ответа бот показывает полный вариант: немецкое слово, транскрипцию и перевод.\n\n"
+        "• /stats - посмотреть свою статистику.\n\n"
         "В режиме /check ты пишешь предложения на немецком, а бот предлагает исправленный вариант и указывает, что можно улучшить.\n\n"
         "👇 Выбери действие в меню и начинаем."
     )
@@ -681,10 +770,8 @@ async def cmd_start(message: Message) -> None:
     kb = build_main_menu_keyboard()
     await message.answer(text, reply_markup=kb)
 
-    # Больше не сбрасываем прогресс при /start
-    # reset_progress(uid)
     user_state[uid]["check_mode"] = False
-
+    save_user_state()
 
 
 @dp.message(Command("access"))
@@ -802,6 +889,7 @@ async def cmd_check_on(message: Message) -> None:
         return
 
     user_state[uid]["check_mode"] = True
+    save_user_state()
     await message.answer(
         "✏️ Режим проверки предложений включен.\n\n"
         "Напиши мне предложение на немецком одним сообщением.\n"
@@ -819,6 +907,7 @@ async def cmd_check_off(message: Message) -> None:
         return
 
     user_state[uid]["check_mode"] = False
+    save_user_state()
     await message.answer(
         "Режим проверки предложений выключен.\n"
         "Ты можешь продолжать использовать тренировки слов и грамматику."
@@ -888,15 +977,6 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
             "Теперь ты можешь использовать все функции бота.\n\n"
-            "Что делает бот:\n"
-            "• Тренирует слова по темам\n"
-            "• Проверяет перевод слов в формате теста\n"
-            "• Показывает статистику по теме\n"
-            "• Позволяет изучать грамматику\n"
-            "• Проверяет твои предложения на немецком и показывает более правильный вариант\n\n"
-            "Режимы тренировки слов:\n"
-            "• 🇩🇪 → 🇷🇺 немецкое слово, выбираешь русский перевод\n"
-            "• 🇷🇺 → 🇩🇪 русское слово, выбираешь немецкий вариант с транскрипцией\n\n"
             "Основные команды:\n"
             "• /start - информация о боте и главное меню\n"
             "• /themes - выбор темы слов\n"
@@ -905,11 +985,10 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
             "• /grammar - грамматика\n"
             "• /check - включить режим проверки предложений\n"
             "• /checkoff - выключить режим проверки предложений\n"
-            "• /stats - посмотреть свою статистику по словам\n\n"
-            "Важно:\n"
+            "• /stats - посмотреть свою статистику\n\n"
             "Если ответ в тренажере слов неправильный, новое слово не дается.\n"
             "Нужно ответить правильно на текущее слово.\n"
-            "После правильного ответа бот покажет полный перевод с транскрипцией.\n\n"
+            "После правильного ответа бот покажет полный перевод с транскрипцией.\n"
             "В режиме /check ты просто пишешь предложения на немецком, а бот предлагает исправленный вариант и указывает, что можно улучшить."
         )
         await bot.send_message(user_id, text)
@@ -971,6 +1050,7 @@ async def cb_menu_check(callback: CallbackQuery) -> None:
     await callback.answer()
 
     user_state[uid]["check_mode"] = True
+    save_user_state()
 
     await callback.message.answer(
         "✏️ Режим проверки предложений включен.\n\n"
@@ -1002,6 +1082,7 @@ async def cb_mode(callback: CallbackQuery) -> None:
 
     _, mode = callback.data.split("|", maxsplit=1)
     user_state[uid]["mode"] = mode
+    save_user_state()
     if mode == "de_ru":
         txt = "Режим установлен: 🇩🇪 → 🇷🇺. Буду показывать немецкое слово, а ты выбирай русский перевод."
     else:
@@ -1049,6 +1130,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
     if is_correct:
         state["correct"] += 1
+        save_user_state()
 
         if mode == "de_ru":
             text = (
@@ -1064,6 +1146,12 @@ async def cb_answer(callback: CallbackQuery) -> None:
         finished_now = not state["remaining"]
 
         if finished_now:
+            # Обновляем статистику по теме
+            current_topic = state.get("topic", TOPIC_ALL)
+            correct = state.get("correct", 0)
+            wrong = state.get("wrong", 0)
+            update_topic_stats(uid, current_topic, correct, wrong)
+
             text += (
                 "\n\nТы прошел все слова в этой теме.\n"
                 f'✅ Правильных ответов: {state["correct"]}\n'
@@ -1081,6 +1169,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
     else:
         state["wrong"] += 1
+        save_user_state()
         try:
             await callback.message.edit_text("❌ Неправильно. Сейчас повторим это слово.")
         except Exception:
@@ -1191,10 +1280,9 @@ async def cb_grammar_question(callback: CallbackQuery) -> None:
 async def main() -> None:
     load_allowed_users()
     load_words("words.json")
+    load_user_state()
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
