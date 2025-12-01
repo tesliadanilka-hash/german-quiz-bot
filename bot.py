@@ -435,15 +435,16 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
         kb = build_options(word_pool, word_id, mode)
         await bot.send_message(chat_id, text, reply_markup=kb)
     else:
-        # Режим ввода: показываем русское слово, просим написать по-немецки
+        # Режим ввода: показываем русское слово, просим написать по немецки БЕЗ транскрипции
         text = (
             f'🇷🇺 Слово: {w["ru"]}\n\n'
-            "Напиши это слово по немецки."
+            "Напиши это слово по немецки, только само немецкое слово, без транскрипции и без скобок."
         )
         state["current_word_id"] = word_id
         state["waiting_text_answer"] = True
         save_user_state()
         await bot.send_message(chat_id, text)
+
 
 
 async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> None:
@@ -1001,6 +1002,44 @@ async def handle_plain_text(message: Message) -> None:
         return
 
     state = user_state[uid]
+
+        # --- РЕЖИМ ВВОДА СЛОВА ВРУЧНУЮ ---
+    if state.get("answer_mode") == "typing" and state.get("waiting_text_answer"):
+        user_answer = message.text.lower().strip()
+        word_id = state.get("current_word_id")
+
+        if word_id is None:
+            await message.answer("Ошибка: не найдено текущее слово. Попробуй еще раз /next.")
+            return
+
+        w = WORDS[word_id]
+        correct_answer = w["de"].lower().strip()
+
+        # Проверяем: пользователь должен написать только немецкое слово без транскрипции
+        if user_answer == correct_answer:
+            state["correct"] += 1
+            state["waiting_text_answer"] = False
+            save_user_state()
+
+            text = (
+                "✅ Правильно!\n\n"
+                f'{w["de"]} [{w["tr"]}] — {w["ru"]}'
+            )
+            await message.answer(text)
+
+            # После правильного ответа — следующее слово
+            await send_new_word(uid, message.chat.id)
+        else:
+            state["wrong"] += 1
+            save_user_state()
+
+            await message.answer(
+                "❌ Неправильно.\n"
+                "Попробуй еще раз.\n"
+                f"Пиши только немецкое слово, без транскрипции."
+            )
+        return  # ВАЖНО: дальше не идем
+
 
     # 1. Режим проверки предложений
     if state.get("check_mode", False):
@@ -1583,3 +1622,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
