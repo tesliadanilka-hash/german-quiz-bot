@@ -4,7 +4,7 @@ import os
 import random
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
@@ -21,9 +21,6 @@ from openai import OpenAI
 # НАСТРОЙКИ БОТА
 # ==========================
 
-# Берем токен только из переменных окружения.
-# Поддерживаем несколько вариантов имен:
-# BOT_TOKEN, TELEGRAM_TOKEN, TELEGRAM_BOT_TOKEN, TOKEN.
 TOKEN = (
     os.getenv("BOT_TOKEN")
     or os.getenv("TELEGRAM_TOKEN")
@@ -31,11 +28,8 @@ TOKEN = (
     or os.getenv("TOKEN")
 )
 
-# ID администратора, которому будут приходить запросы на доступ
-# Узнать можно, например, через @userinfobot
 ADMIN_ID = 5319848687  # ЗАМЕНИ НА СВОЙ TELEGRAM ID
 
-# Файлы
 ALLOWED_USERS_FILE = "allowed_users.txt"
 USER_STATE_FILE = "user_state.json"
 
@@ -81,103 +75,12 @@ GrammarRule = Dict[str, Any]
 # ТЕМЫ ДЛЯ СЛОВ
 # ==========================
 
-TOPIC_ALL = "Все темы (перемешку)"
-
-TOPIC_GREETINGS = "Приветствия и базовые фразы"
-TOPIC_PERSONAL = "Личные данные и знакомство"
-TOPIC_PEOPLE = "Люди и внешность"
-TOPIC_FAMILY = "Семья"
-TOPIC_HOME = "Дом"
-TOPIC_FOOD = "Еда и продукты"
-TOPIC_TIME = "Время и дни недели"
-TOPIC_CITY = "Город и транспорт"
-TOPIC_SCHOOL = "Учеба и школа"
-TOPIC_SHOPPING = "Покупки и магазины"
-TOPIC_HEALTH = "Здоровье и самочувствие"
-TOPIC_JOBS = "Работа и профессии"
-TOPIC_HOBBY = "Хобби и свободное время"
-TOPIC_WEATHER = "Погода и природа"
-TOPIC_ANIMALS = "Животные"
-TOPIC_HOUSEHOLD = "Быт и дом"
-TOPIC_VERBS = "Глаголы"
-TOPIC_ADJECTIVES = "Прилагательные"
-TOPIC_ADVERBS = "Наречия"
-TOPIC_PREPOSITIONS = "Предлоги"
-TOPIC_COLORS = "Цвета"
-TOPIC_EMOTIONS = "Эмоции"
-TOPIC_OBJECTS = "Предметы и техника"
-
-# Внутренняя "общая" тема словаря
-TOPIC_DICT = "Словарь"
-
-# Темы, которые будут отображаться в меню /themes
-ALL_TOPICS = [
-    TOPIC_GREETINGS,
-    TOPIC_PERSONAL,
-    TOPIC_PEOPLE,
-    TOPIC_FAMILY,
-    TOPIC_HOME,
-    TOPIC_FOOD,
-    TOPIC_TIME,
-    TOPIC_CITY,
-    TOPIC_SCHOOL,
-    TOPIC_SHOPPING,
-    TOPIC_HEALTH,
-    TOPIC_JOBS,
-    TOPIC_HOBBY,
-    TOPIC_WEATHER,
-    TOPIC_ANIMALS,
-    TOPIC_HOUSEHOLD,
-    TOPIC_VERBS,
-    TOPIC_ADJECTIVES,
-    TOPIC_ADVERBS,
-    TOPIC_PREPOSITIONS,
-    TOPIC_COLORS,
-    TOPIC_EMOTIONS,
-    TOPIC_OBJECTS,
-]
-
-# Маппинг названий тем из файла words.json в константы
-TOPIC_NAME_MAP: Dict[str, str] = {
-    "Приветствия и базовые фразы": TOPIC_GREETINGS,
-    "Личные данные и знакомство": TOPIC_PERSONAL,
-    "Люди и внешность": TOPIC_PEOPLE,
-    "Семья": TOPIC_FAMILY,
-    "Дом": TOPIC_HOME,
-    "Еда и продукты": TOPIC_FOOD,
-    "Время и дни недели": TOPIC_TIME,
-    "Город и транспорт": TOPIC_CITY,
-    "Учеба и школа": TOPIC_SCHOOL,
-    "Покупки и магазины": TOPIC_SHOPPING,
-    "Здоровье и самочувствие": TOPIC_HEALTH,
-    "Работа и профессии": TOPIC_JOBS,
-    "Хобби и свободное время": TOPIC_HOBBY,
-    "Погода и природа": TOPIC_WEATHER,
-    "Животные": TOPIC_ANIMALS,
-    "Быт и дом": TOPIC_HOUSEHOLD,
-    "Глаголы": TOPIC_VERBS,
-    "Прилагательные": TOPIC_ADJECTIVES,
-    "Наречия": TOPIC_ADVERBS,
-    "Предлоги": TOPIC_PREPOSITIONS,
-    "Цвета": TOPIC_COLORS,
-    "Эмоции": TOPIC_EMOTIONS,
-    "Предметы и техника": TOPIC_OBJECTS,
-}
+# Внутренний ключ для режима "все слова вперемешку"
+TOPIC_ALL = "ALL"
 
 # ==========================
 # СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
 # ==========================
-
-# topic_stats:
-# {
-#   "Тема": {
-#       "runs": int,
-#       "best_accuracy": float,
-#       "last_accuracy": float,
-#       "total_correct": int,
-#       "total_wrong": int
-#   }, ...
-# }
 
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
@@ -187,19 +90,27 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
         "wrong": 0,
         "remaining": None,
         "check_mode": False,
-        "topic_stats": {},   # статистика по темам
+        "topic_stats": {},
     }
 )
 
-# Состояние по грамматике: grammar_state[user_id][rule_id] = {"correct": X, "wrong": Y, "q_index": N}
 grammar_state: Dict[int, Dict[int, Dict[str, int]]] = defaultdict(dict)
 
-# Список разрешенных пользователей
 allowed_users: set[int] = set()
 
-# Слова
+# Слова и индексы
 WORDS: List[Word] = []
+
+# Ключи WORDS_BY_TOPIC:
+# TOPIC_ALL                                          -> все слова
+# "A1|Приветствия и базовые фразы"                  -> все слова темы
+# "A1|Приветствия и базовые фразы|Приветствия"      -> слова конкретной подтемы
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
+
+# Статистика для меню
+LEVEL_COUNTS: Dict[str, int] = defaultdict(int)                     # "A1" -> 120
+TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)         # ("A1","Тема") -> 40
+SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int) # ("A1","Тема","Подтема") -> 15
 
 # ==========================
 # ГРАММАТИКА - ЗАГОТОВКА
@@ -277,24 +188,33 @@ def save_user_state() -> None:
 # ЗАГРУЗКА СЛОВ ИЗ words.json
 # ==========================
 
-def map_topic_from_json(topic_raw: str) -> str:
-    t = (topic_raw or "").strip()
-    if not t:
-        return TOPIC_DICT
-
-    for key, internal in TOPIC_NAME_MAP.items():
-        if key in t:
-            return internal
-
-    print(f"Внимание: тема из файла не распознана: '{topic_raw}'. Слова пойдут в общий словарь.")
-    return TOPIC_DICT
-
-
 def load_words(path: str = "words.json") -> None:
-    global WORDS, WORDS_BY_TOPIC
+    """
+    Ожидаемый формат:
+
+    {
+      "topics": [
+        {
+          "topic": "Приветствия и базовые фразы",
+          "level": "A1",
+          "subtopic": "Приветствия",
+          "words": [
+            { "de": "...", "tr": "...", "ru": "..." },
+            ...
+          ]
+        },
+        ...
+      ]
+    }
+    """
+
+    global WORDS, WORDS_BY_TOPIC, LEVEL_COUNTS, TOPIC_COUNTS, SUBTOPIC_COUNTS
 
     WORDS = []
     WORDS_BY_TOPIC = defaultdict(list)
+    LEVEL_COUNTS = defaultdict(int)
+    TOPIC_COUNTS = defaultdict(int)
+    SUBTOPIC_COUNTS = defaultdict(int)
 
     file_path = Path(path)
     if not file_path.exists():
@@ -304,60 +224,116 @@ def load_words(path: str = "words.json") -> None:
     with file_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-        def add_word(raw: Dict[str, Any], topic_raw: str) -> None:
-            de = raw.get("de")
-            tr = raw.get("tr")
-            ru = raw.get("ru")
+    def add_word(
+        raw: Dict[str, Any],
+        level_raw: str,
+        topic_raw: str,
+        subtopic_raw: str,
+    ) -> None:
+        de = raw.get("de")
+        tr = raw.get("tr")
+        ru = raw.get("ru")
 
-            if not de or not tr or not ru:
-                print("Пропускаю запись без нужных полей:", raw)
-                return
-
-            topic_internal = map_topic_from_json(topic_raw)
-
-            idx = len(WORDS)
-            word: Word = {
-                "id": idx,
-                "de": de,
-                "tr": tr,
-                "ru": ru,
-                "topic": topic_internal,
-            }
-
-            WORDS.append(word)
-            WORDS_BY_TOPIC[topic_internal].append(idx)
-            WORDS_BY_TOPIC[TOPIC_DICT].append(idx)
-
-        # Формат 1 - список [{de, tr, ru, topic}, ...]
-        if isinstance(data, list) and data and isinstance(data[0], dict) and "de" in data[0]:
-            for raw in data:
-                topic_raw = raw.get("topic") or raw.get("theme") or ""
-                add_word(raw, topic_raw)
-
-        # Формат 2 - список блоков [{topic: "...", words:[...]}, ...]
-        elif isinstance(data, list) and data and isinstance(data[0], dict) and "words" in data[0]:
-            for block in data:
-                topic_raw = block.get("topic") or ""
-                for raw in block.get("words", []):
-                    add_word(raw, topic_raw)
-
-        # Формат 3 - объект {"topics": [...]}
-        elif isinstance(data, dict) and "topics" in data:
-            for block in data["topics"]:
-                topic_raw = block.get("topic") or ""
-                for raw in block.get("words", []):
-                    add_word(raw, topic_raw)
-
-        else:
-            print("Неизвестный формат words.json")
+        if not de or not tr or not ru:
+            print("Пропускаю запись без нужных полей:", raw)
             return
 
-    WORDS_BY_TOPIC[TOPIC_ALL] = list(range(len(WORDS)))
+        level = (level_raw or "").strip() or "A1"
+        topic = (topic_raw or "").strip() or "Без темы"
+        subtopic = (subtopic_raw or "").strip() or "Общее"
+
+        idx = len(WORDS)
+        word: Word = {
+            "id": idx,
+            "de": de,
+            "tr": tr,
+            "ru": ru,
+            "level": level,
+            "topic": topic,
+            "subtopic": subtopic,
+        }
+
+        WORDS.append(word)
+
+        key_all = TOPIC_ALL
+        key_topic = f"{level}|{topic}"
+        key_subtopic = f"{level}|{topic}|{subtopic}"
+
+        WORDS_BY_TOPIC[key_all].append(idx)
+        WORDS_BY_TOPIC[key_topic].append(idx)
+        WORDS_BY_TOPIC[key_subtopic].append(idx)
+
+        LEVEL_COUNTS[level] += 1
+        TOPIC_COUNTS[(level, topic)] += 1
+        SUBTOPIC_COUNTS[(level, topic, subtopic)] += 1
+
+    if isinstance(data, dict) and "topics" in data:
+        for block in data["topics"]:
+            level_raw = block.get("level") or ""
+            topic_raw = block.get("topic") or ""
+            subtopic_raw = block.get("subtopic") or ""
+            for raw in block.get("words", []):
+                add_word(raw, level_raw, topic_raw, subtopic_raw)
+
+    elif isinstance(data, list) and data and isinstance(data[0], dict):
+        for block in data:
+            if "words" in block:
+                level_raw = block.get("level") or ""
+                topic_raw = block.get("topic") or ""
+                subtopic_raw = block.get("subtopic") or ""
+                for raw in block.get("words", []):
+                    add_word(raw, level_raw, topic_raw, subtopic_raw)
+            else:
+                level_raw = block.get("level") or ""
+                topic_raw = block.get("topic") or ""
+                subtopic_raw = block.get("subtopic") or ""
+                add_word(block, level_raw, topic_raw, subtopic_raw)
+    else:
+        print("Неизвестный формат words.json")
+        return
 
     print(f"Загружено слов: {len(WORDS)}")
-    for topic in ALL_TOPICS:
-        print(f"{topic}: {len(WORDS_BY_TOPIC.get(topic, []))} слов")
-    print(f"{TOPIC_DICT}: {len(WORDS_BY_TOPIC.get(TOPIC_DICT, []))} слов в общем словаре")
+    for level in sorted(LEVEL_COUNTS):
+        print(f"Уровень {level}: {LEVEL_COUNTS[level]} слов")
+    print(f"Всего тем: {len(TOPIC_COUNTS)}, всего подтем: {len(SUBTOPIC_COUNTS)}")
+
+# ==========================
+# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ТЕМ
+# ==========================
+
+def get_levels() -> List[str]:
+    return sorted(LEVEL_COUNTS.keys())
+
+
+def get_topics_for_level(level: str) -> List[str]:
+    topics = [
+        topic
+        for (lvl, topic), count in TOPIC_COUNTS.items()
+        if lvl == level and count > 0
+    ]
+    return sorted(set(topics))
+
+
+def get_subtopics_for_level_topic(level: str, topic: str) -> List[str]:
+    subs = [
+        subtopic
+        for (lvl, top, subtopic), count in SUBTOPIC_COUNTS.items()
+        if lvl == level and top == topic and count > 0
+    ]
+    return sorted(set(subs))
+
+
+def pretty_topic_name(topic_key: str) -> str:
+    if not topic_key or topic_key == TOPIC_ALL:
+        return "Все слова"
+    parts = topic_key.split("|")
+    if len(parts) == 3:
+        level, topic, subtopic = parts
+        return f"Уровень {level}: {topic} → {subtopic}"
+    if len(parts) == 2:
+        level, topic = parts
+        return f"Уровень {level}: {topic}"
+    return topic_key
 
 # ==========================
 # ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ СЛОВ
@@ -411,8 +387,8 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
     if not state["remaining"]:
         await bot.send_message(
             chat_id,
-            "В этой теме пока нет слов или ты уже прошел все слова.\n"
-            "Выбери другую тему через /themes или начни заново через /next."
+            "В этой подборке пока нет слов или ты уже прошел все слова.\n"
+            "Выбери уровень и тему через раздел Темы слов."
         )
         return
 
@@ -456,19 +432,58 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
 
 def build_themes_keyboard() -> InlineKeyboardMarkup:
     rows = []
-    for topic in ALL_TOPICS:
-        count = len(WORDS_BY_TOPIC.get(topic, []))
-        text = f"{topic} ({count})"
-        cb = f"topic|{topic}"
-        rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
 
-    rows.insert(
-        0,
-        [InlineKeyboardButton(
-            text=f"{TOPIC_ALL} ({len(WORDS)})",
-            callback_data=f"topic|{TOPIC_ALL}",
-        )],
+    total_words = len(WORDS)
+    rows.append(
+        [
+            InlineKeyboardButton(
+                text=f"Все слова ({total_words})",
+                callback_data="topic_all",
+            )
+        ]
     )
+
+    for level in get_levels():
+        count = LEVEL_COUNTS.get(level, 0)
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"Уровень {level} ({count})",
+                    callback_data=f"level|{level}",
+                )
+            ]
+        )
+
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def build_topics_keyboard_for_level(level: str) -> InlineKeyboardMarkup:
+    rows = []
+    for topic in get_topics_for_level(level):
+        count = TOPIC_COUNTS.get((level, topic), 0)
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{topic} ({count})",
+                    callback_data=f"topic_select|{level}|{topic}",
+                )
+            ]
+        )
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def build_subtopics_keyboard(level: str, topic: str) -> InlineKeyboardMarkup:
+    rows = []
+    for subtopic in get_subtopics_for_level_topic(level, topic):
+        count = SUBTOPIC_COUNTS.get((level, topic, subtopic), 0)
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{subtopic} ({count})",
+                    callback_data=f"subtopic|{level}|{topic}|{subtopic}",
+                )
+            ]
+        )
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
@@ -498,6 +513,12 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
                 InlineKeyboardButton(
                     text="🧠 Тренировать слова",
                     callback_data="menu_words",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📚 Темы слов",
+                    callback_data="menu_themes",
                 )
             ],
             [
@@ -625,6 +646,7 @@ def build_user_stats_text(uid: int) -> str:
     state = user_state[uid]
 
     current_topic = state.get("topic", TOPIC_ALL)
+    pretty_name = pretty_topic_name(current_topic)
     correct = state.get("correct", 0)
     wrong = state.get("wrong", 0)
     total = correct + wrong
@@ -641,18 +663,18 @@ def build_user_stats_text(uid: int) -> str:
         else:
             comment = "📌 Рекомендую пройти тему еще раз с самого начала."
     else:
-        accuracy_str = "нет данных"
+        accuracy_str = "Нет данных"
         comment = (
             "Пока нет ответов в этом круге. "
-            "Начни тренировку слов и потом снова открой /stats."
+            "Начни тренировку слов и затем снова открой статистику."
         )
 
     total_words_in_topic = len(WORDS_BY_TOPIC.get(current_topic, []))
 
     lines: List[str] = []
     lines.append("📊 Твоя статистика по тренировкам слов:\n")
-    lines.append(f"Текущая тема: {current_topic}")
-    lines.append(f"Слов в теме: {total_words_in_topic}")
+    lines.append(f"Текущая тема: {pretty_name}")
+    lines.append(f"Слов в этой подборке: {total_words_in_topic}")
     lines.append("")
     lines.append(f"✅ Правильных ответов: {correct}")
     lines.append(f"❌ Неправильных ответов: {wrong}")
@@ -660,11 +682,10 @@ def build_user_stats_text(uid: int) -> str:
     lines.append("")
     lines.append(comment)
     lines.append("")
-    lines.append("Статистика считается для текущего круга слов в выбранной теме.")
-    lines.append("Чтобы начать круг заново, можно использовать /next или сменить тему через /themes.")
+    lines.append("Статистика относится к текущему кругу слов в выбранной теме или подтеме.")
+    lines.append("Когда круг заканчивается, результаты сохраняются в общую статистику по темам.")
     lines.append("")
 
-    # Блок по темам
     topic_stats = state.get("topic_stats", {})
     if topic_stats:
         lines.append("📚 Результаты по темам, которые ты уже проходил:\n")
@@ -672,14 +693,15 @@ def build_user_stats_text(uid: int) -> str:
             runs = stats.get("runs", 0)
             best = stats.get("best_accuracy", 0.0)
             last = stats.get("last_accuracy", 0.0)
+            nice = pretty_topic_name(topic)
             lines.append(
-                f"• {topic}\n"
+                f"• {nice}\n"
                 f"  Проходов: {runs}\n"
                 f"  Лучшая точность: {best:.1f}%\n"
                 f"  Последний результат: {last:.1f}%\n"
             )
     else:
-        lines.append("Пока нет завершенных тем. Пройди любую тему до конца, чтобы увидеть результаты.")
+        lines.append("Пока нет завершенных кругов по темам.")
 
     return "\n".join(lines)
 
@@ -717,54 +739,35 @@ async def cmd_start(message: Message) -> None:
     uid = message.from_user.id
 
     if uid != ADMIN_ID and uid not in allowed_users:
+        kb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="🔓 Запросить доступ",
+                        callback_data="req_access",
+                    )
+                ]
+            ]
+        )
+
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
-            "Этот бот помогает тебе:\n"
-            "• Учить слова по темам\n"
-            "• Тренировать перевод 🇩🇪 ↔️ 🇷🇺 в формате викторины\n"
-            "• Разбираться в базовой грамматике\n"
-            "• Проверять свои предложения на немецком и видеть более правильный вариант\n\n"
-            "Доступ к боту ограничен.\n\n"
-            "Чтобы получить доступ:\n"
-            "1️⃣ Нажми команду /access\n"
-            "2️⃣ Бот отправит запрос администратору\n"
-            "3️⃣ После одобрения ты получишь сообщение о доступе и подсказки, с чего лучше начать\n\n"
-            "После получения доступа у тебя будут доступны режимы:\n\n"
-            "🧠 Тренировать слова\n\n"
-            "📘 Грамматика\n\n"
-            "✏️ Проверка предложений"
+            "Этот бот помогает тебе шаг за шагом улучшать немецкий через слова, темы, грамматику и проверку предложений.\n\n"
+            "Доступ к боту ограничен. Нажми кнопку ниже, чтобы отправить запрос администратору."
         )
-        await message.answer(text)
+        await message.answer(text, reply_markup=kb)
         return
 
     total_words = len(WORDS)
-    used_topics = {w["topic"] for w in WORDS}
-    total_topics = len(used_topics)
+    total_topics = len(TOPIC_COUNTS)
+    total_subtopics = len(SUBTOPIC_COUNTS)
 
     text = (
         "🎓 Willkommen. Добро пожаловать в бота по немецкому языку.\n\n"
-        "Этот бот помогает шаг за шагом улучшать твой немецкий через слова, темы и простые упражнения.\n\n"
-        "📚 Что умеет бот:\n"
-        "• Помогает учить слова по темам.\n"
-        "• Проводит тренировки перевода в формате викторины.\n"
-        "• Считает, сколько ответов было правильных и неправильных.\n"
-        "• Дает базовые упражнения по грамматике.\n"
-        "• Проверяет твои предложения на немецком и показывает более правильный вариант.\n\n"
+        "Этот бот помогает улучшать немецкий язык с помощью тренировок по словам, темам и простых упражнений по грамматике.\n\n"
         f"Сейчас в базе {total_words} слов.\n"
-        f"Тем по словам: {total_topics}.\n\n"
-        "⚙️ Режимы тренировки слов:\n"
-        "• 🇩🇪 → 🇷🇺 Показываю немецкое слово, ты выбираешь перевод на русский.\n"
-        "• 🇷🇺 → 🇩🇪 Показываю русское слово, ты выбираешь вариант на немецком с транскрипцией.\n\n"
-        "📌 Основные команды:\n"
-        "• /next - следующее слово в текущей теме.\n"
-        "• /themes - выбор темы слов.\n"
-        "• /mode - выбор направления перевода.\n"
-        "• /grammar - раздел грамматики.\n"
-        "• /check - включить режим проверки предложений.\n"
-        "• /checkoff - выключить режим проверки предложений.\n"
-        "• /stats - посмотреть свою статистику.\n\n"
-        "В режиме /check ты пишешь предложения на немецком, а бот предлагает исправленный вариант и указывает, что можно улучшить.\n\n"
-        "👇 Выбери действие в меню и начинаем."
+        f"Тем: {total_topics}, подтем: {total_subtopics}.\n\n"
+        "Ниже ты видишь главное меню. Выбирай режим, и бот проведет тебя по шагам."
     )
 
     kb = build_main_menu_keyboard()
@@ -780,8 +783,7 @@ async def cmd_access(message: Message) -> None:
 
     if uid == ADMIN_ID or uid in allowed_users:
         await message.answer(
-            "У тебя уже есть доступ к боту.\n"
-            "Можешь пользоваться командами как обычно: /start, /themes, /next, /mode, /grammar, /check."
+            "У тебя уже есть доступ к боту. Пользуйся главным меню ниже."
         )
         return
 
@@ -810,12 +812,11 @@ async def cmd_access(message: Message) -> None:
         )
         await message.answer(
             "Запрос на доступ отправлен администратору.\n"
-            "После одобрения ты получишь сообщение с инструкциями."
+            "После одобрения ты получишь сообщение."
         )
     except Exception:
         await message.answer(
-            "Не получилось отправить запрос администратору.\n"
-            "Попробуй позже."
+            "Не получилось отправить запрос администратору. Попробуй позже."
         )
 
 
@@ -824,7 +825,7 @@ async def cmd_next(message: Message) -> None:
     uid = message.from_user.id
 
     if uid != ADMIN_ID and uid not in allowed_users:
-        await message.answer("Нет доступа. Напиши /access для запроса.")
+        await message.answer("Нет доступа.")
         return
 
     state = user_state[uid]
@@ -834,24 +835,12 @@ async def cmd_next(message: Message) -> None:
     await send_new_word(uid, message.chat.id)
 
 
-@dp.message(Command("themes"))
-async def cmd_themes(message: Message) -> None:
-    uid = message.from_user.id
-
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await message.answer("Нет доступа. Напиши /access для запроса.")
-        return
-
-    kb = build_themes_keyboard()
-    await message.answer("Выбери тему для изучения слов.", reply_markup=kb)
-
-
 @dp.message(Command("mode"))
 async def cmd_mode(message: Message) -> None:
     uid = message.from_user.id
 
     if uid != ADMIN_ID and uid not in allowed_users:
-        await message.answer("Нет доступа. Напиши /access для запроса.")
+        await message.answer("Нет доступа.")
         return
 
     kb = build_mode_keyboard()
@@ -866,13 +855,12 @@ async def cmd_grammar(message: Message) -> None:
     uid = message.from_user.id
 
     if uid != ADMIN_ID and uid not in allowed_users:
-        await message.answer("Нет доступа. Напиши /access для запроса.")
+        await message.answer("Нет доступа.")
         return
 
     if not GRAMMAR_RULES:
         await message.answer(
-            "Раздел грамматики пока не настроен.\n"
-            "Добавь свои правила в список GRAMMAR_RULES в bot.py."
+            "Раздел грамматики пока не настроен. Добавь свои правила в список GRAMMAR_RULES."
         )
         return
 
@@ -885,16 +873,14 @@ async def cmd_check_on(message: Message) -> None:
     uid = message.from_user.id
 
     if uid != ADMIN_ID and uid not in allowed_users:
-        await message.answer("Нет доступа. Напиши /access для запроса.")
+        await message.answer("Нет доступа.")
         return
 
     user_state[uid]["check_mode"] = True
     save_user_state()
     await message.answer(
         "✏️ Режим проверки предложений включен.\n\n"
-        "Напиши мне предложение на немецком одним сообщением.\n"
-        "Я покажу более правильный вариант и укажу, что можно улучшить.\n\n"
-        "Чтобы выключить проверку, используй команду /checkoff."
+        "Напиши предложение на немецком, и я предложу исправленный вариант и отмечу ошибки."
     )
 
 
@@ -903,14 +889,13 @@ async def cmd_check_off(message: Message) -> None:
     uid = message.from_user.id
 
     if uid != ADMIN_ID and uid not in allowed_users:
-        await message.answer("Нет доступа. Напиши /access для запроса.")
+        await message.answer("Нет доступа.")
         return
 
     user_state[uid]["check_mode"] = False
     save_user_state()
     await message.answer(
-        "Режим проверки предложений выключен.\n"
-        "Ты можешь продолжать использовать тренировки слов и грамматику."
+        "Режим проверки предложений выключен. Можно вернуться к тренировке слов или грамматики."
     )
 
 
@@ -919,7 +904,7 @@ async def cmd_stats(message: Message) -> None:
     uid = message.from_user.id
 
     if uid != ADMIN_ID and uid not in allowed_users:
-        await message.answer("Нет доступа. Напиши /access для запроса.")
+        await message.answer("Нет доступа.")
         return
 
     text = build_user_stats_text(uid)
@@ -956,6 +941,45 @@ async def handle_plain_text(message: Message) -> None:
 # CALLBACK ХЕНДЛЕРЫ
 # ==========================
 
+@dp.callback_query(F.data == "req_access")
+async def cb_req_access(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid == ADMIN_ID or uid in allowed_users:
+        await callback.answer("Доступ уже есть.")
+        return
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="✅ Разрешить доступ",
+                    callback_data=f"allow|{uid}"
+                )
+            ]
+        ]
+    )
+
+    txt = (
+        "🆕 Новый запрос на доступ.\n"
+        f"Пользователь: {callback.from_user.full_name}\n"
+        f"ID: {uid}"
+    )
+
+    try:
+        await bot.send_message(
+            ADMIN_ID,
+            txt,
+            reply_markup=kb,
+        )
+        await callback.answer("Запрос отправлен администратору.")
+        await callback.message.answer(
+            "Запрос на доступ отправлен. Ожидай решение администратора."
+        )
+    except Exception:
+        await callback.answer("Ошибка отправки запроса.", show_alert=True)
+
+
 @dp.callback_query(F.data.startswith("allow|"))
 async def cb_allow_user(callback: CallbackQuery) -> None:
     if callback.from_user.id != ADMIN_ID:
@@ -976,22 +1000,10 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
     try:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
-            "Теперь ты можешь использовать все функции бота.\n\n"
-            "Основные команды:\n"
-            "• /start - информация о боте и главное меню\n"
-            "• /themes - выбор темы слов\n"
-            "• /mode - выбор направления перевода\n"
-            "• /next - следующее слово в текущей теме\n"
-            "• /grammar - грамматика\n"
-            "• /check - включить режим проверки предложений\n"
-            "• /checkoff - выключить режим проверки предложений\n"
-            "• /stats - посмотреть свою статистику\n\n"
-            "Если ответ в тренажере слов неправильный, новое слово не дается.\n"
-            "Нужно ответить правильно на текущее слово.\n"
-            "После правильного ответа бот покажет полный перевод с транскрипцией.\n"
-            "В режиме /check ты просто пишешь предложения на немецком, а бот предлагает исправленный вариант и указывает, что можно улучшить."
+            "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
+            "Выбирай тренировки слов, темы, грамматику или проверку предложений с помощью кнопок."
         )
-        await bot.send_message(user_id, text)
+        await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
     except Exception:
         pass
 
@@ -1005,17 +1017,27 @@ async def cb_menu_words(callback: CallbackQuery) -> None:
         return
 
     await callback.answer()
-    reset_progress(uid)
+    kb = build_themes_keyboard()
     await callback.message.answer(
-        "🧠 Режим тренировки слов.\n"
-        "Я покажу слово и 4 варианта ответа.\n"
-        "Если ответ неправильный, то новое слово не появится,\n"
-        "пока ты не ответишь правильно на текущее слово.\n\n"
-        "После правильного ответа ты увидишь полный ответ\n"
-        "(немецкое слово, транскрипция и перевод),\n"
-        "а затем бот покажет следующее слово."
+        "Сначала выбери уровень и тему, а затем подтему. В скобках показано количество слов.",
+        reply_markup=kb,
     )
-    await send_new_word(uid, callback.message.chat.id)
+
+
+@dp.callback_query(F.data == "menu_themes")
+async def cb_menu_themes(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    kb = build_themes_keyboard()
+    await callback.message.answer(
+        "Выбери уровень или сразу все слова. Затем выбери тему и подтему.",
+        reply_markup=kb,
+    )
 
 
 @dp.callback_query(F.data == "menu_grammar")
@@ -1030,13 +1052,12 @@ async def cb_menu_grammar(callback: CallbackQuery) -> None:
 
     if not GRAMMAR_RULES:
         await callback.message.answer(
-            "Раздел грамматики пока не настроен.\n"
-            "Добавь свои правила в список GRAMMAR_RULES в bot.py."
+            "Раздел грамматики пока не настроен. Добавь свои правила в список GRAMMAR_RULES."
         )
         return
 
     kb = build_grammar_keyboard()
-    await callback.message.answer("Выбери грамматическое правило:", reply_markup=kb)
+    await callback.message.answer("Выбери грамматическую тему:", reply_markup=kb)
 
 
 @dp.callback_query(F.data == "menu_check")
@@ -1054,8 +1075,7 @@ async def cb_menu_check(callback: CallbackQuery) -> None:
 
     await callback.message.answer(
         "✏️ Режим проверки предложений включен.\n\n"
-        "Напиши мне предложение на немецком, и я предложу более правильный вариант и укажу основные ошибки.\n\n"
-        "Чтобы выйти из этого режима, используй команду /checkoff."
+        "Напиши предложение на немецком, и я предложу исправленный вариант и отмечу ошибки."
     )
 
 
@@ -1071,6 +1091,113 @@ async def cb_menu_stats(callback: CallbackQuery) -> None:
 
     text = build_user_stats_text(uid)
     await callback.message.answer(text)
+
+
+@dp.callback_query(F.data == "topic_all")
+async def cb_topic_all(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    user_state[uid]["topic"] = TOPIC_ALL
+    reset_progress(uid)
+    count = len(WORDS_BY_TOPIC.get(TOPIC_ALL, []))
+
+    await callback.answer("Режим обновлен.")
+    text = (
+        "🔁 Ты выбрал режим: все слова.\n\n"
+        f"Всего слов в базе: {count}.\n\n"
+        "Буду давать слова из всех уровней, тем и подтем."
+    )
+    try:
+        await callback.message.edit_text(text)
+    except Exception:
+        await callback.message.answer(text)
+
+    await send_new_word(uid, callback.message.chat.id)
+
+
+@dp.callback_query(F.data.startswith("level|"))
+async def cb_level(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, level = callback.data.split("|", maxsplit=1)
+    if level not in LEVEL_COUNTS:
+        await callback.answer("Для этого уровня пока нет слов.", show_alert=True)
+        return
+
+    await callback.answer()
+    kb = build_topics_keyboard_for_level(level)
+    text = (
+        f"Ты выбрал уровень {level}.\n\n"
+        "Теперь выбери тему. В скобках указано, сколько слов во всех подтемах этой темы."
+    )
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("topic_select|"))
+async def cb_topic_select(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, level, topic = callback.data.split("|", maxsplit=2)
+
+    await callback.answer()
+    kb = build_subtopics_keyboard(level, topic)
+
+    total_in_topic = TOPIC_COUNTS.get((level, topic), 0)
+    text = (
+        f"Уровень: {level}\n"
+        f"Тема: {topic}\n"
+        f"Всего слов в этой теме: {total_in_topic}\n\n"
+        "Теперь выбери подтему. В скобках указано количество слов в каждой подтеме."
+    )
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("subtopic|"))
+async def cb_subtopic(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, level, topic, subtopic = callback.data.split("|", maxsplit=3)
+
+    topic_key = f"{level}|{topic}|{subtopic}"
+    user_state[uid]["topic"] = topic_key
+    reset_progress(uid)
+
+    count = len(WORDS_BY_TOPIC.get(topic_key, []))
+
+    await callback.answer("Тема выбрана.")
+    text = (
+        f"Уровень: {level}\n"
+        f"Тема: {topic}\n"
+        f"Подтема: {subtopic}\n"
+        f"Слов в этой подтеме: {count}\n\n"
+        "Теперь я буду давать слова только из этой подтемы."
+    )
+
+    try:
+        await callback.message.edit_text(text)
+    except Exception:
+        await callback.message.answer(text)
+
+    await send_new_word(uid, callback.message.chat.id)
 
 
 @dp.callback_query(F.data.startswith("mode|"))
@@ -1092,24 +1219,6 @@ async def cb_mode(callback: CallbackQuery) -> None:
         await callback.message.edit_text(txt)
     except Exception:
         await callback.message.answer(txt)
-
-
-@dp.callback_query(F.data.startswith("topic|"))
-async def cb_topic(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, topic = callback.data.split("|", maxsplit=1)
-    user_state[uid]["topic"] = topic
-
-    reset_progress(uid)
-    count = len(WORDS_BY_TOPIC.get(topic, []))
-
-    await callback.answer("Тема выбрана.")
-    await callback.message.edit_text(f"Тема установлена: {topic}.\nСлов в теме: {count}.")
-    await send_new_word(uid, callback.message.chat.id)
 
 
 @dp.callback_query(F.data.startswith("ans|"))
@@ -1146,17 +1255,16 @@ async def cb_answer(callback: CallbackQuery) -> None:
         finished_now = not state["remaining"]
 
         if finished_now:
-            # Обновляем статистику по теме
             current_topic = state.get("topic", TOPIC_ALL)
             correct = state.get("correct", 0)
             wrong = state.get("wrong", 0)
             update_topic_stats(uid, current_topic, correct, wrong)
 
             text += (
-                "\n\nТы прошел все слова в этой теме.\n"
+                "\n\nТы прошел все слова в этой подборке.\n"
                 f'✅ Правильных ответов: {state["correct"]}\n'
                 f'❌ Неправильных ответов: {state["wrong"]}\n\n'
-                "Чтобы начать круг заново, набери /next или выбери другую тему через /themes."
+                "Можно выбрать другую подтему в разделе Темы слов или начать новую тренировку."
             )
 
         try:
@@ -1266,7 +1374,7 @@ async def cb_grammar_question(callback: CallbackQuery) -> None:
             f"Ты прошел все упражнения по теме: {rule['title']}.\n\n"
             f"✅ Правильных ответов: {total_correct}\n"
             f"❌ Неправильных ответов: {total_wrong}\n\n"
-            "Можешь выбрать другую тему через /grammar или повторить эту же тему."
+            "Можно выбрать другую грамматическую тему."
         )
         await callback.message.answer(summary)
         return
