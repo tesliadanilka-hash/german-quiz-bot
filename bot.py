@@ -75,8 +75,7 @@ GrammarRule = Dict[str, Any]
 # ТЕМЫ ДЛЯ СЛОВ
 # ==========================
 
-# Внутренний ключ для режима "все слова вперемешку"
-TOPIC_ALL = "ALL"
+TOPIC_ALL = "ALL"  # внутренняя тема "все слова"
 
 # ==========================
 # СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
@@ -84,13 +83,16 @@ TOPIC_ALL = "ALL"
 
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
-        "mode": "de_ru",
-        "topic": TOPIC_ALL,
+        "mode": "de_ru",              # направление перевода (для вариантов)
+        "topic": TOPIC_ALL,           # текущая тема / подтема
         "correct": 0,
         "wrong": 0,
         "remaining": None,
-        "check_mode": False,
+        "check_mode": False,          # режим проверки предложений
         "topic_stats": {},
+        "answer_mode": "choice",      # "choice" или "typing"
+        "waiting_text_answer": False, # ожидаем ли написанный ответ
+        "current_word_id": None,      # id текущего слова для ввода
     }
 )
 
@@ -103,16 +105,16 @@ WORDS: List[Word] = []
 
 # Ключи WORDS_BY_TOPIC:
 # TOPIC_ALL                                          -> все слова
-# "A1|Приветствия и базовые фразы"                  -> все слова темы
-# "A1|Приветствия и базовые фразы|Приветствия"      -> слова конкретной подтемы
+# "A1|Тема"                                          -> все слова темы
+# "A1|Тема|Подтема"                                  -> слова конкретной подтемы
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 
 # Статистика для меню
-LEVEL_COUNTS: Dict[str, int] = defaultdict(int)                     # "A1" -> число слов
-TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)         # ("A1","Тема") -> число слов
-SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int) # ("A1","Тема","Подтема") -> число слов
+LEVEL_COUNTS: Dict[str, int] = defaultdict(int)
+TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)
+SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int)
 
-# Короткие ID для тем и подтем, чтобы callback_data были короткими
+# Короткие ID для тем и подтем
 TOPIC_ID_BY_KEY: Dict[Tuple[str, str], str] = {}
 TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
 
@@ -376,6 +378,8 @@ def reset_progress(uid: int) -> None:
     state = user_state[uid]
     state["correct"] = 0
     state["wrong"] = 0
+    state["waiting_text_answer"] = False
+    state["current_word_id"] = None
     ids = get_user_words(uid)
     ids = ids.copy()
     random.shuffle(ids)
@@ -419,16 +423,27 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
 
     word_id = state["remaining"].pop()
     w = WORDS[word_id]
+    answer_mode = state.get("answer_mode", "choice")
     mode = state["mode"]
     word_pool = get_user_words(user_id)
 
-    if mode == "de_ru":
-        text = f'🇩🇪 Слово: {w["de"]} [{w["tr"]}]\nВыбери правильный перевод на русский.'
+    if answer_mode == "choice":
+        if mode == "de_ru":
+            text = f'🇩🇪 Слово: {w["de"]} [{w["tr"]}]\nВыбери правильный перевод на русский.'
+        else:
+            text = f'🇷🇺 Слово: {w["ru"]}\nВыбери правильный перевод на немецкий.'
+        kb = build_options(word_pool, word_id, mode)
+        await bot.send_message(chat_id, text, reply_markup=kb)
     else:
-        text = f'🇷🇺 Слово: {w["ru"]}\nВыбери правильный перевод на немецкий.'
-
-    kb = build_options(word_pool, word_id, mode)
-    await bot.send_message(chat_id, text, reply_markup=kb)
+        # Режим ввода: показываем русское слово, просим написать по-немецки
+        text = (
+            f'🇷🇺 Слово: {w["ru"]}\n\n'
+            "Напиши это слово по немецки."
+        )
+        state["current_word_id"] = word_id
+        state["waiting_text_answer"] = True
+        save_user_state()
+        await bot.send_message(chat_id, text)
 
 
 async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> None:
@@ -539,6 +554,27 @@ def build_mode_keyboard() -> InlineKeyboardMarkup:
     )
 
 
+def build_answer_mode_keyboard(current: str) -> InlineKeyboardMarkup:
+    choice_mark = "✅ " if current == "choice" else ""
+    typing_mark = "✅ " if current == "typing" else ""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=f"{choice_mark}Варианты ответа (4)",
+                    callback_data="answer_mode|choice",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text=f"{typing_mark}Ввод слова вручную",
+                    callback_data="answer_mode|typing",
+                )
+            ],
+        ]
+    )
+
+
 def build_main_menu_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
@@ -552,6 +588,12 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
                 InlineKeyboardButton(
                     text="📚 Темы слов",
                     callback_data="menu_themes",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⚙️ Формат ответа",
+                    callback_data="menu_answer_mode",
                 )
             ],
             [
@@ -944,7 +986,7 @@ async def cmd_stats(message: Message) -> None:
     await message.answer(text)
 
 # ==========================
-# ОБРАБОТЧИК ТЕКСТА В РЕЖИМЕ ПРОВЕРКИ
+# ОБРАБОТЧИК ТЕКСТА
 # ==========================
 
 @dp.message(F.text & ~F.text.startswith("/"))
@@ -954,21 +996,64 @@ async def handle_plain_text(message: Message) -> None:
     if uid != ADMIN_ID and uid not in allowed_users:
         return
 
-    state = user_state[uid]
-
-    if not state.get("check_mode", False):
-        return
-
     text = message.text.strip()
     if not text:
-        await message.answer("Напиши, пожалуйста, предложение на немецком.")
         return
 
-    waiting_msg = await message.answer("⌛ Проверяю предложение...")
+    state = user_state[uid]
 
-    result = await check_text_with_ai(text)
+    # 1. Режим проверки предложений
+    if state.get("check_mode", False):
+        waiting_msg = await message.answer("⌛ Проверяю предложение...")
+        result = await check_text_with_ai(text)
+        await waiting_msg.edit_text(result)
+        return
 
-    await waiting_msg.edit_text(result)
+    # 2. Режим ввода слова (вместо 4 вариантов)
+    if state.get("answer_mode") == "typing" and state.get("waiting_text_answer"):
+        word_id = state.get("current_word_id")
+        if word_id is None or word_id < 0 or word_id >= len(WORDS):
+            state["waiting_text_answer"] = False
+            state["current_word_id"] = None
+            save_user_state()
+            await message.answer("Что то пошло не так. Попробуй запросить новое слово.")
+            return
+
+        w = WORDS[word_id]
+        user_answer = text.lower().strip()
+        correct_answer = w["de"].lower().strip()
+
+        # Простая проверка равенства. Если нужно, потом можно сделать более умный фуззи матч.
+        if user_answer == correct_answer:
+            state["correct"] += 1
+            state["waiting_text_answer"] = False
+            state["current_word_id"] = None
+            save_user_state()
+
+            reply = (
+                "✅ Правильно.\n\n"
+                f'{w["de"]} [{w["tr"]}] - {w["ru"]}'
+            )
+            await message.answer(reply)
+        else:
+            state["wrong"] += 1
+            state["waiting_text_answer"] = False
+            state["current_word_id"] = None
+            save_user_state()
+
+            reply = (
+                "❌ Неправильно.\n\n"
+                f"Правильный ответ:\n"
+                f'{w["de"]} [{w["tr"]}] - {w["ru"]}'
+            )
+            await message.answer(reply)
+
+        # Следующее слово
+        await send_new_word(uid, message.chat.id)
+        return
+
+    # Если ни проверка, ни режим ввода ответа, просто игнорируем текст
+    return
 
 # ==========================
 # CALLBACK ХЕНДЛЕРЫ
@@ -1034,7 +1119,7 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
             "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
-            "Выбирай тренировки слов, темы, грамматику или проверку предложений с помощью кнопок."
+            "Выбирай тренировки слов, темы, формат ответа, грамматику или проверку предложений с помощью кнопок."
         )
         await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
     except Exception:
@@ -1071,6 +1156,65 @@ async def cb_menu_themes(callback: CallbackQuery) -> None:
         "Выбери уровень или сразу все слова. Затем выбери тему и подтему.",
         reply_markup=kb,
     )
+
+
+@dp.callback_query(F.data == "menu_answer_mode")
+async def cb_menu_answer_mode(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    current = user_state[uid].get("answer_mode", "choice")
+    kb = build_answer_mode_keyboard(current)
+    text = (
+        "Выбери формат ответа:\n\n"
+        "• Варианты ответа (4) – как тест, нажимаешь одну из четырех кнопок.\n"
+        "• Ввод слова вручную – я показываю русское слово, а ты пишешь его по немецки."
+    )
+    await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("answer_mode|"))
+async def cb_answer_mode(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, mode = callback.data.split("|", maxsplit=1)
+    if mode not in ("choice", "typing"):
+        await callback.answer("Неизвестный формат ответа.", show_alert=True)
+        return
+
+    state = user_state[uid]
+    state["answer_mode"] = mode
+    state["waiting_text_answer"] = False
+    state["current_word_id"] = None
+    save_user_state()
+
+    await callback.answer("Формат ответа обновлен.")
+    current = state["answer_mode"]
+    kb = build_answer_mode_keyboard(current)
+
+    if mode == "choice":
+        text = (
+            "Теперь формат ответа: варианты.\n\n"
+            "По каждому слову будет 4 варианта ответа на кнопках."
+        )
+    else:
+        text = (
+            "Теперь формат ответа: ввод слова вручную.\n\n"
+            "Я показываю русское слово, а ты пишешь его по немецки."
+        )
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
 
 
 @dp.callback_query(F.data == "menu_grammar")
