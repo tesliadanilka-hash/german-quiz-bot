@@ -464,6 +464,12 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
                     callback_data="menu_check",
                 )
             ],
+            [
+                InlineKeyboardButton(
+                    text="📊 Моя статистика",
+                    callback_data="menu_stats",
+                )
+            ],
         ]
     )
 
@@ -534,6 +540,40 @@ async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> Non
     text = build_grammar_question_text(rule, q_index)
     kb = build_grammar_question_keyboard(rule_id, q_index)
     await bot.send_message(chat_id, text, reply_markup=kb)
+
+# ==========================
+# СТАТИСТИКА ПОЛЬЗОВАТЕЛЯ
+# ==========================
+
+def build_user_stats_text(uid: int) -> str:
+    state = user_state[uid]
+
+    current_topic = state.get("topic", TOPIC_ALL)
+    correct = state.get("correct", 0)
+    wrong = state.get("wrong", 0)
+    total = correct + wrong
+
+    if total > 0:
+        accuracy = correct * 100 / total
+        accuracy_str = f"{accuracy:.1f}%"
+    else:
+        accuracy_str = "нет данных"
+
+    total_words_in_topic = len(WORDS_BY_TOPIC.get(current_topic, []))
+
+    lines: List[str] = []
+    lines.append("📊 Твоя статистика по тренировкам слов:\n")
+    lines.append(f"Текущая тема: {current_topic}")
+    lines.append(f"Слов в теме: {total_words_in_topic}")
+    lines.append("")
+    lines.append(f"✅ Правильных ответов: {correct}")
+    lines.append(f"❌ Неправильных ответов: {wrong}")
+    lines.append(f"🎯 Точность: {accuracy_str}")
+    lines.append("")
+    lines.append("Статистика считается для текущего круга слов в выбранной теме.")
+    lines.append("Чтобы начать круг заново, можно использовать /next или сменить тему через /themes.")
+
+    return "\n".join(lines)
 
 # ==========================
 # ПРОВЕРКА ПРЕДЛОЖЕНИЙ
@@ -613,7 +653,8 @@ async def cmd_start(message: Message) -> None:
         "• /mode - выбор направления перевода.\n"
         "• /grammar - раздел грамматики.\n"
         "• /check - включить режим проверки предложений.\n"
-        "• /checkoff - выключить режим проверки предложений.\n\n"
+        "• /checkoff - выключить режим проверки предложений.\n"
+        "• /stats - посмотреть свою статистику по словам.\n\n"
         "🧠 Как проходит тренировка слов:\n"
         "Если ответ неправильный, новое слово не появляется, пока ты не ответишь правильно на текущее.\n"
         "После правильного ответа бот показывает полный вариант: немецкое слово, транскрипцию и перевод.\n\n"
@@ -765,6 +806,18 @@ async def cmd_check_off(message: Message) -> None:
         "Ты можешь продолжать использовать тренировки слов и грамматику."
     )
 
+
+@dp.message(Command("stats"))
+async def cmd_stats(message: Message) -> None:
+    uid = message.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await message.answer("Нет доступа. Напиши /access для запроса.")
+        return
+
+    text = build_user_stats_text(uid)
+    await message.answer(text)
+
 # ==========================
 # ОБРАБОТЧИК ТЕКСТА В РЕЖИМЕ ПРОВЕРКИ
 # ==========================
@@ -833,7 +886,8 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
             "• /next - следующее слово в текущей теме\n"
             "• /grammar - грамматика\n"
             "• /check - включить режим проверки предложений\n"
-            "• /checkoff - выключить режим проверки предложений\n\n"
+            "• /checkoff - выключить режим проверки предложений\n"
+            "• /stats - посмотреть свою статистику по словам\n\n"
             "Важно:\n"
             "Если ответ в тренажере слов неправильный, новое слово не дается.\n"
             "Нужно ответить правильно на текущее слово.\n"
@@ -905,6 +959,20 @@ async def cb_menu_check(callback: CallbackQuery) -> None:
         "Напиши мне предложение на немецком, и я предложу более правильный вариант и укажу основные ошибки.\n\n"
         "Чтобы выйти из этого режима, используй команду /checkoff."
     )
+
+
+@dp.callback_query(F.data == "menu_stats")
+async def cb_menu_stats(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    text = build_user_stats_text(uid)
+    await callback.message.answer(text)
 
 
 @dp.callback_query(F.data.startswith("mode|"))
