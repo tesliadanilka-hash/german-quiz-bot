@@ -681,8 +681,10 @@ async def cmd_start(message: Message) -> None:
     kb = build_main_menu_keyboard()
     await message.answer(text, reply_markup=kb)
 
-    reset_progress(uid)
+    # Больше не сбрасываем прогресс при /start
+    # reset_progress(uid)
     user_state[uid]["check_mode"] = False
+
 
 
 @dp.message(Command("access"))
@@ -1194,4 +1196,5 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
