@@ -37,8 +37,15 @@ if not TOKEN:
         "Не найден токен бота. Проверь, что в Render задана переменная BOT_TOKEN."
     )
 
-bot = Bot(TOKEN, parse_mode="HTML")
+from aiogram.client.default import DefaultBotProperties
+
+bot = Bot(
+    token=TOKEN,
+    default=DefaultBotProperties(parse_mode="HTML")
+)
+
 dp = Dispatcher()
+
 
 # ==========================
 # ХРАНИЛИЩЕ ДАННЫХ
@@ -557,3 +564,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
