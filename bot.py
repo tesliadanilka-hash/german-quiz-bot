@@ -1449,7 +1449,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
         finished_now = not state["remaining"]
 
-        if finished_now:
+                if finished_now:
             current_topic = state.get("topic", TOPIC_ALL)
             correct = state.get("correct", 0)
             wrong = state.get("wrong", 0)
@@ -1457,10 +1457,11 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
             text += (
                 "\n\nТы прошел все слова в этой подборке.\n"
-                f'✅ Правильных ответов: {state["correct"]}\n'
-                f'❌ Неправильных ответов: {state["wrong"]}\n\n"
+                f"✅ Правильных ответов: {state['correct']}\n"
+                f"❌ Неправильных ответов: {state['wrong']}\n\n"
                 "Можно выбрать другую подтему в Тренировке слов или начать новую тренировку."
             )
+
 
         try:
             await callback.message.edit_text(text)
@@ -1589,3 +1590,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
