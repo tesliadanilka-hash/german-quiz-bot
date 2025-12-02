@@ -435,7 +435,7 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
         kb = build_options(word_pool, word_id, mode)
         await bot.send_message(chat_id, text, reply_markup=kb)
     else:
-        # Режим ввода: показываем русское слово, просим написать по-немецки БЕЗ транскрипции
+        # Режим ввода: показываем русское слово, просим написать по-немецки без транскрипции
         text = (
             f'🇷🇺 Слово: {w["ru"]}\n\n'
             "Напиши это слово по немецки, только само немецкое слово, без транскрипции и без скобок."
@@ -469,71 +469,6 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
 # ==========================
 # КЛАВИАТУРЫ
 # ==========================
-
-def build_themes_keyboard() -> InlineKeyboardMarkup:
-    rows = []
-
-    total_words = len(WORDS)
-    rows.append(
-        [
-            InlineKeyboardButton(
-                text=f"Все слова ({total_words})",
-                callback_data="topic_all",
-            )
-        ]
-    )
-
-    for level in get_levels():
-        count = LEVEL_COUNTS.get(level, 0)
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text=f"Уровень {level} ({count})",
-                    callback_data=f"level|{level}",
-                )
-            ]
-        )
-
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def build_topics_keyboard_for_level(level: str) -> InlineKeyboardMarkup:
-    rows = []
-    for topic in get_topics_for_level(level):
-        key = (level, topic)
-        topic_id = TOPIC_ID_BY_KEY.get(key)
-        if not topic_id:
-            continue
-        count = TOPIC_COUNTS.get(key, 0)
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text=f"{topic} ({count})",
-                    callback_data=f"topic_select|{topic_id}",
-                )
-            ]
-        )
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def build_subtopics_keyboard(level: str, topic: str) -> InlineKeyboardMarkup:
-    rows = []
-    for subtopic in get_subtopics_for_level_topic(level, topic):
-        key = (level, topic, subtopic)
-        sub_id = SUBTOPIC_ID_BY_KEY.get(key)
-        if not sub_id:
-            continue
-        count = SUBTOPIC_COUNTS.get(key, 0)
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text=f"{subtopic} ({count})",
-                    callback_data=f"subtopic|{sub_id}",
-                )
-            ]
-        )
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
 
 def build_main_menu_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
@@ -570,6 +505,87 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
             ],
         ]
     )
+
+
+def build_back_to_main_row() -> List[List[InlineKeyboardButton]]:
+    return [
+        [
+            InlineKeyboardButton(
+                text="⬅️ Главное меню",
+                callback_data="back_main",
+            )
+        ]
+    ]
+
+
+def build_themes_keyboard() -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+
+    total_words = len(WORDS)
+    rows.append(
+        [
+            InlineKeyboardButton(
+                text=f"Все слова ({total_words})",
+                callback_data="topic_all",
+            )
+        ]
+    )
+
+    for level in get_levels():
+        count = LEVEL_COUNTS.get(level, 0)
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"Уровень {level} ({count})",
+                    callback_data=f"level|{level}",
+                )
+            ]
+        )
+
+    rows.extend(build_back_to_main_row())
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def build_topics_keyboard_for_level(level: str) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for topic in get_topics_for_level(level):
+        key = (level, topic)
+        topic_id = TOPIC_ID_BY_KEY.get(key)
+        if not topic_id:
+            continue
+        count = TOPIC_COUNTS.get(key, 0)
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{topic} ({count})",
+                    callback_data=f"topic_select|{topic_id}",
+                )
+            ]
+        )
+
+    rows.extend(build_back_to_main_row())
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def build_subtopics_keyboard(level: str, topic: str) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for subtopic in get_subtopics_for_level_topic(level, topic):
+        key = (level, topic, subtopic)
+        sub_id = SUBTOPIC_ID_BY_KEY.get(key)
+        if not sub_id:
+            continue
+        count = SUBTOPIC_COUNTS.get(key, 0)
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{subtopic} ({count})",
+                    callback_data=f"subtopic|{sub_id}",
+                )
+            ]
+        )
+
+    rows.extend(build_back_to_main_row())
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def build_mode_keyboard_for_settings(current_mode: str) -> List[List[InlineKeyboardButton]]:
@@ -611,20 +627,26 @@ def build_answer_mode_keyboard(current_answer: str) -> List[List[InlineKeyboardB
 
 
 def build_full_format_keyboard(current_mode: str, current_answer: str) -> InlineKeyboardMarkup:
-    rows = []
+    rows: List[List[InlineKeyboardButton]] = []
     rows.extend(build_mode_keyboard_for_settings(current_mode))
     rows.extend(build_answer_mode_keyboard(current_answer))
+    rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def build_grammar_keyboard() -> InlineKeyboardMarkup:
     if not GRAMMAR_RULES:
-        return InlineKeyboardMarkup(inline_keyboard=[])
-    rows = []
+        return InlineKeyboardMarkup(
+            inline_keyboard=build_back_to_main_row()
+        )
+
+    rows: List[List[InlineKeyboardButton]] = []
     for rule in GRAMMAR_RULES:
         text = f'{rule["level"]}: {rule["title"]}'
         cb = f'gram|{rule["id"]}'
         rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
+
+    rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 # ==========================
@@ -1056,7 +1078,7 @@ async def handle_plain_text(message: Message) -> None:
         await send_new_word(uid, message.chat.id)
         return
 
-    # иначе просто игнорируем текст (он не в тренировочном режиме)
+    # иначе просто игнорируем текст
     return
 
 # ==========================
@@ -1130,6 +1152,23 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         pass
 
 
+@dp.callback_query(F.data == "back_main")
+async def cb_back_main(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    kb = build_main_menu_keyboard()
+    text = "Главное меню. Выбери режим:"
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
 @dp.callback_query(F.data == "menu_words")
 async def cb_menu_words(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
@@ -1162,10 +1201,10 @@ async def cb_menu_answer_mode(callback: CallbackQuery) -> None:
         "⚙️ Формат ответа.\n\n"
         "1) Направление перевода:\n"
         "   • 🇩🇪 → 🇷🇺 Немецкое слово → выбираешь перевод на русский\n"
-        "   • 🇷🇺 → 🇩🇪 Русское слово → выбираешь/вводишь вариант на немецком\n\n"
+        "   • 🇷🇺 → 🇩🇪 Русское слово → выбираешь или вводишь вариант на немецком\n\n"
         "2) Формат ответа:\n"
-        "   • Варианты ответа (4) – как тест\n"
-        "   • Ввод слова вручную – ты пишешь немецкое слово сам"
+        "   • Варианты ответа (4) - как тест\n"
+        "   • Ввод слова вручную - ты пишешь немецкое слово сам"
     )
     await callback.message.answer(text, reply_markup=kb)
 
@@ -1182,7 +1221,10 @@ async def cb_menu_grammar(callback: CallbackQuery) -> None:
 
     if not GRAMMAR_RULES:
         await callback.message.answer(
-            "Раздел грамматики пока не настроен. Добавь свои правила в список GRAMMAR_RULES."
+            "Раздел грамматики пока не настроен. Добавь свои правила в список GRAMMAR_RULES.",
+            reply_markup=InlineKeyboardMarkup(
+                inline_keyboard=build_back_to_main_row()
+            ),
         )
         return
 
@@ -1364,9 +1406,9 @@ async def cb_mode(callback: CallbackQuery) -> None:
     kb = build_full_format_keyboard(current_mode, current_answer)
 
     if mode == "de_ru":
-        txt = "Теперь я буду показывать немецкое слово, а ты отвечаешь по-русски."
+        txt = "Теперь я буду показывать немецкое слово, а ты отвечаешь по русски."
     else:
-        txt = "Теперь я буду показывать русское слово, а ты отвечаешь по-немецки."
+        txt = "Теперь я буду показывать русское слово, а ты отвечаешь по немецки."
 
     try:
         await callback.message.edit_text(txt, reply_markup=kb)
@@ -1448,7 +1490,6 @@ async def cb_answer(callback: CallbackQuery) -> None:
             )
 
         finished_now = not state["remaining"]
-
         if finished_now:
             current_topic = state.get("topic", TOPIC_ALL)
             correct = state.get("correct", 0)
@@ -1461,7 +1502,6 @@ async def cb_answer(callback: CallbackQuery) -> None:
                 f"❌ Неправильных ответов: {state['wrong']}\n\n"
                 "Можно выбрать другую подтему в Тренировке слов или начать новую тренировку."
             )
-
 
         try:
             await callback.message.edit_text(text)
@@ -1590,5 +1630,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
