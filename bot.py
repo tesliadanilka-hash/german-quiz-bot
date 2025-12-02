@@ -96,7 +96,8 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
     }
 )
 
-grammar_state: Dict[int, Dict[int, Dict[str, int]]] = defaultdict(dict)
+# Для грамматики: словарь по пользователю, внутри по id правила (строка)
+grammar_state: Dict[int, Dict[str, Dict[str, int]]] = defaultdict(dict)
 
 allowed_users: set[int] = set()
 
@@ -122,12 +123,97 @@ SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
 
 # ==========================
-# ГРАММАТИКА - ЗАГОТОВКА
+# ГРАММАТИКА
 # ==========================
 
-GRAMMAR_RULES: List[GrammarRule] = [
-    # Сюда можно добавить свои правила грамматики
-]
+# Список правил грамматики будет загружаться из файла grammar.json
+GRAMMAR_RULES: List[GrammarRule] = []
+
+
+def load_grammar(path: str = "grammar.json") -> None:
+    """
+    Ожидаемый формат grammar.json:
+
+    Либо объект:
+    {
+      "rules": [
+        {
+          "id": "a1_personal_pronouns",
+          "level": "A1",
+          "topic": "A1.1 — Базовые структуры",
+          "title": "Личные местоимения (ich, du, ...)",
+          "explanation": "Текст объяснения...",
+          "examples": [
+            {"de": "...", "ru": "..."},
+            ...
+          ],
+          "questions": [
+            {
+              "prompt": "Краткая инструкция к упражнению",
+              "question_de": "___ bin Max.",
+              "options": ["Ich", "Du", "Er", "Sie"],
+              "correct": 0,
+              "answer_de": "Ich bin Max.",
+              "answer_ru": "Я Макс."
+            },
+            ...
+          ]
+        },
+        ...
+      ]
+    }
+
+    Или просто список правил: [ {...}, {...} ]
+    """
+
+    global GRAMMAR_RULES
+
+    file_path = Path(path)
+    if not file_path.exists():
+        print(f"Файл {path} не найден. Раздел грамматики пока пустой.")
+        GRAMMAR_RULES = []
+        return
+
+    try:
+        with file_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print("Ошибка при чтении grammar.json:", e)
+        GRAMMAR_RULES = []
+        return
+
+    if isinstance(data, dict) and "rules" in data:
+        raw_rules = data["rules"]
+    elif isinstance(data, list):
+        raw_rules = data
+    else:
+        print("Неизвестный формат grammar.json. Ожидается объект с ключом 'rules' или список.")
+        GRAMMAR_RULES = []
+        return
+
+    rules: List[GrammarRule] = []
+    for raw in raw_rules:
+        if not isinstance(raw, dict):
+            continue
+
+        rid = raw.get("id")
+        level = raw.get("level")
+        title = raw.get("title")
+
+        if not rid or not level or not title:
+            print("Пропускаю правило без обязательных полей (id, level, title):", raw)
+            continue
+
+        # Храним id как строку
+        raw["id"] = str(rid)
+        raw["level"] = str(level)
+        raw["title"] = str(title)
+
+        rules.append(raw)
+
+    GRAMMAR_RULES = rules
+    print(f"Загружено грамматических правил: {len(GRAMMAR_RULES)}")
+
 
 # ==========================
 # ФУНКЦИИ РАБОТЫ С ДОСТУПОМ
@@ -435,7 +521,6 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
         kb = build_options(word_pool, word_id, mode)
         await bot.send_message(chat_id, text, reply_markup=kb)
     else:
-        # Режим ввода: показываем русское слово, просим написать по-немецки без транскрипции
         text = (
             f'🇷🇺 Слово: {w["ru"]}\n\n'
             "Напиши это слово по немецки, только само немецкое слово, без транскрипции и без скобок."
@@ -444,7 +529,6 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
         state["waiting_text_answer"] = True
         save_user_state()
         await bot.send_message(chat_id, text)
-
 
 async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> None:
     w = WORDS[word_id]
@@ -642,8 +726,8 @@ def build_grammar_keyboard() -> InlineKeyboardMarkup:
 
     rows: List[List[InlineKeyboardButton]] = []
     for rule in GRAMMAR_RULES:
-        text = f'{rule["level"]}: {rule["title"]}'
-        cb = f'gram|{rule["id"]}'
+        text = f'{rule.get("level", "")}: {rule.get("title", "")}'
+        cb = f'gram|{rule.get("id")}'
         rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
 
     rows.extend(build_back_to_main_row())
@@ -653,55 +737,112 @@ def build_grammar_keyboard() -> InlineKeyboardMarkup:
 # ВСПОМОГАТЕЛЬНЫЕ ДЛЯ ГРАММАТИКИ
 # ==========================
 
-def get_grammar_rule_by_id(rule_id: int) -> Optional[GrammarRule]:
+def get_grammar_rule_by_id(rule_id: str) -> Optional[GrammarRule]:
     for rule in GRAMMAR_RULES:
-        if rule["id"] == rule_id:
+        if str(rule.get("id")) == str(rule_id):
             return rule
     return None
 
 
 def build_grammar_explanation_text(rule: GrammarRule) -> str:
     lines: List[str] = []
-    lines.append(f'📘 Уровень {rule["level"]}')
-    lines.append(f'Тема: {rule["title"]}\n')
-    lines.append(rule["description"])
-    lines.append("\nПримеры:\n")
-    for ex in rule["examples"]:
-        lines.append(f'{ex["de"]}\n{ex["ru"]}\n')
-    lines.append("Сейчас будут вопросы по этой теме. Выбирай один правильный ответ из четырех.")
+
+    level = rule.get("level", "")
+    if level:
+        lines.append(f'📘 Уровень {level}')
+
+    topic = rule.get("topic")
+    if topic:
+        lines.append(f'Тема блока: {topic}')
+
+    title = rule.get("title")
+    if title:
+        lines.append(f'Подтема: {title}')
+
+    lines.append("")
+
+    desc = rule.get("description") or rule.get("explanation")
+    if desc:
+        lines.append(str(desc))
+        lines.append("")
+
+    examples = rule.get("examples") or rule.get("example_sentences")
+    if examples:
+        lines.append("Примеры:\n")
+        for ex in examples:
+            if isinstance(ex, dict):
+                de = ex.get("de") or ex.get("sentence_de") or ""
+                ru = ex.get("ru") or ex.get("sentence_ru") or ""
+                if de:
+                    lines.append(str(de))
+                if ru:
+                    lines.append(str(ru))
+                lines.append("")
+            else:
+                lines.append(str(ex))
+        lines.append("")
+
+    if rule.get("questions"):
+        lines.append("Сейчас будут вопросы по этой теме. Выбирай один правильный ответ из четырех.")
+    else:
+        lines.append("Для этой темы пока нет интерактивных упражнений. Позже здесь появятся вопросы.")
+
     return "\n".join(lines)
 
 
 def build_grammar_question_text(rule: GrammarRule, q_index: int) -> str:
-    question = rule["questions"][q_index]
+    questions = rule.get("questions") or []
+    if q_index < 0 or q_index >= len(questions):
+        return "Вопросы по этой теме закончились."
+
+    question = questions[q_index]
     num = q_index + 1
-    text = (
-        f'📗 Упражнение {num} по теме: {rule["title"]}\n\n'
-        f'{question["prompt"]}\n\n'
-        f'{question["question_de"]}'
-    )
+
+    prompt = question.get("prompt") or question.get("instruction") or ""
+    q_de = question.get("question_de") or question.get("text") or ""
+
+    text = f'📗 Упражнение {num} по теме: {rule.get("title", "")}\n\n'
+    if prompt:
+        text += prompt + "\n\n"
+    text += q_de
     return text
 
 
-def build_grammar_question_keyboard(rule_id: int, q_index: int) -> InlineKeyboardMarkup:
+def build_grammar_question_keyboard(rule_id: str, q_index: int) -> InlineKeyboardMarkup:
     rule = get_grammar_rule_by_id(rule_id)
     if rule is None:
         return InlineKeyboardMarkup(inline_keyboard=[])
-    question = rule["questions"][q_index]
+    questions = rule.get("questions") or []
+    if q_index < 0 or q_index >= len(questions):
+        return InlineKeyboardMarkup(inline_keyboard=[])
+
+    question = questions[q_index]
+    options = question.get("options") or []
     buttons = []
-    for idx, option in enumerate(question["options"]):
+    for idx, option in enumerate(options):
         cb_data = f"gramq|{rule_id}|{q_index}|{idx}"
-        buttons.append([InlineKeyboardButton(text=option, callback_data=cb_data)])
+        buttons.append([InlineKeyboardButton(text=str(option), callback_data=cb_data)])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> None:
+async def send_grammar_question(chat_id: int, rule_id: str, q_index: int) -> None:
     rule = get_grammar_rule_by_id(rule_id)
     if rule is None:
+        await bot.send_message(chat_id, "Правило не найдено.")
         return
-    if q_index < 0 or q_index >= len(rule["questions"]):
+
+    questions = rule.get("questions") or []
+    if not questions:
+        await bot.send_message(
+            chat_id,
+            "Для этой темы пока нет упражнений. Добавь вопросы в grammar.json."
+        )
+        return
+
+    if q_index < 0 or q_index >= len(questions):
         await bot.send_message(chat_id, "Вопросы по этой теме закончились.")
         return
+
     text = build_grammar_question_text(rule, q_index)
     kb = build_grammar_question_keyboard(rule_id, q_index)
     await bot.send_message(chat_id, text, reply_markup=kb)
@@ -962,7 +1103,7 @@ async def cmd_grammar(message: Message) -> None:
 
     if not GRAMMAR_RULES:
         await message.answer(
-            "Раздел грамматики пока не настроен. Добавь свои правила в список GRAMMAR_RULES."
+            "Раздел грамматики пока не настроен. Добавь свои правила в файл grammar.json."
         )
         return
 
@@ -1221,7 +1362,7 @@ async def cb_menu_grammar(callback: CallbackQuery) -> None:
 
     if not GRAMMAR_RULES:
         await callback.message.answer(
-            "Раздел грамматики пока не настроен. Добавь свои правила в список GRAMMAR_RULES.",
+            "Раздел грамматики пока не настроен. Добавь свои правила в файл grammar.json.",
             reply_markup=InlineKeyboardMarkup(
                 inline_keyboard=build_back_to_main_row()
             ),
@@ -1529,8 +1670,7 @@ async def cb_grammar_rule(callback: CallbackQuery) -> None:
         await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    _, rule_id_str = callback.data.split("|", maxsplit=1)
-    rule_id = int(rule_id_str)
+    _, rule_id = callback.data.split("|", maxsplit=1)
 
     rule = get_grammar_rule_by_id(rule_id)
     if rule is None:
@@ -1554,8 +1694,7 @@ async def cb_grammar_question(callback: CallbackQuery) -> None:
         await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    _, rule_id_str, q_index_str, chosen_idx_str = callback.data.split("|")
-    rule_id = int(rule_id_str)
+    _, rule_id, q_index_str, chosen_idx_str = callback.data.split("|")
     q_index = int(q_index_str)
     chosen_idx = int(chosen_idx_str)
 
@@ -1564,13 +1703,13 @@ async def cb_grammar_question(callback: CallbackQuery) -> None:
         await callback.answer("Правило не найдено.", show_alert=True)
         return
 
-    questions = rule["questions"]
+    questions = rule.get("questions") or []
     if q_index < 0 or q_index >= len(questions):
         await callback.answer("Вопросы по этой теме закончились.", show_alert=True)
         return
 
     question = questions[q_index]
-    correct_idx = question["correct"]
+    correct_idx = question.get("correct", 0)
     is_correct = chosen_idx == correct_idx
 
     user_rule_state = grammar_state[uid].setdefault(
@@ -1584,14 +1723,14 @@ async def cb_grammar_question(callback: CallbackQuery) -> None:
         user_rule_state["wrong"] += 1
         result_text = "❌ Неправильно."
 
-    answer_de = question["answer_de"]
-    answer_ru = question["answer_ru"]
+    answer_de = question.get("answer_de", "")
+    answer_ru = question.get("answer_ru", "")
 
-    text = (
-        f"{result_text}\n\n"
-        "Правильный ответ:\n"
-        f"{answer_de}\n{answer_ru}"
-    )
+    text = f"{result_text}\n\nПравильный ответ:\n"
+    if answer_de:
+        text += answer_de + "\n"
+    if answer_ru:
+        text += answer_ru
 
     try:
         await callback.message.edit_text(text)
@@ -1607,7 +1746,7 @@ async def cb_grammar_question(callback: CallbackQuery) -> None:
         total_correct = user_rule_state["correct"]
         total_wrong = user_rule_state["wrong"]
         summary = (
-            f"Ты прошел все упражнения по теме: {rule['title']}.\n\n"
+            f"Ты прошел все упражнения по теме: {rule.get('title', '')}.\n\n"
             f"✅ Правильных ответов: {total_correct}\n"
             f"❌ Неправильных ответов: {total_wrong}\n\n"
             "Можно выбрать другую грамматическую тему."
@@ -1625,6 +1764,7 @@ async def main() -> None:
     load_allowed_users()
     load_words("words.json")
     load_user_state()
+    load_grammar("grammar.json")
     await dp.start_polling(bot)
 
 
