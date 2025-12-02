@@ -1449,7 +1449,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
 
         finished_now = not state["remaining"]
 
-                if finished_now:
+        if finished_now:
             current_topic = state.get("topic", TOPIC_ALL)
             correct = state.get("correct", 0)
             wrong = state.get("wrong", 0)
@@ -1590,4 +1590,5 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
