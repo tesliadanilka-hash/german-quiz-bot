@@ -1,0 +1,2072 @@
+{
+    "A1.1": [
+        {
+            "id": "a1_personal_pronouns",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Личные местоимения (Personalpronomen)",
+            "explanation": "Личные местоимения заменяют существительные и показывают, кто выполняет действие. Вместо того чтобы каждый раз повторять имя или существительное, в немецком языке используют личное местоимение. Например: Maria wohnt in Berlin. Sie arbeitet auch in Berlin. Здесь sie заменяет Maria.\n\nЕдинственное число:\nich - я, говорящий человек\ndu - ты, один человек в неформальном общении (друзья, семья)\ner - он, мужчина или существительное мужского рода (der Mann, der Tisch)\nsie - она, женщина или существительное женского рода (die Frau, die Lampe)\nes - оно, существительное среднего рода (das Kind, das Auto), а также безличные конструкции (Es regnet.)\n\nМножественное число:\nwir - мы, группа, в которую входит говорящий\nihr - вы, несколько людей, к которым обращаются неформально\nsie - они, несколько людей или предметов\n\nФорма вежливости:\nSie - Вы, вежливое обращение к одному человеку или группе людей. Всегда пишется с большой буквы и употребляется с глаголом во множественном числе: Sie sind Lehrer. Sie kommen aus Spanien.\n\nВажно:\n1) Форма sie может означать и она, и они. Разница видна по форме глагола: sie ist - она есть, sie sind - они есть.\n2) Форма Sie (с большой буквы) всегда означает вежливое Вы. Обычно используется с незнакомыми людьми, старшими, в официальных ситуациях.\n3) er, sie, es зависят от рода существительного в единственном числе: der Mann - er, die Frau - sie, das Kind - es.\n\nПримеры предложений:\nIch bin müde. Du kommst aus der Türkei. Er wohnt in Berlin. Sie arbeitet im Krankenhaus. Es ist kalt. Wir lernen Deutsch. Ihr seid laut. Sie wohnen in Köln. Sie kommen später (вежливо о собеседнике).",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь правильное местоимение (ich, du, er, sie, es)",
+                    "questions": [
+                        "1. ___ heiße Ali.",
+                        "2. Bist ___ müde?",
+                        "3. Das ist Tom. ___ kommt aus Berlin.",
+                        "4. Maria ist Lehrerin. ___ arbeitet in Dortmund.",
+                        "5. Das Auto ist neu. ___ ist teuer."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Выбери правильное местоимение (wir, ihr, sie)",
+                    "questions": [
+                        "1. ___ wohnen in Köln. (я и друзья)",
+                        "2. Wo wohnt ihr? Wohnt ___ in Hamburg?",
+                        "3. Das sind meine Eltern. ___ kommen später.",
+                        "4. ___ seid laut. (обращение к группе друзей)",
+                        "5. ___ lernen Deutsch zusammen. (группа включая меня)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Преврати имя в местоимение",
+                    "questions": [
+                        "1. Markus → ___",
+                        "2. Die Lampe → ___",
+                        "3. Das Kind → ___",
+                        "4. Sofia und Mehmet → ___",
+                        "5. Der Lehrer → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Выбери sie / Sie (вежливое)",
+                    "questions": [
+                        "1. Frau Müller, kommen ___ morgen?",
+                        "2. Wo wohnen ___? (о нескольких людях)",
+                        "3. ___ ist meine Freundin Maria.",
+                        "4. Arbeiten ___ hier im Büro, Herr Özdemir?",
+                        "5. ___ sind sehr nett. (вежливо к одному человеку)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_present_tense",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Глаголы в настоящем времени (Präsens)",
+            "explanation": "Настоящее время Präsens в немецком языке используется очень часто. Оно описывает:\n1) то, что происходит сейчас: Ich lerne Deutsch.\n2) регулярные действия и привычки: Ich arbeite jeden Tag.\n3) общие факты: Wasser kocht bei 100 Grad.\n4) будущее действие, если в предложении есть указание времени: Morgen fahre ich nach Köln.\n\nКак образуется Präsens у правильных (слабых) глаголов:\n1) Берем инфинитив глагола: machen, lernen, wohnen.\n2) Убираем окончание -en и получаем основу: mach-, lern-, wohn-.\n3) Добавляем окончания в зависимости от личного местоимения:\nich -e (ich mache)\ndu -st (du machst)\ner/sie/es -t (er macht)\nwir -en (wir machen)\nihr -t (ihr macht)\nsie/Sie -en (sie machen, Sie machen)\n\nПример с глаголом lernen:\nich lerne\ndu lernst\ner/sie/es lernt\nwir lernen\nihr lernt\nsie/Sie lernen\n\nСильные (неправильные) глаголы:\nУ многих сильных глаголов в формах du и er/sie/es меняется гласная в корне, окончания остаются обычными.\nПример lesen (читать):\nich lese\ndu liest\ner/sie/es liest\nwir lesen\nihr lest\nsie/Sie lesen\n\nПример sprechen (говорить):\nich spreche\ndu sprichst\ner/sie/es spricht\nwir sprechen\nihr sprecht\nsie/Sie sprechen\n\nТипичные ошибки:\n1) Забывают окончание -st в форме du: правильно du machst, а не du mache.\n2) Используют неправильную основу у сильных глаголов: du sprechst - неправильно, правильно du sprichst.\n3) Путают окончания для wir и sie/Sie. Для wir, sie и Sie окончание всегда -en.\n4) Для er/sie/es окончание всегда -t, даже если глагол неправильный.\n\nПримеры предложений:\nIch wohne in Dortmund. Du lernst Deutsch. Er arbeitet heute nicht. Sie liest ein Buch. Wir sprechen zusammen. Ihr fahrt nach Hamburg. Sie kommen morgen. Präsens в этих примерах может означать как настоящее, так и запланированное будущее, если есть слово времени.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь глагол в Präsens (правильные глаголы)",
+                    "questions": [
+                        "1. Ich ___ (machen) Kaffee.",
+                        "2. Du ___ (lernen) Deutsch jeden Tag.",
+                        "3. Er ___ (wohnen) in Köln.",
+                        "4. Wir ___ (arbeiten) morgen.",
+                        "5. Ihr ___ (spielen) Fußball."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Поставь глагол в Präsens (сильные глаголы)",
+                    "questions": [
+                        "1. Du ___ (lesen) ein Buch.",
+                        "2. Er ___ (sprechen) Deutsch und Englisch.",
+                        "3. Ich ___ (fahren) nach Berlin.",
+                        "4. Sie ___ (sehen) den Film heute.",
+                        "5. Du ___ (laufen) sehr schnell."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Заполни пропуск правильной формой",
+                    "questions": [
+                        "1. Ich ___ in Dortmund. (wohnen)",
+                        "2. Du ___ gut. (sprechen)",
+                        "3. Er ___ heute nicht. (arbeiten)",
+                        "4. Wir ___ zusammen. (lernen)",
+                        "5. Sie ___ morgen. (kommen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Выбери правильное окончание глагола",
+                    "questions": [
+                        "1. Ich lern__ Deutsch. (e / t)",
+                        "2. Du mach__ Sport. (st / en)",
+                        "3. Er fahr__ nach Hamburg. (t / st)",
+                        "4. Wir sprech__ zusammen. (en / t)",
+                        "5. Ihr les__ laut. (t / en)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_verb_sein",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Глагол sein (быть)",
+            "explanation": "Глагол sein используется для описания состояния, характеристик, местонахождения и для представления людей. Это один из самых важных и самых часто используемых глаголов в немецком языке. Он неправильный, поэтому его формы нужно выучить наизусть.\n\nФормы глагола sein в Präsens:\nich bin\ndu bist\ner/sie/es ist\nwir sind\nihr seid\nsie sind\nSie sind (вежливая форма)\n\nКогда используется sein:\n1) Описание состояния и чувств: Ich bin müde. Er ist krank. Wir sind zufrieden.\n2) Описание профессии или роли: Sie ist Lehrerin. Er ist Arzt. Ich bin Student.\n3) Описание происхождения и национальности: Ich bin aus der Ukraine. Er ist Deutscher.\n4) Местонахождение: Wir sind zu Hause. Das Buch ist auf dem Tisch.\n5) Представление: Ich bin Alex. Das ist meine Mutter.\n\nВажно:\n1) Глагол sein не требует дополнения с haben. Он сам по себе смысловой глагол.\n2) В форме Sie sind глагол совпадает с формой sie sind, поэтому важно смотреть на контекст и написание с большой буквы.\n\nПримеры предложений:\nIch bin müde. Du bist neu hier. Er ist nett. Sie ist meine Freundin. Es ist kalt. Wir sind in der Schule. Ihr seid laut. Sie sind schon da. Sie sind mein Lehrer (вежливая форма).",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь правильную форму sein",
+                    "questions": [
+                        "1. Ich ___ müde.",
+                        "2. Du ___ neu hier.",
+                        "3. Er ___ nett.",
+                        "4. Wir ___ in Dortmund.",
+                        "5. Ihr ___ laut."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Выбери форму: ist или sind",
+                    "questions": [
+                        "1. Das Auto ___ neu.",
+                        "2. Die Kinder ___ im Garten.",
+                        "3. Meine Freunde ___ hier.",
+                        "4. Der Lehrer ___ freundlich.",
+                        "5. Die Bücher ___ teuer."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Преврати имя в предложение с sein",
+                    "questions": [
+                        "1. Anna → ___ ist meine Schwester.",
+                        "2. Der Mann → ___ ist müde.",
+                        "3. Das Kind → ___ ist klein.",
+                        "4. Tom und Julia → ___ sind Freunde.",
+                        "5. Die Lampe → ___ ist kaputt."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Выбери: sie, Sie или er",
+                    "questions": [
+                        "1. Frau Müller, ___ sind sehr freundlich.",
+                        "2. Das ist Maria. ___ ist Studentin.",
+                        "3. Herr Becker, wo ___ Sie?",
+                        "4. Das ist Paul. ___ ist 26 Jahre alt.",
+                        "5. Meine Eltern sind hier. ___ sind müde."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_verb_haben",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Глагол haben (иметь)",
+            "explanation": "Глагол haben используется для выражения владения, наличия чего то, а также как вспомогательный глагол для образования Perfekt. Он тоже относится к самым важным глаголам в немецком языке.\n\nФормы глагола haben в Präsens:\nich habe\ndu hast\ner/sie/es hat\nwir haben\nihr habt\nsie haben\nSie haben (вежливая форма)\n\nКогда используется haben:\n1) Владение и принадлежность: Ich habe ein Auto. Sie hat zwei Kinder. Wir haben Zeit.\n2) Описание того, что у кого то есть или нет: Er hat keine Zeit. Ich habe heute viel Arbeit. Ihr habt viele Freunde.\n3) В составе сложных форм времени Perfekt: Ich habe gegessen. Wir haben gelernt.\n\nОтрицание с haben:\nОтрицание делается с помощью kein/keine, если после haben стоит существительное без артикля или с неопределённым значением.\nНапример: Ich habe ein Auto. Ich habe kein Auto. Er hat einen Hund. Er hat keinen Hund.\n\nТипичные ошибки:\n1) Путают формы du hast и er hat: du hast - с t в конце, er hat - без s.\n2) Используют ich hat вместо ich habe, или wir habt вместо wir haben. Для wir, sie и Sie окончание всегда -en.\n\nПримеры предложений:\nIch habe heute Geburtstag. Du hast viel Arbeit. Er hat keine Zeit. Sie hat ein neues Handy. Wir haben Urlaub. Ihr habt Glück. Sie haben viele Fragen. Sie haben recht (вежливое Вы).",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь правильную форму haben",
+                    "questions": [
+                        "1. Ich ___ ein Auto.",
+                        "2. Du ___ viele Freunde.",
+                        "3. Er ___ heute keine Zeit.",
+                        "4. Wir ___ Urlaub.",
+                        "5. Ihr ___ ein neues Handy."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Укажи форму: habe, hast, hat",
+                    "questions": [
+                        "1. Ich ___ Geburtstag.",
+                        "2. Du ___ viel Arbeit.",
+                        "3. Sie ___ zwei Kinder.",
+                        "4. Er ___ keine Fragen.",
+                        "5. Es ___ eine Schwester."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Поставь в отрицание (kein/keine/keinen)",
+                    "questions": [
+                        "1. Ich habe Zeit. → Ich habe ___ Zeit.",
+                        "2. Er hat einen Hund. → Er hat ___ Hund.",
+                        "3. Sie hat ein Auto. → Sie hat ___ Auto.",
+                        "4. Wir haben Arbeit. → Wir haben ___ Arbeit.",
+                        "5. Du hast Freunde. → Du hast ___ Freunde."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Составь предложение с haben по примеру",
+                    "questions": [
+                        "1. Ich / viel Arbeit → ___",
+                        "2. Er / ein Problem → ___",
+                        "3. Wir / Zeit → ___",
+                        "4. Sie (она) / ein Handy → ___",
+                        "5. Ihr / Fragen → ___"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_word_order",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Порядок слов в простом предложении (глагол на втором месте)",
+            "explanation": "В немецком языке главное правило простого повествовательного предложения — глагол (сказуемое) всегда стоит на втором месте. Это не означает вторая позиция по количеству слов, а вторая позиция по логике построения. На первом месте может быть подлежащее (ich, du, er...) или обстоятельство (Heute, In Berlin, Morgen...). Но независимо от того, что стоит первым, глагол всегда идет вторым.\n\nСтруктура: 1 место — ЛЮБОЙ элемент, 2 место — глагол, далее — остальные части.\n\nПримеры:\n1) Ich komme aus Spanien. (Ich — 1 место, komme — 2 место)\n2) Heute arbeite ich nicht. (Heute — 1 место, arbeite — 2 место)\n3) In Berlin wohnt er. (In Berlin — 1 место, wohnt — 2 место)\n\nВажно:\n— Вторая позиция относится только к спрягаемой форме глагола.\n— Остальные элементы могут менять положение, но глагол остаётся вторым.\n— Если в предложении два глагола (например, модальный глагол + инфинитив), то второй глагол стоит в конце: Ich will Deutsch lernen. (will — 2 место, lernen — в конце)\n\nТипичные ошибки:\n— Ставят глагол третьим: Heute ich arbeite nicht. (неправильно)\n— В простом предложении нельзя менять глагол и подлежащее местами без причины.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь слова в правильном порядке (глагол на 2 месте)",
+                    "questions": [
+                        "1. ich / in Dortmund / wohne → ___",
+                        "2. heute / ich / arbeite / nicht → ___",
+                        "3. er / Deutsch / lernt → ___",
+                        "4. wir / morgen / fahren / nach Köln → ___",
+                        "5. sie (она) / ein Buch / liest → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Начни предложение с указанного слова, сохраняя глагол на 2 месте",
+                    "questions": [
+                        "1. Heute … (ich gehe zur Arbeit) → ___",
+                        "2. In Berlin … (er wohnt) → ___",
+                        "3. Morgen … (wir lernen Deutsch) → ___",
+                        "4. Am Abend … (sie kocht) → ___",
+                        "5. Jetzt … (du machst Hausaufgaben) → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (Heute ich arbeite nicht / Heute arbeite ich nicht)",
+                        "2. (In Berlin wohnt er / In Berlin er wohnt)",
+                        "3. (Morgen wir fahren nach Hamburg / Morgen fahren wir nach Hamburg)",
+                        "4. (Jetzt mache ich Kaffee / Jetzt ich mache Kaffee)",
+                        "5. (Er spricht Deutsch gut / Er Deutsch spricht gut)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Вставь подходящее слово на первое место, сохраняя глагол вторым",
+                    "questions": [
+                        "1. ___ arbeite ich nicht. (Heute / Ich)",
+                        "2. ___ wohnt sie. (In Köln / Sie)",
+                        "3. ___ komme ich. (Gleich / Ich)",
+                        "4. ___ lernen wir Deutsch. (Morgen / Wir)",
+                        "5. ___ fährt er nach Berlin. (Am Samstag / Er)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_w_questions",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Вопросительные слова (Wer, Was, Wo, Woher, Wohin, Wann, Wie)",
+            "explanation": "В немецком языке для вопросительных предложений используются специальные слова, начинающиеся чаще всего на W — их называют W-Fragen. Они всегда стоят на первом месте в предложении. После вопросительного слова обязательно следует глагол в форме 2 позиции.\n\nСтруктура: W-Wort + глагол + подлежащее + остальная часть.\n\nОсновные вопросительные слова A1:\n— Wer? — Кто?\n— Was? — Что?\n— Wo? — Где? (место)\n— Woher? — Откуда?\n— Wohin? — Куда?\n— Wann? — Когда?\n— Wie? — Как? (способ, форма, состояние)\n\nПримеры:\n— Wer ist das? (Кто это?)\n— Was machst du? (Что ты делаешь?)\n— Wo wohnst du? (Где ты живёшь?)\n— Woher kommst du? (Откуда ты?)\n— Wohin fährst du? (Куда ты едешь?)\n— Wann beginnt der Kurs? (Когда начинается курс?)\n— Wie geht es dir? (Как дела?)\n\nВажно:\n1) Вопросительное слово ВСЕГДА первое.\n2) Глагол ВСЕГДА на втором месте.\n3) Интонация в конце снижается, а не повышается (в отличие от русского).\n\nТипичная ошибка:\n— Пытаются ставить подлежащее сразу после вопроса: Wo du wohnst? — неверно. Правильно: Wo wohnst du?",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери правильное W-слово",
+                    "questions": [
+                        "1. ___ wohnst du? (в каком месте)",
+                        "2. ___ machst du heute? (что)",
+                        "3. ___ kommt er? (откуда)",
+                        "4. ___ fährt ihr? (куда)",
+                        "5. ___ beginnt der Kurs? (когда)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Составь вопрос по примеру",
+                    "questions": [
+                        "1. du / wohnen / Wo → ___",
+                        "2. er / heißen / Wie → ___",
+                        "3. sie (она) / arbeiten / Wo → ___",
+                        "4. ihr / kommen / Woher → ___",
+                        "5. wir / fahren / Wohin → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (Was du machst? / Was machst du?)",
+                        "2. (Wo wohnst du? / Wo du wohnst?)",
+                        "3. (Wer ist das? / Wer das ist?)",
+                        "4. (Wann beginnt der Kurs? / Wann der Kurs beginnt?)",
+                        "5. (Wie geht es dir? / Wie es geht dir?)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Вставь W-слово по смыслу",
+                    "questions": [
+                        "1. ___ ist das? (кто)",
+                        "2. ___ heißt du? (как)",
+                        "3. ___ arbeitet sie? (где)",
+                        "4. ___ kommst du? (откуда)",
+                        "5. ___ fährt er? (куда)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_yes_no_questions",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Да/Нет вопросы (Ja/Nein Fragen)",
+            "explanation": "В немецком языке вопросы, на которые можно ответить Да (Ja) или Нет (Nein), строятся очень просто: глагол ставится на первое место. Никакого вопросительного слова в таких предложениях нет.\n\nСтруктура: Глагол + подлежащее + остальная часть.\n\nПримеры:\n— Kommst du heute? (Ты придёшь сегодня?)\n— Arbeitest du morgen? (Ты работаешь завтра?)\n— Hast du Zeit? (У тебя есть время?)\n— Bist du müde? (Ты устал?)\n\nОтвечают:\n— Ja, ... — Да.\n— Nein, ... — Нет.\n\nВажно:\n1) Если глагол стоит не первым — предложение уже не является Ja/Nein вопросом.\n2) Интонация в конце повышается.\n\nТипичные ошибки:\n— Ставят подлежащее первым: Du kommst heute? — не считается правильным вопросом A1.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Преврати предложение в Ja/Nein Frage",
+                    "questions": [
+                        "1. Du kommst heute. → ___?",
+                        "2. Du arbeitest morgen. → ___?",
+                        "3. Du hast Zeit. → ___?",
+                        "4. Du bist müde. → ___?",
+                        "5. Ihr wohnt in Dortmund. → ___?"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Поставь глагол на первое место",
+                    "questions": [
+                        "1. du / heute / kommst → ___?",
+                        "2. ihr / Deutsch / lernt → ___?",
+                        "3. er / in Köln / wohnt → ___?",
+                        "4. du / Kaffee / hast → ___?",
+                        "5. sie (она) / müde / ist → ___?"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (Kommst du heute? / Du kommst heute?)",
+                        "2. (Arbeitest du morgen? / Morgen du arbeitest?)",
+                        "3. (Hast du Zeit? / Du hast Zeit?)",
+                        "4. (Seid ihr hier? / Ihr seid hier?)",
+                        "5. (Ist er müde? / Er ist müde?)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Дай короткий ответ Ja или Nein",
+                    "questions": [
+                        "1. Kommst du heute? → ___",
+                        "2. Hast du Zeit? → ___",
+                        "3. Bist du müde? → ___",
+                        "4. Wohnt ihr in Berlin? → ___",
+                        "5. Lernst du Deutsch? → ___"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_negation",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Отрицание: nicht и kein",
+            "explanation": "В немецком языке есть два способа образовать отрицание — с помощью nicht и kein. Выбор зависит от того, какое слово нужно отрицать.\n\n1) nicht — используется для:\n— глаголов: Ich arbeite nicht.\n— прилагательных: Das ist nicht gut.\n— наречий: Er kommt nicht heute.\n— всего предложения: Ich komme сегодня не.\n\nnicht НЕ заменяет артикль и НЕ относится к существительным.\n\n2) kein — используется только для существительных в значении «никакой / нет».\nИспользуется при существительных БЕЗ определённого артикля или с неопределённым смыслом.\n\nФормы:\nkein (м.р. ед.ч)\nkeine (ж.р. ед.ч)\nkein (ср.р. ед.ч)\nkeine (мн.ч)\n\nПримеры:\n— Ich habe ein Auto. → Ich habe kein Auto.\n— Er hat eine Schwester. → Er hat keine Schwester.\n— Wir haben Kinder. → Wir haben keine Kinder.\n— Das ist nicht mein Auto. (здесь не существительное → nicht)\n\nТипичные ошибки:\n— Используют nicht вместо kein: Ich habe nicht Auto — неверно.\n— kein ставят перед словами с определённым артиклем: Ich habe keinen den Hund — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери: nicht или kein/keine/keinen",
+                    "questions": [
+                        "1. Ich habe ___ Auto.",
+                        "2. Er hat ___ Zeit.",
+                        "3. Das ist ___ gut.",
+                        "4. Wir haben ___ Kinder.",
+                        "5. Sie arbeitet heute ___."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Поставь отрицание",
+                    "questions": [
+                        "1. Ich habe eine Schwester. → Ich habe ___ Schwester.",
+                        "2. Er hat einen Hund. → Er hat ___ Hund.",
+                        "3. Das ist gut. → Das ist ___ gut.",
+                        "4. Wir haben Geld. → Wir haben ___ Geld.",
+                        "5. Sie kommt heute. → Sie kommt heute ___."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (Ich habe kein Auto / Ich habe nicht Auto)",
+                        "2. (Das ist nicht schön / Das ist kein schön)",
+                        "3. (Wir haben keine Kinder / Wir haben nicht Kinder)",
+                        "4. (Er hat keinen Hund / Er hat nicht Hund)",
+                        "5. (Ich komme nicht heute / Ich komme kein heute)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Вставь слово по смыслу",
+                    "questions": [
+                        "1. Ich habe ___ Zeit. (нет → kein или nicht?)",
+                        "2. Das ist ___ mein Problem. (nicht или kein?)",
+                        "3. Sie hat ___ Auto. (нет автомобиля)",
+                        "4. Er ist ___ freundlich. (не дружелюбный)",
+                        "5. Wir haben ___ Fragen. (нет вопросов)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_definite_articles",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Определённые артикли: der, die, das",
+            "explanation": "Определённые артикли используются, когда речь идёт о конкретном человеке или предмете. Они согласуются с родом существительного в единственном числе.\n\nФормы определённых артиклей в Nominativ:\n— der — мужской род\n— die — женский род\n— das — средний род\n— die — множественное число\n\nПримеры:\n— der Mann, der Tisch\n— die Frau, die Lampe\n— das Kind, das Auto\n— die Kinder, die Bücher\n\nКогда использовать определённый артикль:\n1) Когда предмет уже известен: Die Lampe ist neu. (мы знаем о какой лампе речь)\n2) Когда предмет уникален: Die Sonne scheint. (Солнце одно)\n3) Когда говорим о человеке/предмете впервые, но конкретно: Wo ist der Lehrer?\n\nВажно:\n— Род существительного нужно учить вместе со словом.\n— Некоторые окончания помогают угадывать род (например, -ung, -heit, -keit → всегда die), но на уровне A1 важно запоминание.\n\nТипичные ошибки:\n— Используют das вместо der: das Mann — неверно.\n— Используют die для среднего рода: die Auto — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери правильный артикль (der, die, das)",
+                    "questions": [
+                        "1. ___ Mann",
+                        "2. ___ Lampe",
+                        "3. ___ Auto",
+                        "4. ___ Tisch",
+                        "5. ___ Frau"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь правильный артикль в предложение",
+                    "questions": [
+                        "1. Wo ist ___ Lehrer?",
+                        "2. ___ Kind ist klein.",
+                        "3. Ich sehe ___ Lampe.",
+                        "4. ___ Auto ist neu.",
+                        "5. ___ Frau arbeitet heute."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (der Tisch / das Tisch)",
+                        "2. (die Sonne / das Sonne)",
+                        "3. (das Auto / der Auto)",
+                        "4. (die Kinder / das Kinder)",
+                        "5. (der Lehrer / die Lehrer) — речь о одном человеке"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Соотнеси слова и артикли",
+                    "questions": [
+                        "1. Tisch → der / die / das",
+                        "2. Lampe → der / die / das",
+                        "3. Kind → der / die / das",
+                        "4. Buch → der / die / das",
+                        "5. Frau → der / die / das"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_indefinite_articles",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Неопределённые артикли: ein, eine",
+            "explanation": "Неопределённый артикль используется, когда речь идёт о чем то неопределённом или впервые упоминаемом предмете. Он стоит только в единственном числе.\n\nФормы неопределённых артиклей:\n— ein — мужской и средний род\n— eine — женский род\n\nПримеры:\n— ein Mann, ein Tisch, ein Auto\n— eine Frau, eine Lampe\n\nКогда используется ein/eine:\n1) Когда предмет упоминается впервые: Ich habe eine Frage.\n2) Когда значение неопределённое: Er sucht ein Zimmer. (любая комната)\n3) После haben/sehen/kaufen при новом предмете.\n\nВажно:\n— Во множественном числе неопределённого артикля нет.\n— Отрицание EIN + NEIN → KEIN: ein Auto → kein Auto\n\nТипичная ошибка:\n— Используют eine для среднего рода: eine Auto — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери правильный артикль (ein или eine)",
+                    "questions": [
+                        "1. ___ Mann",
+                        "2. ___ Lampe",
+                        "3. ___ Auto",
+                        "4. ___ Tisch",
+                        "5. ___ Frau"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь ein или eine в предложение",
+                    "questions": [
+                        "1. Ich habe ___ Frage.",
+                        "2. Er sucht ___ Zimmer.",
+                        "3. Sie kauft ___ Handy.",
+                        "4. Wir sehen ___ Lampe.",
+                        "5. Er hat ___ Bruder."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (ein Auto / eine Auto)",
+                        "2. (eine Frau / ein Frau)",
+                        "3. (ein Zimmer / eine Zimmer)",
+                        "4. (eine Lampe / ein Lampe)",
+                        "5. (ein Kind / eine Kind)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Соотнеси слова и артикли",
+                    "questions": [
+                        "1. Tisch → ein / eine",
+                        "2. Lampe → ein / eine",
+                        "3. Kind → ein / eine",
+                        "4. Buch → ein / eine",
+                        "5. Blume → ein / eine"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_plural_forms",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Множественное число существительных (Pluralformen)",
+            "explanation": "Множественное число в немецком языке образуется несколькими способами. Универсального правила нет, поэтому формы множественного числа важно учить вместе со словом.\n\nВ немецком есть основные способы образования Plural:\n1) Добавление -e: der Tisch → die Tische\n2) Добавление -er: das Kind → die Kinder\n3) Добавление -en: die Lampe → die Lampen\n4) Без изменения формы: der Lehrer → die Lehrer\n5) Замена гласной (умлаут): der Mann → die Männer\n\nВажно:\n— Во множественном числе ВСЕГДА артикль die.\n— Многие слова среднего рода получают окончание -er.\n— Женский род чаще всего получает -en.\n\nПримеры:\n— der Stuhl → die Stühle\n— das Buch → die Bücher\n— die Blume → die Blumen\n— das Auto → die Autos\n\nТипичные ошибки:\n— Добавляют неверное окончание: der Tisch → die Tisch — неправильно.\n— Думают, что множественное число образуется одинаково — это не так.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Образуй форму множественного числа",
+                    "questions": [
+                        "1. der Tisch → ___",
+                        "2. die Lampe → ___",
+                        "3. das Kind → ___",
+                        "4. der Mann → ___",
+                        "5. das Buch → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь форму множественного числа в предложение",
+                    "questions": [
+                        "1. Die ___ sind neu. (Stuhl)",
+                        "2. Ich sehe viele ___. (Blume)",
+                        "3. Die ___ spielen draußen. (Kind)",
+                        "4. Die ___ sind alt. (Auto)",
+                        "5. Meine ___ arbeiten viel. (Lehrer)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. der Tisch → (die Tische / die Tisch)",
+                        "2. das Buch → (die Bücher / die Buchs)",
+                        "3. die Lampe → (die Lampen / die Lampe)",
+                        "4. der Mann → (die Männer / die Mannen)",
+                        "5. das Auto → (die Autos / die Autoen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Укажи окончание множественного числа",
+                    "questions": [
+                        "1. der Hund → -e / -en / -er / без окончания",
+                        "2. die Blume → -e / -en / -er / без окончания",
+                        "3. das Kind → -e / -en / -er / без окончания",
+                        "4. der Lehrer → -e / -en / -er / без окончания",
+                        "5. das Haus → -e / -en / -er / без окончания"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_imperativ",
+            "level": "A1",
+            "topic": "A1.1 — Базовые структуры",
+            "title": "Повелительные формы (Imperativ: du / ihr / Sie)",
+            "explanation": "Повелительное наклонение Imperativ используется, когда мы даём указания, советы, просьбы, инструкции. В немецком языке существуют три формы Imperativ: для du, для ihr и для Sie.\n\n1) Imperativ для du:\n— используется для одного человека, неформально.\n— образуется от основы глагола без окончания -st или -en.\nПример: sprechen → Sprich!; machen → Mach!\n\nПримеры:\n— Komm! (иди сюда)\n— Trink! (пей)\n\nВажно: у некоторых глаголов происходит смена гласной: lesen → Lies!\n\n2) Imperativ für ihr:\n— используется для группы людей в неформальном обращении.\n— форма такая же, как обычное ihr + !: ihr kommt → Kommt!\n\nПримеры:\n— Kommt schnell!\n— Esst jetzt!\n\n3) Imperativ для Sie:\n— формальная, вежливая форма.\n— образуется: глагол в форме Sie + !\nПример: Kommen Sie! Setzen Sie sich!\n\nВажно:\n— Imperativ не используется с местоимением.\n— Часто добавляют bitte для смягчения: Kommen Sie bitte rein.\n\nТипичные ошибки:\n— Используют du перед Imperativ: du komm — неправильно.\n— Добавляют окончание -e везде: machst → mache — не всегда верно, форма Mach! более естественная.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Образуй форму Imperativ (du)",
+                    "questions": [
+                        "1. sprechen → ___!",
+                        "2. kommen → ___!",
+                        "3. machen → ___!",
+                        "4. lesen → ___!",
+                        "5. trinken → ___!"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Образуй форму Imperativ (ihr)",
+                    "questions": [
+                        "1. ihr kommt → ___!",
+                        "2. ihr hört → ___!",
+                        "3. ihr esst → ___!",
+                        "4. ihr lernt → ___!",
+                        "5. ihr wartet → ___!"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Образуй форму Imperativ (Sie, вежливо)",
+                    "questions": [
+                        "1. kommen Sie → ___!",
+                        "2. warten Sie → ___!",
+                        "3. gehen Sie → ___!",
+                        "4. sprechen Sie → ___!",
+                        "5. setzen Sie sich → ___!"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Выбери правильный вариант Imperativ",
+                    "questions": [
+                        "1. (Komm! / Du komm!)",
+                        "2. (Esst! / Ihr essen!)",
+                        "3. (Les! / Lies!)",
+                        "4. (Kommen Sie! / Sie kommen!)",
+                        "5. (Mach! / Machst!)"
+                    ]
+                }
+            ]
+        }
+    ],
+    "A1.2": [
+        {
+            "id": "a1_modal_verbs",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Модальные глаголы (dürfen, können, möchten, müssen, sollen, wollen) в Präsens",
+            "explanation": "Модальные глаголы выражают способность, разрешение, желание, необходимость или обязанность. Они всегда используются вместе со вторым глаголом в форме инфинитива, который стоит в конце предложения. В модальных глаголах в Präsens меняется форма в du и er/sie/es.\n\nОсновные модальные глаголы A1:\n— dürfen (иметь разрешение): ich darf, du darfst, er darf\n— können (мочь, уметь): ich kann, du kannst, er kann\n— möchten (хотел бы): ich möchte, du möchtest, er möchte\n— müssen (должен, необходимость): ich muss, du musst, er muss\n— sollen (следует, надо): ich soll, du sollst, er soll\n— wollen (хотеть): ich will, du willst, er will\n\nСтруктура предложения:\nСпрягаем модальный глагол → второй глагол в конце:\nIch kann Deutsch sprechen.\nEr will nach Hause gehen.\nWir müssen heute arbeiten.\n\nВажно:\n— Второй глагол всегда стоит в самом конце.\n— Модальные глаголы в du и er/sie/es часто теряют гласную (ich kann → du kannst → er kann).\n— möchten используется для вежливого желания.\n\nТипичные ошибки:\n— Ставят оба глагола рядом: Ich kann sprechen Deutsch — неверно.\n— Модальный глагол ставят в конец: Deutsch sprechen ich kann — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь правильную форму модального глагола",
+                    "questions": [
+                        "1. Ich ___ Deutsch sprechen. (können)",
+                        "2. Du ___ heute arbeiten. (müssen)",
+                        "3. Er ___ nach Hause gehen. (wollen)",
+                        "4. Sie ___ hier parken. (dürfen)",
+                        "5. Wir ___ eine Pizza essen. (möchten)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Поставь второй глагол в конец",
+                    "questions": [
+                        "1. Ich kann Deutsch ___. (sprechen)",
+                        "2. Du willst Kaffee ___. (trinken)",
+                        "3. Er muss heute ___. (arbeiten)",
+                        "4. Wir dürfen hier nicht ___. (rauchen)",
+                        "5. Sie möchte ein Buch ___. (lesen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (Ich kann Deutsch sprechen / Ich kann sprechen Deutsch)",
+                        "2. (Du musst arbeiten heute / Du musst heute arbeiten)",
+                        "3. (Er will gehen nach Hause / Er will nach Hause gehen)",
+                        "4. (Wir dürfen hier rauchen nicht / Wir dürfen hier nicht rauchen)",
+                        "5. (Sie möchte lesen ein Buch / Sie möchte ein Buch lesen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Составь предложение с модальным глаголом",
+                    "questions": [
+                        "1. ich / können / Auto fahren → ___",
+                        "2. du / wollen / Musik hören → ___",
+                        "3. er / müssen / lernen → ___",
+                        "4. wir / dürfen / draußen spielen → ___",
+                        "5. sie (она) / möchten / Tee trinken → ___"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_possessive_pronouns",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Притяжательные местоимения (mein, dein, sein, ihr, unser, euer, ihr, Ihr)",
+            "explanation": "Притяжательные местоимения показывают принадлежность (мой, твой, его...). Они согласуются с родом и числом существительного, которое к ним относится, а НЕ с человеком-владельцем.\n\nФормы притяжательных местоимений в Nominativ:\n— mein – мой\n— dein – твой\n— sein – его\n— ihr – её\n— unser – наш\n— euer – ваш\n— ihr – их\n— Ihr – Ваш (вежливо)\n\nПримеры:\nmein Auto (ср. род)\ndeine Tasche (ж. род)\nsein Buch (ср. род)\nihr Sohn (м. род)\nunser Lehrer\n\nВажно:\n— Род определяется по предмету: mein Auto → Auto — средний род.\n— Вежливое Ihr ВСЕГДА с большой буквы.\n— Во множественном числе притяжательное местоимение не меняется: meine Kinder.\n\nТипичные ошибки:\n— Путают ihr (её) и ihr (их) — смотреть по контексту.\n— Используют mein с существительными во множественном числе без окончания: meine Kinder — правильно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь правильное притяжательное местоимение",
+                    "questions": [
+                        "1. Ich habe ___ Auto. (mein)",
+                        "2. Du hast ___ Tasche. (dein)",
+                        "3. Er hat ___ Buch. (sein)",
+                        "4. Sie (она) hat ___ Sohn. (ihr)",
+                        "5. Wir haben ___ Lehrer. (unser)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (mein Auto / meine Auto)",
+                        "2. (deine Lampe / dein Lampe)",
+                        "3. (sein Tisch / seine Tisch)",
+                        "4. (ihr Buch / ihre Buch) — у неё",
+                        "5. (euer Haus / eure Haus)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Подбери местоимение по контексту",
+                    "questions": [
+                        "1. Das ist Alex. Das ist ___ Bruder. (его)",
+                        "2. Das ist Maria. Das ist ___ Tasche. (её)",
+                        "3. Das sind wir. Das ist ___ Auto. (наш)",
+                        "4. Das sind Peter und Tom. Das ist ___ Lehrer. (их)",
+                        "5. Das sind Sie? Das ist ___ Platz. (Ваш)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Преврати предложения, заменив существительное на местоимение",
+                    "questions": [
+                        "1. Das ist das Auto von mir. → Das ist ___ Auto.",
+                        "2. Das ist die Lampe von dir. → Das ist ___ Lampe.",
+                        "3. Das ist das Kind von ihr. → Das ist ___ Kind.",
+                        "4. Das ist der Hund von uns. → Das ist ___ Hund.",
+                        "5. Das ist das Buch von ihnen. → Das ist ___ Buch."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_akkusativ_case",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Akkusativ (винительный падеж)",
+            "explanation": "Akkusativ — это падеж прямого дополнения, то есть отвечает на вопросы Wen? (кого?) или Was? (что?). В немецком изменяется только мужской род.\n\nОпределённые артикли в Akkusativ:\n— der → den\n— die → die\n— das → das\n\nНеопределённые артикли:\n— ein → einen (м. род)\n— eine → eine\n— ein → ein\n\nПримеры:\nIch sehe den Mann. (кого?)\nWir kaufen einen Tisch. (что?)\nEr hat die Lampe.\nSie sucht das Auto.\n\nВажно:\n— Только мужской род меняет форму.\n— Множественное число не меняется: die.\n\nТипичные ошибки:\n— Используют der вместо den: Ich sehe der Mann — неверно.\n— Забывают, что einen — только для мужского рода.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь существительное в Akkusativ",
+                    "questions": [
+                        "1. Ich sehe ___ Mann. (der)",
+                        "2. Wir kaufen ___ Tisch. (ein)",
+                        "3. Er hat ___ Lampe. (die)",
+                        "4. Sie sucht ___ Auto. (das)",
+                        "5. Ich habe ___ Bruder. (ein)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь правильный артикль в Akkusativ",
+                    "questions": [
+                        "1. Ich besuche ___ Lehrer. (der)",
+                        "2. Wir brauchen ___ Stuhl. (ein)",
+                        "3. Er hat ___ Katze. (die)",
+                        "4. Sie findet ___ Buch. (das)",
+                        "5. Ich kaufe ___ Apfel. (ein)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich sehe (den Mann / der Mann).",
+                        "2. Wir kaufen (einen Tisch / ein Tisch).",
+                        "3. Er hat (die Lampe / der Lampe).",
+                        "4. Sie sucht (das Auto / den Auto).",
+                        "5. Ich habe (einen Hund / ein Hund)."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Задай вопрос Wen? или Was?",
+                    "questions": [
+                        "1. Ich sehe den Mann. → ___?",
+                        "2. Wir kaufen einen Tisch. → ___?",
+                        "3. Er hat die Lampe. → ___?",
+                        "4. Sie sucht das Auto. → ___?",
+                        "5. Ich habe einen Hund. → ___?"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_akkusativ_pronouns",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Личные местоимения в Akkusativ (mich, dich, ihn, sie, es, uns, euch, sie/Sie)",
+            "explanation": "Личные местоимения в Akkusativ используются, когда местоимение является прямым дополнением. Они отвечают на вопросы Wen? (кого?) или Was? (что?).\n\nФормы местоимений в Akkusativ:\nich → mich\ndu → dich\ner → ihn\nsie → sie\nes → es\nwir → uns\nihr → euch\nsie → sie\nSie → Sie (вежливо)\n\nПримеры:\nEr sieht mich. (кого?)\nIch kenne ihn. (его)\nWir hören euch.\nSie liebt uns.\n\nВажно:\n— Только er меняется на ihn.\n— sie (она), sie (они) и Sie (Вы) выглядят одинаково — смысл определяется по глаголу и контексту.\n— Вежливое Sie всегда с большой буквы.\n\nТипичные ошибки:\n— Вместо ihn пишут im — неверно.\n— Путают euch и uns.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь правильное местоимение в Akkusativ",
+                    "questions": [
+                        "1. Er sieht ___ (ich).",
+                        "2. Ich kenne ___ (du).",
+                        "3. Wir hören ___ (ihr).",
+                        "4. Sie liebt ___ (wir).",
+                        "5. Ich treffe ___ (er)."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Преврати именительное местоимение в Akkusativ",
+                    "questions": [
+                        "1. ich → ___",
+                        "2. du → ___",
+                        "3. er → ___",
+                        "4. wir → ___",
+                        "5. ihr → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Er sieht (mich / ich).",
+                        "2. Ich höre (dich / du).",
+                        "3. Wir kennen (ihn / er).",
+                        "4. Sie liebt (uns / wir).",
+                        "5. Ich treffe (euch / ihr)."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Подбери местоимение по смыслу",
+                    "questions": [
+                        "1. Das ist Paul. Ich sehe ___ jeden Tag. (его)",
+                        "2. Das ist Maria. Du kennst ___ auch. (её)",
+                        "3. Das sind wir! Er liebt ___. (нас)",
+                        "4. Das seid ihr! Wir hören ___. (вас)",
+                        "5. Das sind sie (они). Ich treffe ___. (их)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_separable_verbs",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Разделяемые и неразделяемые приставки (trennbare / untrennbare Verben)",
+            "explanation": "Некоторые немецкие глаголы имеют приставки. Они бывают разделяемыми (trennbar) и неразделяемыми (untrennbar). Это важно, потому что приставка влияет на порядок слов.\n\n1) Разделяемые приставки: an-, auf-, ein-, mit-, zu-, vor-, weg-, ab-, los-\n— стоят в конце предложения.\nПример: Ich stehe um 7 Uhr auf. (auf — в конце)\n\n2) Неразделяемые приставки: be-, emp-, ent-, er-, ge-, miss-, ver-, zer-\n— НЕ отделяются.\nПример: Ich verstehe dich.\n\nСтруктура с разделяемыми глаголами:\nГлагол на втором месте → приставка в конце.\nEr kommt morgen mit.\nWir fangen um 8 Uhr an.\n\nВажно:\n— В инфинитиве приставка всегда вместе: aufstehen, anfangen.\n— В Perfekt разделяемые получают ge после приставки: aufstehen → ist aufgestanden.\n\nТипичные ошибки:\n— Пишут приставку в начале: Ich aufstehe — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Определи: глагол отделяемый или нет",
+                    "questions": [
+                        "1. ankommen → trennbar / untrennbar",
+                        "2. verstehen → trennbar / untrennbar",
+                        "3. mitkommen → trennbar / untrennbar",
+                        "4. beginnen → trennbar / untrennbar",
+                        "5. aufstehen → trennbar / untrennbar"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Поставь глагол в Präsens (приставку — в конец, если отделяемая)",
+                    "questions": [
+                        "1. Ich ___ um 7 Uhr ___. (aufstehen)",
+                        "2. Er ___ heute Abend ___. (mitkommen)",
+                        "3. Wir ___ um 8 Uhr an. (anfangen)",
+                        "4. Ich ___ dich gut. (verstehen)",
+                        "5. Sie ___ jeden Tag ___. (aufstehen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich stehe um 6 Uhr auf / Ich aufstehe um 6 Uhr.",
+                        "2. Er fängt um 9 Uhr an / Er anfängt um 9 Uhr.",
+                        "3. Wir verstehen dich / Wir stehenver dich.",
+                        "4. Sie kommt morgen mit / Sie mitkommt morgen.",
+                        "5. Ich beginne heute / Ich enbeginne heute."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Вставь приставку или глагол по смыслу",
+                    "questions": [
+                        "1. Er kommt heute ___ (mit / zu / an?).",
+                        "2. Wir ___ um 10 Uhr ___. (anfangen)",
+                        "3. Ich ___ dich nicht. (verstehen)",
+                        "4. Sie steht sehr früh ___. (aufstehen)",
+                        "5. Er ___ das Fenster ___. (aufmachen)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_time_prepositions",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Предлоги времени: am, um, im",
+            "explanation": "В немецком языке для обозначения времени используются разные предлоги:\n\n1) am — с днями недели, датами, частями дня (кроме nachts)\nПримеры:\nam Montag, am Abend, am 3. Mai\n\n2) um — для точного времени\nПримеры:\num 9 Uhr, um 18:30 Uhr\n\n3) im — с месяцами, временами года, годами\nПримеры:\nim Januar, im Sommer, im Jahr 2020\n\nВажно:\n— Время суток имеет артикль der → am Morgen, am Abend.\n— Ночью используется без артикля: nachts.\n\nТипичные ошибки:\n— Используют im вместо am: im Montag — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери правильный предлог (am / um / im)",
+                    "questions": [
+                        "1. ___ Montag gehe ich zur Arbeit.",
+                        "2. ___ 9 Uhr beginnt der Kurs.",
+                        "3. ___ Februar ist es kalt.",
+                        "4. ___ Abend lese ich ein Buch.",
+                        "5. ___ Sommer fahren wir ans Meer."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь подходящий предлог",
+                    "questions": [
+                        "1. Wir treffen uns ___ 18 Uhr.",
+                        "2. Mein Geburtstag ist ___ 3. Mai.",
+                        "3. ___ Morgen gehe ich joggen.",
+                        "4. Ich mache Urlaub ___ Winter.",
+                        "5. Der Unterricht endet ___ 20 Uhr."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (am Montag / im Montag)",
+                        "2. (um 7 Uhr / im 7 Uhr)",
+                        "3. (im Januar / am Januar)",
+                        "4. (am Abend / um Abend)",
+                        "5. (im Sommer / am Sommer)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Соотнеси выражения и предлоги",
+                    "questions": [
+                        "1. ___ Freitag → день недели",
+                        "2. ___ 14:30 Uhr → точное время",
+                        "3. ___ Herbst → время года",
+                        "4. ___ Abend → часть дня",
+                        "5. ___ April → месяц"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_place_prepositions",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Предлоги места: in, an, auf, hinter, vor, neben, über, unter, zwischen",
+            "explanation": "Эти предлоги обозначают местоположение предметов. Отвечают на вопрос Wo? (где?) и требуют Dativ.\n\nОсновные предлоги места:\nin — в (внутри)\nan — у, на вертикальной поверхности\nauf — на горизонтальной поверхности\nunter — под\nüber — над\nvor — перед\nhinter — за\nneben — рядом\nzwischen — между\n\nПримеры:\nDas Buch ist auf dem Tisch.\nDie Lampe hängt an der Wand.\nEr sitzt neben mir.\nDer Hund liegt unter dem Tisch.\nWir stehen vor der Tür.\n\nВажно:\n— Wo? → только Dativ.\n— Wohin? → Akkusativ.\n\nТипичная ошибка:\n— Путают an и auf: an der Tisch — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери правильный предлог места",
+                    "questions": [
+                        "1. Das Buch ist ___ dem Tisch. (на поверхности)",
+                        "2. Die Lampe hängt ___ der Wand. (вертикально)",
+                        "3. Der Hund liegt ___ dem Bett. (под)",
+                        "4. Wir stehen ___ der Tür. (перед)",
+                        "5. Er sitzt ___ mir. (рядом)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь предлог по смыслу (in, an, auf, hinter, vor, neben, über, unter, zwischen)",
+                    "questions": [
+                        "1. Das Bild hängt ___ dem Sofa.",
+                        "2. Die Katze sitzt ___ dem Stuhl.",
+                        "3. Der Vogel fliegt ___ dem Haus.",
+                        "4. Die Kinder stehen ___ der Schule.",
+                        "5. Der Stuhl steht ___ Tisch und Lampe."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Das Buch ist (auf dem Tisch / an dem Tisch).",
+                        "2. Das Bild hängt (an der Wand / auf der Wand).",
+                        "3. Der Hund liegt (unter dem Tisch / über dem Tisch).",
+                        "4. Wir stehen (vor der Tür / hinter der Tür), wenn wir warten.",
+                        "5. Die Lampe hängt (über dem Tisch / unter dem Tisch)."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Соотнеси предлог и описание",
+                    "questions": [
+                        "1. auf → ___ (на горизонтальной поверхности)",
+                        "2. an → ___ (у стены)",
+                        "3. unter → ___ (под чем-то)",
+                        "4. zwischen → ___ (между двумя предметами)",
+                        "5. hinter → ___ (за предметом)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_es_gibt",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Конструкция es gibt + Akkusativ",
+            "explanation": "Es gibt используется, когда мы говорим, что что-то существует или имеется. После es gibt всегда стоит Akkusativ.\n\nПримеры:\nEs gibt einen Park hier. (здесь есть парк)\nEs gibt viele Geschäfte.\nEs gibt ein Problem.\n\nВажно:\n— Всегда Akkusativ: einen Park, ein Haus, viele Leute.\n— Используется только для существования, а не для местоположения (Wo?).\n\nТипичные ошибки:\n— Es gibt der Park — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь существительное в Akkusativ после es gibt",
+                    "questions": [
+                        "1. Es gibt ___ Park hier. (der)",
+                        "2. Es gibt ___ Problem. (ein)",
+                        "3. Es gibt ___ Lampe im Zimmer. (die)",
+                        "4. Es gibt ___ Haus in der Straße. (das)",
+                        "5. Es gibt ___ Hund im Garten. (ein)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Перепиши предложения, используя es gibt",
+                    "questions": [
+                        "1. Ein Park ist hier. → ___",
+                        "2. Viele Geschäfte sind im Zentrum. → ___",
+                        "3. Ein Problem ist da. → ___",
+                        "4. Ein Auto ist vor dem Haus. → ___",
+                        "5. Ein Kino ist in der Stadt. → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Es gibt (den Park / einen Park) hier.",
+                        "2. Es gibt (das Haus / ein Haus) in der Straße.",
+                        "3. Es gibt (die Lampe / eine Lampe) im Zimmer.",
+                        "4. Es gibt (der Hund / einen Hund) im Garten.",
+                        "5. Es gibt (das Problem / ein Problem) heute."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Вставь es gibt или es ist по смыслу",
+                    "questions": [
+                        "1. ___ ein Problem hier. (есть проблема)",
+                        "2. ___ kalt heute. (погода)",
+                        "3. ___ viele Leute im Park. (есть люди)",
+                        "4. ___ ein Restaurant in der Nähe. (есть ресторан)",
+                        "5. ___ warm im Zimmer. (температура)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_time_adverbs",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Наречия времени (heute, morgen, jetzt, später, immer, oft, selten, nie)",
+            "explanation": "Наречия времени уточняют, когда происходит действие. Они часто стоят в начале предложения, но могут быть и в середине.\n\nОсновные наречия времени A1:\nheute — сегодня\nmorgen — завтра\njetzt — сейчас\nspäter — позже\nimmer — всегда\noft — часто\nselten — редко\nnie — никогда\n\nПримеры:\nHeute arbeite ich nicht.\nIch komme später.\nWir gehen jetzt los.\nEr ist immer pünktlich.\n\nВажно:\n— Если наречие стоит в начале, глагол должен оставаться на втором месте.\n\nТипичная ошибка:\n— Heute ich komme — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери подходящее наречие времени",
+                    "questions": [
+                        "1. Ich arbeite ___ nicht. (сегодня)",
+                        "2. Wir kommen ___ nach Hause. (позже)",
+                        "3. Er ist ___ müde. (всегда)",
+                        "4. Ich gehe ___ schlafen. (сейчас)",
+                        "5. Sie fährt ___ nach Berlin. (завтра)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь наречие времени",
+                    "questions": [
+                        "1. ___ lerne ich Deutsch. (сегодня)",
+                        "2. Ich komme ___ zurück. (позже)",
+                        "3. Wir treffen uns ___ um 18 Uhr. (часто)",
+                        "4. Er arbeitet ___ am Wochenende. (редко)",
+                        "5. Sie ist ___ zu spät. (никогда)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант словопорядка",
+                    "questions": [
+                        "1. (Heute arbeite ich / Heute ich arbeite) nicht.",
+                        "2. (Jetzt gehen wir / Jetzt wir gehen) los.",
+                        "3. Er kommt (immer pünktlich / pünktlich immer).",
+                        "4. (Morgen fahre ich / Morgen ich fahre) nach Köln.",
+                        "5. Wir sehen uns (später / später wir)."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Соотнеси наречие и перевод",
+                    "questions": [
+                        "1. immer → ___ (всегда)",
+                        "2. selten → ___ (редко)",
+                        "3. später → ___ (позже)",
+                        "4. jetzt → ___ (сейчас)",
+                        "5. nie → ___ (никогда)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a1_perfekt_basic",
+            "level": "A1",
+            "topic": "A1.2 — Расширенная база",
+            "title": "Простая конструкция Perfekt (haben/sein + Partizip II)",
+            "explanation": "Perfekt используется для описания действий, прошедших и завершённых. На уровне A1 важна только конструкция: спрягаем haben или sein + Partizip II (третья форма).\n\nСтруктура:\nIch habe gearbeitet.\nEr hat gelernt.\nWir sind gekommen.\n\nКогда используется sein:\n— движение (gehen, fahren, kommen)\n— изменение состояния (aufstehen, einschlafen)\n\nКогда используется haben:\n— большинство остальных глаголов\n\nОбразование Partizip II:\n— правильные глаголы: ge + основа + t → machen → gemacht\n— неправильные глаголы: индивидуально → gehen → gegangen\n\nПримеры:\nIch habe Pizza gegessen.\nWir sind nach Berlin gefahren.\nSie hat im Büro gearbeitet.\n\nТипичные ошибки:\n— Ставят ge в середину разделяемой приставки: geaufstehen — неверно.\n— Выбирают haben для движения: Ich habe gegangen — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери haben или sein",
+                    "questions": [
+                        "1. Ich ___ gegessen. (есть)",
+                        "2. Er ___ gegangen. (идти)",
+                        "3. Wir ___ gefahren. (ехать)",
+                        "4. Sie ___ gearbeitet. (работать)",
+                        "5. Du ___ geschlafen. (спать)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Образуй Partizip II",
+                    "questions": [
+                        "1. machen → ___",
+                        "2. spielen → ___",
+                        "3. gehen → ___",
+                        "4. fahren → ___",
+                        "5. lernen → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Поставь глагол в Perfekt",
+                    "questions": [
+                        "1. Ich ___ ein Buch ___. (lesen)",
+                        "2. Wir ___ in Berlin ___. (sein)",
+                        "3. Er ___ Kaffee ___. (trinken)",
+                        "4. Sie ___ nach Hause ___. (kommen)",
+                        "5. Du ___ viel ___. (arbeiten)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich habe (gemacht / gemacht habe).",
+                        "2. Er ist (gefahren / gefahren hat).",
+                        "3. Wir haben (gegessen / essen ge).",
+                        "4. Sie ist (gekommen / gekommen hat).",
+                        "5. Du hast (gelernt / gelernt hast)."
+                    ]
+                }
+            ]
+        }
+    ],
+    "A2.1": [
+        {
+            "id": "a2_weil_subordinate",
+            "level": "A2",
+            "topic": "A2.1 — Усложнение структуры предложений",
+            "title": "Придаточные предложения с weil (глагол в конце)",
+            "explanation": "Союз weil вводит придаточное предложение причины и означает 'потому что'. В придаточном предложении с weil спрягаемый глагол ВСЕГДА стоит в конце. Основное предложение может стоять до или после придаточного.\n\nСтруктуры:\n1) Hauptsatz + weil + Nebensatz:\nIch bleibe zu Hause, weil ich krank bin.\n\n2) Weil + Nebensatz + Hauptsatz:\nWeil ich krank bin, bleibe ich zu Hause.\n\nВажно:\n— В придаточном предложении порядок слов меняется: подлежащее → остальные члены → глагол в КОНЦЕ.\n— Weil нельзя использовать без придаточного предложения.\n\nТипичные ошибки:\n— Ставят глагол вторым: weil ich bin krank — неверно.\n— Забивают запятую: ..., weil ich krank bin — запятая обязательна.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь глагол в конец придаточного с weil",
+                    "questions": [
+                        "1. Ich bleibe zu Hause, weil ich müde ___. (sein)",
+                        "2. Er kommt nicht, weil er viel Arbeit ___. (haben)",
+                        "3. Wir gehen spät schlafen, weil wir lange ___ . (lernen)",
+                        "4. Sie fährt nicht nach Berlin, weil sie kein Geld ___. (haben)",
+                        "5. Ich esse nichts, weil ich keinen Hunger ___. (haben)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Соедини два предложения с weil",
+                    "questions": [
+                        "1. Ich bleibe zu Hause. Ich bin krank. → ___",
+                        "2. Er kauft kein Auto. Er hat kein Geld. → ___",
+                        "3. Wir gehen nicht spazieren. Es regnet. → ___",
+                        "4. Sie lernt viel. Sie hat morgen einen Test. → ___",
+                        "5. Ich trinke Kaffee. Ich bin müde. → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (weil ich krank bin / weil ich bin krank)",
+                        "2. (weil er keine Zeit hat / weil er hat keine Zeit)",
+                        "3. (weil wir lernen müssen / weil wir müssen lernen)",
+                        "4. (weil sie müde ist / weil sie ist müde)",
+                        "5. (weil es regnet / weil regnet es)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Перестрой предложение: начни с weil",
+                    "questions": [
+                        "1. Ich gehe nicht zur Arbeit, weil ich krank bin. → ___ gehe ich nicht zur Arbeit.",
+                        "2. Er kommt später, weil er einen Termin hat. → ___ kommt er später.",
+                        "3. Wir bleiben zu Hause, weil es kalt ist. → ___ bleiben wir zu Hause.",
+                        "4. Sie macht keine Pause, weil sie viel Arbeit hat. → ___ macht sie keine Pause.",
+                        "5. Ich esse nichts, weil ich keinen Hunger habe. → ___ esse ich nichts."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_dass_subordinate",
+            "level": "A2",
+            "topic": "A2.1 — Усложнение структуры предложений",
+            "title": "Придаточные предложения с dass (глагол в конце)",
+            "explanation": "Союз dass вводит придаточное предложение, которое передаёт содержание мысли, мнения или речи. Он соответствует русскому 'что'. В придаточном предложении с dass глагол также ВСЕГДА в конце.\n\nСтруктура:\nHauptsatz + dass + Nebensatz\nIch glaube, dass er heute nicht kommt.\n\nПримеры:\nSie sagt, dass sie keine Zeit hat.\nWir wissen, dass er in Berlin wohnt.\n\nВажно:\n— Dass всегда ставит глагол в конец.\n— Hauptsatz может стоять и после придаточного: Dass er heute nicht kommt, glaube ich.\n\nТипичные ошибки:\n— Путают das (артикль, указательное слово) и dass (союз).\n— Пишут одно 's': das er kommt — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь глагол в конец придаточного с dass",
+                    "questions": [
+                        "1. Ich glaube, dass er heute nicht ___ . (kommen)",
+                        "2. Sie sagt, dass sie keine Zeit ___ . (haben)",
+                        "3. Wir wissen, dass er in Berlin ___ . (wohnen)",
+                        "4. Er meint, dass das Wetter morgen gut ___ . (sein)",
+                        "5. Ich hoffe, dass du schnell ___ . (lernen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Соедини предложения с dass",
+                    "questions": [
+                        "1. Ich glaube das. Er ist müde. → Ich glaube, ___ .",
+                        "2. Sie sagt das. Sie kommt später. → Sie sagt, ___ .",
+                        "3. Wir wissen das. Er wohnt in Köln. → Wir wissen, ___ .",
+                        "4. Er denkt das. Du hast Recht. → Er denkt, ___ .",
+                        "5. Ich hoffe das. Morgen wird es warm. → Ich hoffe, ___ ."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (Ich glaube, dass er kommt / Ich glaube, das er kommt)",
+                        "2. (Sie sagt, dass sie müde ist / Sie sagt, das sie müde ist)",
+                        "3. (Wir wissen, dass er kein Auto hat / Wir wissen, das er kein Auto hat)",
+                        "4. (Ich hoffe, dass du Zeit hast / Ich hoffe, das du Zeit hast)",
+                        "5. (Er meint, dass es regnet / Er meint, das es regnet)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Начни предложение с dass",
+                    "questions": [
+                        "1. Ich glaube, dass er krank ist. → ___ er krank ist, glaube ich.",
+                        "2. Wir wissen, dass sie kommt. → ___ sie kommt, wissen wir.",
+                        "3. Er sagt, dass er keine Zeit hat. → ___ er keine Zeit hat, sagt er.",
+                        "4. Ich hoffe, dass es warm wird. → ___ es warm wird, hoffe ich.",
+                        "5. Sie meint, dass du Recht hast. → ___ du Recht hast, meint sie."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_wenn_condition",
+            "level": "A2",
+            "topic": "A2.1 — Усложнение структуры предложений",
+            "title": "Придаточные предложения с wenn (условные)",
+            "explanation": "Союз wenn используется для выражения условий или повторяющихся ситуаций. Перевод: 'если', 'когда'. В придаточном предложении с wenn глагол стоит в конце.\n\nСтруктуры:\n1) Hauptsatz + wenn + Nebensatz:\nIch rufe dich an, wenn ich Zeit habe.\n\n2) Wenn + Nebensatz + Hauptsatz:\nWenn ich Zeit habe, rufe ich dich an.\n\nКогда используется wenn:\n— Условие: Wenn es regnet, bleibe ich zu Hause.\n— Повторяющиеся действия: Wenn ich müde bin, trinke ich Kaffee.\n\nВажно:\n— Wenn не означает прошлое 'когда'. Для прошедшего используется als.\n— В придаточном с wenn глагол ВСЕГДА в конце.\n\nТипичные ошибки:\n— Путают wenn и wann. Wann — вопрос 'когда?'.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь глагол в конец придаточного с wenn",
+                    "questions": [
+                        "1. Ich rufe dich an, wenn ich Zeit ___. (haben)",
+                        "2. Wenn es regnet, ___ ich zu Hause. (bleiben)",
+                        "3. Er trinkt Kaffee, wenn er müde ___. (sein)",
+                        "4. Wir gehen spazieren, wenn wir frei ___. (haben)",
+                        "5. Sie liest ein Buch, wenn sie Ruhe ___. (brauchen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Соедини предложения с wenn",
+                    "questions": [
+                        "1. Ich bleibe zu Hause. Es ist kalt. → ___",
+                        "2. Er kommt später. Er hat einen Termin. → ___",
+                        "3. Wir essen Pizza. Wir haben Hunger. → ___",
+                        "4. Sie macht Sport. Sie hat Zeit. → ___",
+                        "5. Ich trinke Tee. Ich bin müde. → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. (Wenn ich Zeit habe / Wenn ich habe Zeit), rufe ich dich an.",
+                        "2. Ich bleibe zu Hause, (wenn es regnet / wenn regnet es).",
+                        "3. (Wenn wir Hunger haben / Wenn wir haben Hunger), kochen wir.",
+                        "4. Er schläft, (wenn er müde ist / wenn er ist müde).",
+                        "5. (Wenn sie Zeit hat / Wenn sie hat Zeit), kommt sie."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Начни предложение с wenn",
+                    "questions": [
+                        "1. Ich rufe dich an, wenn ich Zeit habe. → ___ ich Zeit habe, rufe ich dich an.",
+                        "2. Er fährt nicht, wenn es schneit. → ___ es schneit, fährt er nicht.",
+                        "3. Wir lernen, wenn wir einen Test haben. → ___ wir einen Test haben, lernen wir.",
+                        "4. Sie kauft ein, wenn sie Geld hat. → ___ sie Geld hat, kauft sie ein.",
+                        "5. Ich esse, wenn ich Hunger habe. → ___ ich Hunger habe, esse ich."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_indirect_questions",
+            "level": "A2",
+            "topic": "A2.1 — Усложнение структуры предложений",
+            "title": "Индиректные вопросы (вопросы во второй части предложения)",
+            "explanation": "Индиректные вопросы используются, когда вопрос встроен в другое предложение. Они НЕ имеют вопросительного порядка слов. Интонация НЕ вопросительная. Порядок: союзная структура + подлежащее + глагол в конце.\n\nВариант 1: с вопросительными словами (wann, wo, wie ...):\nIch weiß nicht, wann er kommt.\nKannst du mir sagen, wo du wohnst?\n\nВариант 2: если основной вопрос — да/нет:\nИспользуется союз ob:\nIch weiß nicht, ob er heute kommt.\nEr fragt, ob du Zeit hast.\n\nВажно:\n— Глагол ВСЕГДА в конце.\n— НЕ используется порядок Ja/Nein-Frage.\n\nТипичные ошибки:\n— Ставят глагол вторым: Ich weiß nicht, wann kommt er — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь глагол в конец индиректного вопроса",
+                    "questions": [
+                        "1. Ich weiß nicht, wann er ___ . (kommen)",
+                        "2. Kannst du mir sagen, wo du ___ ? (wohnen)",
+                        "3. Ich frage mich, wie das ___ . (funktionieren)",
+                        "4. Sie weiß nicht, warum er nicht ___ . (kommen)",
+                        "5. Er sagt, wann wir ___ . (anfangen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Преврати прямой вопрос в индиректный",
+                    "questions": [
+                        "1. Wo wohnst du? → Ich möchte wissen, ___ .",
+                        "2. Wann beginnt der Kurs? → Er fragt, ___ .",
+                        "3. Wie heißt du? → Kannst du mir sagen, ___ ?",
+                        "4. Woher kommt er? → Ich weiß nicht, ___ .",
+                        "5. Warum lernst du Deutsch? → Sie fragt, ___ ."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Используй ob для вопросов да/нет",
+                    "questions": [
+                        "1. Kommt er heute? → Ich weiß nicht, ___ er heute kommt.",
+                        "2. Hast du Zeit? → Er fragt, ___ du Zeit hast.",
+                        "3. Ist der Kurs schwer? → Sie möchte wissen, ___ der Kurs schwer ist.",
+                        "4. Wohnt ihr hier? → Ich weiß nicht, ___ ihr hier wohnt.",
+                        "5. Regnet es morgen? → Wir fragen, ___ es morgen regnet."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich weiß nicht, wann er kommt / Ich weiß nicht, wann kommt er.",
+                        "2. Kannst du mir sagen, wo du wohnst / Kannst du mir sagen, wo wohnst du.",
+                        "3. Er fragt, ob du Zeit hast / Er fragt, ob hast du Zeit.",
+                        "4. Sie möchte wissen, wie das funktioniert / Sie möchte wissen, wie funktioniert das.",
+                        "5. Wir wissen nicht, ob er kommt / Wir wissen nicht, ob kommt er."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_word_order_many_info",
+            "level": "A2",
+            "topic": "A2.1 — Усложнение структуры предложений",
+            "title": "Порядок слов при наличии нескольких обстоятельств",
+            "explanation": "Когда в предложении много обстоятельств (время, место, способ, причина), немецкий язык использует фиксированный порядок: ТЕ-МЕ-СПОС.\n\nTE → Temporal (время)\nME → Modal (способ, как?)\nSP → Lokal (место)\n(на практике чаще TE-ME-LO)\n\nТипичный порядок:\n1) Wann? (когда?)\n2) Wie? (как?)\n3) Wo? (где?)\n\nПример:\nIch gehe morgen (когда?) mit Freunden (как?) in die Stadt (куда?).\n\nЕсли обстоятельство ставится в начало, глагол остаётся на втором месте:\nMorgen gehe ich mit meinen Freunden in die Stadt.\n\nВажно:\n— Порядок не всегда строго обязателен, но в A2 он считается правильным и стандартным.\n— В немецком нельзя ставить глагол на третье место.\n\nТипичные ошибки:\n— Меняют порядок и нарушают структуру: Ich gehe in die Stadt morgen mit Freunden — звучит плохо.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Расставь обстоятельства в порядке TE–ME–LO",
+                    "questions": [
+                        "1. Ich gehe ___ ___ ___ . (in die Stadt / morgen / mit Freunden)",
+                        "2. Wir fahren ___ ___ ___ . (mit dem Zug / nach Berlin / heute)",
+                        "3. Er arbeitet ___ ___ ___ . (im Büro / jeden Tag / konzentriert)",
+                        "4. Sie lernt ___ ___ ___ . (zu Hause / fleißig / am Abend)",
+                        "5. Ich mache Sport ___ ___ ___ . (im Park / morgens / allein)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Начни предложение с обстоятельства времени (глагол — второй)",
+                    "questions": [
+                        "1. Ich gehe heute mit Freunden ins Kino. → ___ gehe ich mit Freunden ins Kino.",
+                        "2. Wir fahren morgen mit dem Auto nach Hamburg. → ___ fahren wir mit dem Auto nach Hamburg.",
+                        "3. Er arbeitet am Abend konzentriert im Büro. → ___ arbeitet er konzentriert im Büro.",
+                        "4. Sie lernt jeden Tag fleißig zu Hause. → ___ lernt sie fleißig zu Hause.",
+                        "5. Ich esse morgens schnell in der Küche. → ___ esse ich schnell in der Küche."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный порядок обстоятельств",
+                    "questions": [
+                        "1. (Ich gehe morgen mit Freunden in die Stadt / Ich gehe mit Freunden in die Stadt morgen)",
+                        "2. (Wir fahren heute mit dem Bus nach Köln / Wir fahren nach Köln heute mit dem Bus)",
+                        "3. (Er lernt am Abend zu Hause fleißig / Er lernt fleißig zu Hause am Abend)",
+                        "4. (Sie arbeitet jeden Tag sehr konzentriert im Büro / Sie arbeitet im Büro sehr konzentriert jeden Tag)",
+                        "5. (Ich frühstücke morgens schnell in der Küche / Ich frühstücke schnell in der Küche morgens)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Перестрой фразу, соблюдая TE–ME–LO",
+                    "questions": [
+                        "1. Ich gehe in den Park morgen mit meinem Hund. → ___",
+                        "2. Wir essen im Restaurant am Abend zusammen. → ___",
+                        "3. Er fährt nach Berlin am Montag allein. → ___",
+                        "4. Sie macht Sport mit Freunden am Nachmittag. → ___",
+                        "5. Ich arbeite im Büro heute konzentriert. → ___"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_gern_lieber_amliebsten",
+            "level": "A2",
+            "topic": "A2.1 — Усложнение структуры предложений",
+            "title": "Gern – lieber – am liebsten",
+            "explanation": "Эти слова выражают степень предпочтения и используются с глаголами.\n\nGern — охотно, нравится что-то делать.\nIch esse gern Pizza. (Мне нравится есть пиццу.)\n\nLieber — предпочитаю (сравнение двух вариантов).\nIch esse lieber Pasta. (Я предпочитаю пасту.)\n\nAm liebsten — больше всего, любимее всего.\nIch esse am liebsten Sushi. (Больше всего я люблю суши.)\n\nСтепени сравнения:\ngern → lieber → am liebsten\n\nВажно:\n— Gern относится к глаголу, а не к существительному.\n— В предложениях порядок слов остаётся обычным, это просто наречие.\n\nТипичные ошибки:\n— Используют lieber/am liebsten без gern → нужно показывать степень предпочтения.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь: gern, lieber или am liebsten",
+                    "questions": [
+                        "1. Ich trinke ___ Tee. (нравится чай)",
+                        "2. Ich trinke ___ Kaffee als Tee. (предпочтение)",
+                        "3. Ich trinke ___ Kakao. (больше всего)",
+                        "4. Er spielt ___ Fußball. (нравится)",
+                        "5. Er spielt ___ Tennis als Fußball. (предпочтение)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Переведи, используя gern/lieber/am liebsten",
+                    "questions": [
+                        "1. Я люблю готовить. → Ich koche ___.",
+                        "2. Я предпочитаю есть рыбу. → Ich esse ___ Fisch.",
+                        "3. Больше всего я люблю есть пиццу. → Ich esse ___ Pizza.",
+                        "4. Она любит читать. → Sie liest ___.",
+                        "5. Она предпочитает смотреть фильмы. → Sie sieht Filme ___."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich esse (gern / lieber / am liebsten) jeden Tag Brot. (нравится)",
+                        "2. Ich esse (gern / lieber / am liebsten) Nudeln als Reis. (предпочтение)",
+                        "3. Ich esse (gern / lieber / am liebsten) Schokolade. (больше всего)",
+                        "4. Er fährt (gern / lieber / am liebsten) Auto. (нравится)",
+                        "5. Er fährt (gern / lieber / am liebsten) Zug als Auto. (предпочтение)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Дополните предложение логично",
+                    "questions": [
+                        "1. Ich trinke gern Tee, aber ___ trinke ich Kaffee.",
+                        "2. Er spielt gern Fußball, aber ___ spielt er Tennis.",
+                        "3. Sie kocht gern, aber ___ backt sie Kuchen.",
+                        "4. Wir reisen gern, aber ___ reisen wir ans Meer.",
+                        "5. Ich lese gern Bücher, aber ___ lese ich Comics."
+                    ]
+                }
+            ]
+        }
+    ],
+    "A2.2": [
+        {
+            "id": "a2_adjective_declension",
+            "level": "A2",
+            "topic": "A2.2 — Склонения и местоимения",
+            "title": "Склонение прилагательных после определённого и неопределённого артикля",
+            "explanation": "В немецком языке прилагательные изменяются в зависимости от рода, числа и падежа. На уровне A2 важно понимать, что форма прилагательного зависит от того, какой артикль стоит перед существительным. Если перед существительным стоит определённый артикль (der, die, das), прилагательное получает окончание -e в Nominativ и -en в Akkusativ для мужского рода и множественного числа. Если стоит неопределённый артикль (ein, eine), окончания другие, потому что артикль не показывает полностью род/число.\n\nПримеры Nominativ:\nder kleine Hund (м.р.)\ndie schöne Lampe (ж.р.)\ndas neue Auto (ср.р.)\ndie alten Häuser (мн.ч.)\n\nПримеры Akkusativ:\nich sehe den kleinen Hund\nich kaufe die schöne Lampe\nich habe das neue Auto\nich finde die alten Häuser\n\nВажно: нужно всегда учить артикль вместе с существительным, чтобы правильно выбрать окончание прилагательного.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь прилагательное в правильной форме (Nominativ)",
+                    "questions": [
+                        "1. der ___ Hund (klein)",
+                        "2. die ___ Lampe (schön)",
+                        "3. das ___ Auto (neu)",
+                        "4. ein ___ Tisch (groß)",
+                        "5. eine ___ Tasche (teuer)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь правильную форму прилагательного (Akkusativ)",
+                    "questions": [
+                        "1. Ich sehe den ___ Hund. (klein)",
+                        "2. Wir kaufen die ___ Lampe. (schön)",
+                        "3. Sie hat ein ___ Auto. (neu)",
+                        "4. Er sucht einen ___ Stuhl. (alt)",
+                        "5. Ich finde die ___ Häuser. (alt)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. der (kleine / kleinen) Hund",
+                        "2. ich sehe den (kleine / kleinen) Hund",
+                        "3. das (rote / roten) Auto (Nominativ)",
+                        "4. ich habe ein (neues / neuen) Handy",
+                        "5. wir kaufen die (schöne / schönen) Lampe"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Соотнеси артикль и окончание",
+                    "questions": [
+                        "1. der → ___ (окончание прилагательного в Nominativ м.р.)",
+                        "2. den → ___ (окончание прилагательного в Akkusativ м.р.)",
+                        "3. die (ж.р.) → ___ (Nominativ)",
+                        "4. das → ___ (Nominativ ср.р.)",
+                        "5. ein (м.р. Akkusativ) → ___"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_dativ_pronouns",
+            "level": "A2",
+            "topic": "A2.2 — Склонения и местоимения",
+            "title": "Местоимения в Dativ (mir, dir, ihm, ihr, uns, euch, ihnen, Ihnen)",
+            "explanation": "Местоимения в Dativ используются, когда человек является получателем действия — кому? чему? В Dativ меняются почти все местоимения.\n\nФормы:\nich → mir\ndu → dir\ner → ihm\nsie → ihr\nes → ihm\nwir → uns\nihr → euch\nsie → ihnen\nSie → Ihnen (вежливо)\n\nПримеры:\nMir ist kalt. (мне холодно)\nIch gebe dir das Buch. (кому? тебе)\nEr hilft ihm. (кому? ему)\nWir danken euch. (кому? вам)\n\nВажно:\n— Viele Verben требуют Dativ: helfen, danken, gefallen, gehören.\n— Вежливая форма Ihnen всегда с большой буквы.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Преврати местоимение в форму Dativ",
+                    "questions": [
+                        "1. ich → ___",
+                        "2. du → ___",
+                        "3. er → ___",
+                        "4. wir → ___",
+                        "5. sie (они) → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь правильное местоимение в Dativ",
+                    "questions": [
+                        "1. Ich gebe ___ das Buch. (du)",
+                        "2. Er hilft ___. (sie — она)",
+                        "3. Wir danken ___. (ihr)",
+                        "4. Sie zeigt ___ das Foto. (wir)",
+                        "5. Ich erkläre ___ alles. (Sie — вежливо)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Er hilft (mir / mich).",
+                        "2. Ich gebe (dir / dich) das Handy.",
+                        "3. Wir danken (ihnen / sie).",
+                        "4. Sie zeigt (uns / wir) den Weg.",
+                        "5. Ich schreibe (Ihnen / Ihnen) morgen. — обе формы одинаковы, но выбери правильно по смыслу"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Подставь местоимение по смыслу",
+                    "questions": [
+                        "1. Das ist Paul. Ich helfe ___ jeden Tag. (ему)",
+                        "2. Das ist Maria. Er gibt ___ Blumen. (ей)",
+                        "3. Das sind wir. Er erklärt ___ die Aufgabe. (нам)",
+                        "4. Das seid ihr. Wir zeigen ___ die Stadt. (вам — множественное)",
+                        "5. Das sind die Studenten. Ich schreibe ___ morgen. (им)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_dativ_prepositions",
+            "level": "A2",
+            "topic": "A2.2 — Склонения и местоимения",
+            "title": "Предлоги с Dativ: aus, bei, mit, nach, seit, von, zu",
+            "explanation": "Некоторые немецкие предлоги всегда требуют Dativ. Они отвечают за место, направление, время и отношения между людьми.\n\nПредлоги, которые всегда требуют Dativ:\naus — из (место происхождения)\nbei — у, возле; у кого-то дома\nmit — с (совместное действие)\nnach — после; в (город/страну без артикля)\nseit — с какого-то времени; уже\nvon — от, с\nzu — к (направление к человеку/месту)\n\nПримеры:\nich komme aus der Ukraine\nich bin bei meiner Freundin\nich gehe mit dem Kind spazieren\nwir fahren nach Berlin\nseit einem Jahr lerne ich Deutsch\nich bekomme einen Brief von meiner Mutter\nich gehe zum Arzt\n\nВажно: nach используется для городов и стран без артикля, zu — для людей и конкретных мест.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Выбери правильный предлог (aus, bei, mit, nach, seit, von, zu)",
+                    "questions": [
+                        "1. Ich komme ___ der Ukraine.",
+                        "2. Ich bin ___ meiner Freundin.",
+                        "3. Ich gehe ___ dem Hund spazieren.",
+                        "4. Wir fahren ___ Berlin.",
+                        "5. Ich bekomme einen Brief ___ meinem Vater."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь предлог и поставь существительное в Dativ",
+                    "questions": [
+                        "1. Ich gehe ___ ___ Arzt. (к врачу)",
+                        "2. Ich wohne ___ ___ Familie. (у семьи)",
+                        "3. Er fährt ___ ___ Arbeit. (к работе)",
+                        "4. Wir lernen Deutsch ___ ___ Jahr. (уже один год)",
+                        "5. Sie kommt ___ ___ Schule. (из школы)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich fahre nach Berlin / Ich fahre zu Berlin.",
+                        "2. Ich bekomme ein Paket von meiner Mutter / Ich bekomme ein Paket nach meiner Mutter.",
+                        "3. Ich gehe zu meinem Lehrer / Ich gehe nach meinem Lehrer.",
+                        "4. Ich bin bei meinem Bruder / Ich bin nach meinem Bruder.",
+                        "5. Wir gehen mit dem Kind / Wir gehen von dem Kind."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Подставь подходящий предлог по смыслу",
+                    "questions": [
+                        "1. Ich lerne Deutsch ___ zwei Jahren. (уже)",
+                        "2. Er kommt ___ der Arbeit. (откуда?)",
+                        "3. Ich gehe ___ meiner Schwester. (к кому?)",
+                        "4. Wir fahren ___ Italien. (в страну)",
+                        "5. Ich spreche ___ meinem Arzt. (с кем?)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_wechsel_prepositions",
+            "level": "A2",
+            "topic": "A2.2 — Склонения и местоимения",
+            "title": "Смешанные предлоги (Wechselpräpositionen): in, an, auf, unter, über, vor, hinter, neben, zwischen (Wo/Dativ, Wohin/Akkusativ)",
+            "explanation": "Wechselpräpositionen — предлоги, которые могут использовать и Akkusativ, и Dativ. Всё зависит от вопроса:\nWo? — где? — Dativ (нет движения)\nWohin? — куда? — Akkusativ (есть движение)\n\nПредлоги:\nin — в\nan — у/на (вертикально)\nauf — на (горизонтально)\nunter — под\nüber — над\nvor — перед\nhinter — за\nneben — рядом\nzwischen — между\n\nПримеры Wo? (Dativ):\nDas Buch liegt auf dem Tisch.\nIch bin in der Küche.\nDer Hund schläft unter dem Bett.\n\nПримеры Wohin? (Akkusativ):\nIch lege das Buch auf den Tisch.\nIch gehe in die Küche.\nDer Hund läuft unter das Bett.\n\nВажно:\n— Если предмет движется — Akkusativ.\n— Если предмет остаётся на месте — Dativ.\n— Это одно из самых важных правил уровня A2.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Определи: Wo? (Dativ) или Wohin? (Akkusativ)",
+                    "questions": [
+                        "1. Ich lege das Buch ___ den Tisch. (куда?)",
+                        "2. Das Buch liegt ___ dem Tisch. (где?)",
+                        "3. Wir gehen ___ die Schule. (куда?)",
+                        "4. Wir sind ___ der Schule. (где?)",
+                        "5. Der Hund läuft ___ das Bett. (куда?)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь правильную форму Dativ или Akkusativ",
+                    "questions": [
+                        "1. Ich gehe in ___ Küche. (die)",
+                        "2. Ich bin in ___ Küche. (die)",
+                        "3. Er stellt den Stuhl neben ___ Tisch. (der)",
+                        "4. Der Stuhl steht neben ___ Tisch. (der)",
+                        "5. Die Katze springt auf ___ Sofa. (das)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich lege das Buch auf den Tisch / auf dem Tisch.",
+                        "2. Der Hund liegt unter dem Bett / unter das Bett.",
+                        "3. Wir gehen in die Stadt / in der Stadt.",
+                        "4. Das Bild hängt an der Wand / an die Wand. (где?)",
+                        "5. Ich hänge das Bild an die Wand / an der Wand. (куда?)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Соотнеси Wo/Wohin и правильный падеж",
+                    "questions": [
+                        "1. Wo? → ___ (Dativ / Akkusativ)",
+                        "2. Wohin? → ___ (Dativ / Akkusativ)",
+                        "3. in die Küche → ___? (Wo или Wohin?)",
+                        "4. auf dem Tisch → ___? (Wo или Wohin?)",
+                        "5. unter das Bett → ___? (Wo или Wohin?)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_relative_clauses",
+            "level": "A2",
+            "topic": "A2.2 — Склонения и местоимения",
+            "title": "Относительные местоимения (Relativsätze) в A2 (der, die, das)",
+            "explanation": "Относительные предложения используются, чтобы уточнить информацию о человеке или предмете. Они вводятся относительными местоимениями der, die, das, которые совпадают с определёнными артиклями. В относительном предложении глагол ВСЕГДА стоит в конце.\n\nМестоимение согласуется с существительным, к которому относится:\nder Mann, der dort steht (который)\ndie Frau, die hier wohnt (которая)\ndas Auto, das mir gefällt (которое)\n\nСтруктура:\nHauptsatz + , + Relativsatz\nDas ist der Mann, der mir hilft.\n\nВажно:\n— Глагол в конце: der mir hilft.\n— Местоимение заменяет существительное.\n— В A2 используются только простые формы der/die/das.\n\nТипичные ошибки:\n— Ставят глагол вторым: der hilft mir — неверно.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь правильное относительное местоимение (der, die, das)",
+                    "questions": [
+                        "1. Das ist der Mann, ___ mir hilft.",
+                        "2. Das ist die Frau, ___ hier wohnt.",
+                        "3. Das ist das Auto, ___ er kaufen möchte.",
+                        "4. Das sind die Kinder, ___ im Park spielen.",
+                        "5. Das ist das Buch, ___ ich lese."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Соедини два предложения в одно с относительным предложением",
+                    "questions": [
+                        "1. Der Mann steht dort. Er ist mein Lehrer. → Der Mann, ___ mein Lehrer ist, steht dort.",
+                        "2. Die Frau wohnt hier. Sie arbeitet im Krankenhaus. → Die Frau, ___ im Krankenhaus arbeitet, wohnt hier.",
+                        "3. Das Auto ist teuer. Es gefällt mir. → Das Auto, ___ mir gefällt, ist teuer.",
+                        "4. Die Kinder spielen Fußball. Sie sind laut. → Die Kinder, ___ laut sind, spielen Fußball.",
+                        "5. Das Haus ist alt. Es steht in Berlin. → Das Haus, ___ in Berlin steht, ist alt."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Das ist der Mann, (der / die) mich versteht.",
+                        "2. Das ist die Lampe, (die / das) sehr hell ist.",
+                        "3. Das ist das Zimmer, (das / der) mir gefällt.",
+                        "4. Das sind die Leute, (die / das) hier wohnen.",
+                        "5. Das ist der Hund, (der / das) immer bellt."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Вставь глагол в конец относительного предложения",
+                    "questions": [
+                        "1. Das ist der Lehrer, der mir Deutsch ___ . (beibringen)",
+                        "2. Das ist die Frau, die jeden Tag früh ___ . (aufstehen)",
+                        "3. Das ist das Handy, das sehr gut ___ . (funktionieren)",
+                        "4. Das sind die Freunde, die mich oft ___ . (besuchen)",
+                        "5. Das ist das Auto, das er gestern ___ . (kaufen)"
+                    ]
+                }
+            ]
+        }
+    ],
+    "A2.3": [
+        {
+            "id": "a2_prateritum_basic",
+            "level": "A2",
+            "topic": "A2.3 — Глагольные формы и времена",
+            "title": "Präteritum — формы: war, hatte",
+            "explanation": "Präteritum — это прошедшее время, которое часто используется в письменной речи (книги, статьи, новости). На уровне A2 важно знать только две основные формы: war и hatte.\n\nwar — прошедшая форма глагола sein.\nich war, du warst, er war, wir waren, ihr wart, sie waren.\n\nПримеры:\nIch war gestern zu Hause.\nEr war müde.\nWir waren zusammen im Park.\n\nhatte — прошедшая форма глагола haben.\nich hatte, du hattest, er hatte, wir hatten, ihr hattet, sie hatten.\n\nПримеры:\nIch hatte keine Zeit.\nSie hatte ein Problem.\nWir hatten Glück.\n\nВажно:\n— Эти формы НЕ требуют Partizip II.\n— Они очень часто встречаются в повседневных диалогах.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь форму war или hatte",
+                    "questions": [
+                        "1. Ich ___ gestern müde.",
+                        "2. Er ___ keine Zeit.",
+                        "3. Wir ___ im Park.",
+                        "4. Sie ___ ein Problem.",
+                        "5. Ihr ___ Glück."
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Преврати предложение в Präteritum",
+                    "questions": [
+                        "1. Ich bin zu Hause. → Ich ___ zu Hause.",
+                        "2. Sie hat ein Auto. → Sie ___ ein Auto.",
+                        "3. Wir sind glücklich. → Wir ___ glücklich.",
+                        "4. Er hat Kopfschmerzen. → Er ___ Kopfschmerzen.",
+                        "5. Sie sind krank. → Sie ___ krank."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich (war / hatte) gestern zu Hause.",
+                        "2. Er (war / hatte) Kopfschmerzen.",
+                        "3. Wir (waren / hatten) viel Zeit.",
+                        "4. Sie (war / hatte) müde.",
+                        "5. Ich (war / hatte) ein Meeting."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Заполни пропуск по смыслу",
+                    "questions": [
+                        "1. Ich ___ gestern krank, deshalb blieb ich zu Hause.",
+                        "2. Er ___ keine Lust, ins Kino zu gehen.",
+                        "3. Wir ___ im Urlaub, es war schön.",
+                        "4. Sie ___ viel Arbeit am Montag.",
+                        "5. Du ___ sehr müde nach der Reise."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_prateritum_modals",
+            "level": "A2",
+            "topic": "A2.3 — Глагольные формы и времена",
+            "title": "Präteritum модальных глаголов (konnte, wollte, musste, durfte, sollte, mochte)",
+            "explanation": "Модальные глаголы в Präteritum используются для описания прошедших способностей, желаний и обязанностей. Они спрягаются как слабые глаголы, но с изменённым корнем.\n\nФормы:\nkönnen → konnte\nwollen → wollte\nmüssen → musste\ndürfen → durfte\nsollen → sollte\nmögen → mochte\n\nСтруктура:\nмодальный глагол в Präteritum + инфинитив в конце\n\nПримеры:\nIch konnte gestern nicht kommen.\nEr wollte nicht mitfahren.\nWir mussten früh aufstehen.\nSie durfte nicht laut sprechen.\n\nВажно:\n— Инфинитив ВСЕГДА стоит в конце.\n— Эти формы часто встречаются в реальной речи.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь модальный глагол в Präteritum",
+                    "questions": [
+                        "1. Ich ___ gestern nicht kommen. (können)",
+                        "2. Er ___ nicht mitfahren. (wollen)",
+                        "3. Wir ___ früh aufstehen. (müssen)",
+                        "4. Sie ___ nicht laut sprechen. (dürfen)",
+                        "5. Du ___ mehr lernen. (sollen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Вставь форму Präteritum + инфинитив в конце",
+                    "questions": [
+                        "1. Ich ___ gestern lange ___ . (mögen / bleiben)",
+                        "2. Er ___ nicht ___ . (können / arbeiten)",
+                        "3. Wir ___ früh ___ . (müssen / schlafen)",
+                        "4. Sie ___ kein Fleisch ___ . (mögen / essen)",
+                        "5. Ihr ___ nicht laut ___ . (dürfen / sprechen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich (konnte / konnte habe) nicht kommen.",
+                        "2. Er (wollte / wollte hat) nicht mitfahren.",
+                        "3. Wir (mussten / mussten haben) früh aufstehen.",
+                        "4. Sie (durfte / durfte hat) nicht schreien.",
+                        "5. Er (mochte / möchte) das Essen nicht essen."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Составь предложение по образцу",
+                    "questions": [
+                        "1. ich / können / gestern / nicht / helfen → ___",
+                        "2. er / müssen / früh / aufstehen → ___",
+                        "3. wir / wollen / nicht / mitfahren → ___",
+                        "4. sie (она) / dürfen / nicht / laut / sprechen → ___",
+                        "5. du / mögen / Pizza / nicht / essen → ___"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_perfekt_review",
+            "level": "A2",
+            "topic": "A2.3 — Глагольные формы и времена",
+            "title": "Повторение Perfekt: сильные и слабые глаголы",
+            "explanation": "Perfekt используется для разговорного прошедшего времени. На уровне A2 важно уметь различать слабые (правильные) и сильные (неправильные) глаголы.\n\n1) Слабые глаголы\nОбразование: ge + основа + t\nmachen → gemacht\nlernen → gelernt\nspielen → gespielt\n\n2) Сильные глаголы\nФормы индивидуальные, нужно учить.\nsehen → gesehen\nfahren → gefahren\nsprechen → gesprochen\n\n3) Выбор haben или sein\nsein используется при:\n— движении (gehen, kommen)\n— изменении состояния (aufstehen, einschlafen)\n\nПримеры:\nIch habe gelernt.\nWir haben Musik gehört.\nEr ist nach Berlin gefahren.\nSie ist früh aufgestanden.\n\nВажно:\n— Разделяемые приставки окружяют ge: aufstehen → aufgestanden.\n— Неразделяемые приставки не получают ge: verstehen → verstanden.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Образуй Partizip II (слабые и сильные глаголы)",
+                    "questions": [
+                        "1. machen → ___",
+                        "2. lernen → ___",
+                        "3. sehen → ___",
+                        "4. fahren → ___",
+                        "5. sprechen → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Выбери haben или sein",
+                    "questions": [
+                        "1. Ich ___ gelernt.",
+                        "2. Er ___ nach Berlin gefahren.",
+                        "3. Wir ___ Musik gehört.",
+                        "4. Sie ___ früh aufgestanden.",
+                        "5. Du ___ das Auto gesehen."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Поставь глагол в Perfekt",
+                    "questions": [
+                        "1. Ich ___ gestern Fußball ___. (spielen)",
+                        "2. Er ___ die Rechnung ___. (bezahlen — слабый)",
+                        "3. Wir ___ nach Hause ___. (kommen — сильный)",
+                        "4. Sie ___ die Nachricht ___. (lesen — сильный)",
+                        "5. Du ___ sehr früh ___. (aufstehen — разделяемый)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Отметь: слабый или сильный глагол",
+                    "questions": [
+                        "1. gelernt → (слабый / сильный)",
+                        "2. gefahren → (сильный / слабый)",
+                        "3. gespielt → (слабый / сильный)",
+                        "4. gesprochen → (сильный / слабый)",
+                        "5. gemacht → (слабый / сильный)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_comparative_superlative",
+            "level": "A2",
+            "topic": "A2.3 — Глагольные формы и времена",
+            "title": "Сравнительная степень прилагательных (Komparativ, Superlativ)",
+            "explanation": "Сравнительная степень используется, когда мы сравниваем два или больше объектов.\n\n1) Komparativ (сравнение двух предметов)\nПрилагательное + -er\nschnell → schneller\nteuer → teurer\nalt → älter\n\nСтруктура:\nA ist schneller als B.\n\n2) Superlativ (наивысшая степень)\nam + прилагательное + -sten\nschnell → am schnellsten\n\nПримеры:\nMaria ist größer als Alex.\nDieses Auto ist teurer.\nEr läuft am schnellsten.\n\nВажно:\n— В Superlativ перед формой всегда стоит am + -sten.\n— Многие прилагательные получают умлаут (alt → älter).",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Образуй форму Komparativ",
+                    "questions": [
+                        "1. schnell → ___",
+                        "2. groß → ___",
+                        "3. alt → ___",
+                        "4. jung → ___",
+                        "5. teuer → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Образуй форму Superlativ (am ... -sten)",
+                    "questions": [
+                        "1. schnell → ___",
+                        "2. billig → ___",
+                        "3. alt → ___",
+                        "4. stark → ___",
+                        "5. schön → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Maria ist (größer / am größten) als Alex.",
+                        "2. Dieses Auto ist (teurer / am teuersten).",
+                        "3. Er läuft (schneller / am schnellsten).",
+                        "4. Das Haus ist (älter / am ältesten) als die Wohnung.",
+                        "5. Sie singt (besser / am besten)."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Вставь форму сравнения по смыслу",
+                    "questions": [
+                        "1. Anna ist ___ als Maria. (jung)",
+                        "2. Dieses Handy ist ___ als das alte. (gut)",
+                        "3. Er arbeitet ___ in der Firma. (am ... — fleißig)",
+                        "4. Tom fährt ___ als Paul. (schnell)",
+                        "5. Das ist ___ Film. (am ... — interessant)"
+                    ]
+                }
+            ]
+        }
+    ],
+    "A2.4": [
+        {
+            "id": "a2_zu_infinitiv",
+            "level": "A2",
+            "topic": "A2.4 — Другие важные темы",
+            "title": "Konstruktion zu + Infinitiv",
+            "explanation": "Конструкция zu + Infinitiv используется для выражения цели, желания, намерения или необходимости. Инфинитив всегда стоит в конце предложения.\n\nПримеры:\nIch habe keine Zeit, zu kochen.\nEr beginnt, Deutsch zu lernen.\nEs ist wichtig, pünktlich zu sein.\n\nВажно:\n— zu ставится прямо перед инфинитивом.\n— В разделяемых глаголах zu помещается между приставкой и основой: aufzustehen, einzukaufen.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь zu + Infinitiv",
+                    "questions": [
+                        "1. Ich habe keine Zeit, ___ ___. (kochen)",
+                        "2. Er beginnt, Deutsch ___ ___. (lernen)",
+                        "3. Es ist wichtig, pünktlich ___ ___. (sein)",
+                        "4. Sie hat Lust, heute lange ___ ___. (schlafen)",
+                        "5. Wir versuchen, jeden Tag Sport ___ ___. (machen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Поставь разделяемые глаголы с zu правильно",
+                    "questions": [
+                        "1. anfangen → ___",
+                        "2. aufstehen → ___",
+                        "3. einkaufen → ___",
+                        "4. mitkommen → ___",
+                        "5. aufräumen → ___"
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Ich habe keine Zeit, zu kochen / kochen zu.",
+                        "2. Er beginnt, Deutsch zu lernen / lernen zu Deutsch.",
+                        "3. Es ist wichtig, zu sein pünktlich / pünktlich zu sein.",
+                        "4. Sie versucht, früher aufzustehen / auf zu stehen.",
+                        "5. Wir planen, am Wochenende einzukaufen / ein zu kaufen."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Перестрой предложение с zu + Infinitiv",
+                    "questions": [
+                        "1. Ich möchte heute arbeiten. → Ich habe Lust, heute ___ ___.",
+                        "2. Wir planen morgen reisen. → Wir planen, morgen ___ ___.",
+                        "3. Er versucht früher kommen. → Er versucht, früher ___ ___.",
+                        "4. Sie beginnt Deutsch lernen. → Sie beginnt, Deutsch ___ ___.",
+                        "5. Es ist nicht leicht pünktlich sein. → Es ist nicht leicht, pünktlich ___ ___."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_pronoun_man",
+            "level": "A2",
+            "topic": "A2.4 — Другие важные темы",
+            "title": "Местоимение man",
+            "explanation": "Man — безличное местоимение, означает 'люди', 'кто-то', 'все', 'некий человек'. Используется для общих действий без конкретного субъекта. Глагол стоит в форме er/sie/es.\n\nПримеры:\nMan sagt, dass Deutsch schwer ist.\nMan kann hier gut essen.\nMan muss pünktlich sein.\n\nВажно:\n— Ман НЕ переводится как 'мужчина'.\n— Глагол всегда в третьем лице: man kann, man soll, man muss.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Подставь местоимение man и поставь глагол правильно",
+                    "questions": [
+                        "1. ___ kann hier gut essen. (können)",
+                        "2. ___ muss pünktlich sein. (müssen)",
+                        "3. ___ darf hier nicht rauchen. (dürfen)",
+                        "4. ___ sagt, dass es morgen regnet. (sagen)",
+                        "5. ___ soll mehr Wasser trinken. (sollen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Замени подлежащее на man",
+                    "questions": [
+                        "1. Die Leute sagen, dass Deutsch schwer ist. → ___ sagt, dass Deutsch schwer ist.",
+                        "2. Viele Menschen arbeiten hier. → ___ arbeitet hier.",
+                        "3. Alle müssen pünktlich sein. → ___ muss pünktlich sein.",
+                        "4. Die Leute können hier gut essen. → ___ kann hier gut essen.",
+                        "5. Jeder soll freundlich sein. → ___ soll freundlich sein."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Man (kann / können) früh aufstehen.",
+                        "2. Man (muss / müssen) jeden Tag lernen.",
+                        "3. Man (darf / dürfen) hier nicht parken.",
+                        "4. Man (soll / sollen) gesund essen.",
+                        "5. Man (ist / sind) manchmal müde."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Заверши предложение логично",
+                    "questions": [
+                        "1. Man muss jeden Tag ___ .",
+                        "2. Man kann in Deutschland gut ___ .",
+                        "3. Man soll nicht so viel ___ .",
+                        "4. Man darf hier nicht ___ .",
+                        "5. Man sagt, dass Deutsch ___ ist."
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_time_sequence_adverbs",
+            "level": "A2",
+            "topic": "A2.4 — Другие важные темы",
+            "title": "Наречия порядка действий (zuerst, dann, danach, später, endlich)",
+            "explanation": "Эти наречия помогают описывать последовательность действий. Используются для структурирования рассказа, инструкции, описания дня.\n\nОсновные наречия:\nzuerst — сначала\ndann — потом\ndanach — затем\nspäter — позже\nendlich — наконец\n\nПример:\nZuerst stehe ich auf. Dann frühstücke ich. Danach gehe ich zur Arbeit.\n\nВажно:\n— Наречие можно ставить в начале: Dann gehe ich ins Bett.\n— Глагол остаётся на втором месте.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Вставь подходящее наречие порядка действий",
+                    "questions": [
+                        "1. ___ stehe ich auf. (сначала)",
+                        "2. Ich esse und ___ gehe ich zur Arbeit. (потом)",
+                        "3. Wir machen Hausaufgaben und ___ sehen wir fern. (затем)",
+                        "4. Er arbeitet und ___ trifft er Freunde. (позже)",
+                        "5. Ich warte lange und ___ kommt der Bus. (наконец)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Расположи действия в правильном порядке",
+                    "questions": [
+                        "1. Ich gehe schlafen. Ich ziehe mich um. Ich putze mir die Zähne.",
+                        "2. Ich koche. Ich kaufe ein. Ich esse.",
+                        "3. Ich gehe ins Büro. Ich stehe auf. Ich fahre los.",
+                        "4. Sie macht Hausaufgaben. Sie kommt nach Hause. Sie isst zu Abend.",
+                        "5. Er duscht. Er steht auf. Er trinkt Kaffee."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Перестрой предложение с наречием в начале (глагол — второй)",
+                    "questions": [
+                        "1. Ich gehe später ins Bett. → ___ gehe ich ins Bed.",
+                        "2. Wir essen danach Pizza. → ___ essen wir Pizza.",
+                        "3. Sie kommt dann nach Hause. → ___ kommt sie nach Hause.",
+                        "4. Er steht zuerst auf. → ___ steht er auf.",
+                        "5. Ich komme endlich nach Hause. → ___ komme ich nach Hause."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Выбери правильный вариант",
+                    "questions": [
+                        "1. ___ stehe ich auf. (Zuerst / Endlich)",
+                        "2. Ich esse und ___ gehe ich arbeiten. (dann / endlich)",
+                        "3. Wir machen Sport und ___ duschen wir. (danach / zuerst)",
+                        "4. Er arbeitet und ___ ruht er sich aus. (später / zuerst)",
+                        "5. Ich warte lange und ___ kommt der Zug. (endlich / dann)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_passive_basic",
+            "level": "A2",
+            "topic": "A2.4 — Другие важные темы",
+            "title": "Пассив в A2 (простая пассивная конструкция с werden)",
+            "explanation": "Пассив используется, когда важен сам процесс, а не исполнитель действия. На уровне A2 рассматривается только простейшая конструкция в Präsens: werden + Partizip II.\n\nСтруктура:\nObjekt + wird + Partizip II\n\nПримеры:\nDer Brief wird geschrieben. (письмо пишется)\nDas Haus wird gebaut. (дом строится)\nDie Termine werden organisiert. (встречи организуются)\n\nВажно:\n— Действующее лицо обычно не указывается на уровне A2.\n— werden спрягается, Partizip II — в конце.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь глагол в пассив Präsens (werden + Partizip II)",
+                    "questions": [
+                        "1. Der Brief ___ ___. (schreiben)",
+                        "2. Das Haus ___ ___. (bauen)",
+                        "3. Die Arbeit ___ ___. (machen)",
+                        "4. Die Pakete ___ ___. (liefern)",
+                        "5. Das Essen ___ ___. (kochen)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Преврати актив в пассив",
+                    "questions": [
+                        "1. Jemand baut das Haus. → Das Haus ___ ___.",
+                        "2. Jemand kocht das Essen. → Das Essen ___ ___.",
+                        "3. Jemand organisiert die Termine. → Die Termine ___ ___.",
+                        "4. Jemand schreibt den Text. → Der Text ___ ___.",
+                        "5. Jemand repariert das Auto. → Das Auto ___ ___."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Der Brief (wird geschrieben / wird schreiben).",
+                        "2. Die Häuser (werden gebaut / werden bauen).",
+                        "3. Das Auto (wird repariert / wird reparieren).",
+                        "4. Die Aufgabe (wird gemacht / wird machen).",
+                        "5. Die Pakete (werden geliefert / werden liefern)."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Вставь Partizip II",
+                    "questions": [
+                        "1. Der Tisch wird ___ . (putzen)",
+                        "2. Das Auto wird ___ . (reparieren)",
+                        "3. Die Wohnung wird ___ . (aufräumen)",
+                        "4. Der Text wird ___ . (übersetzen)",
+                        "5. Die Straße wird ___ . (bauen)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "a2_indirect_speech",
+            "level": "A2",
+            "topic": "A2.4 — Другие важные темы",
+            "title": "Косвенная речь на уровне A2 (sagen, dass…)",
+            "explanation": "Для передачи чужих слов на уровне A2 используется конструкция: Hauptsatz + dass + Nebensatz (глагол в конце).\n\nПримеры:\nEr sagt, dass er heute kommt.\nSie meint, dass das Essen lecker ist.\nIch glaube, dass du recht hast.\n\nВажно:\n— dass всегда ставит глагол в конец.\n— В косвенной речи сохраняется оригинальное лицо местоимения.",
+            "exercises": [
+                {
+                    "title": "Упражнение 1 — Поставь глагол в конец придаточного с dass",
+                    "questions": [
+                        "1. Er sagt, dass er morgen ___ . (kommen)",
+                        "2. Sie meint, dass das Essen lecker ___ . (sein)",
+                        "3. Ich glaube, dass du recht ___ . (haben)",
+                        "4. Er sagt, dass er keine Zeit ___ . (haben)",
+                        "5. Wir denken, dass sie heute nicht ___ . (arbeiten)"
+                    ]
+                },
+                {
+                    "title": "Упражнение 2 — Преврати прямую речь в косвенную (sagen/denken/meinen + dass)",
+                    "questions": [
+                        "1. Er sagt: „Ich komme heute.“ → Er sagt, ___ .",
+                        "2. Sie meint: „Das ist teuer.“ → Sie meint, ___ .",
+                        "3. Ich denke: „Du hast recht.“ → Ich denke, ___ .",
+                        "4. Er sagt: „Ich habe keine Zeit.“ → Er sagt, ___ .",
+                        "5. Wir sagen: „Wir gehen nach Hause.“ → Wir sagen, ___ ."
+                    ]
+                },
+                {
+                    "title": "Упражнение 3 — Выбери правильный вариант",
+                    "questions": [
+                        "1. Er sagt, dass er heute kommt / Er sagt, dass kommt er heute.",
+                        "2. Sie denkt, dass das stimmt / Sie denkt, dass stimmt das.",
+                        "3. Ich glaube, dass du recht hast / Ich glaube, dass hast du recht.",
+                        "4. Er meint, dass er müde ist / Er meint, dass ist er müde.",
+                        "5. Wir sagen, dass wir warten / We sagen, dass warten wir."
+                    ]
+                },
+                {
+                    "title": "Упражнение 4 — Дополни по смыслу",
+                    "questions": [
+                        "1. Er sagt, dass er ___ .",
+                        "2. Sie meint, dass wir ___ .",
+                        "3. Ich glaube, dass du ___ .",
+                        "4. Wir denken, dass das ___ .",
+                        "5. Er sagt, dass sie ___ ."
+                    ]
+                }
+            ]
+        }
+    ]
+}
