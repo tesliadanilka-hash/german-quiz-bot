@@ -81,7 +81,7 @@ Word = Dict[str, Any]
 GRAMMAR_FILE = Path("grammar.json")
 GRAMMAR_RULES: List[Dict[str, Any]] = []
 
-# user_id -> { "rule_id": str, "questions": [...], "index": int, "correct": int }
+# user_id -> { "rule_id": str, "questions": [...], "index": int, "correct": int, "wrong": int }
 USER_QUIZ_STATE: Dict[int, Dict[str, Any]] = {}
 
 
@@ -295,7 +295,14 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     user_prompt = (
         "Ты преподаватель немецкого языка.\n"
-        "Сгенерируй 5 коротких тестовых вопросов по этой грамматической теме.\n\n"
+        "Сгенерируй 5 разных тестовых вопросов по этой грамматической теме.\n"
+        "Смешай типы заданий, например:\n"
+        "- выбери правильную форму глагола;\n"
+        "- выбери правильный порядок слов;\n"
+        "- выбери предложение без ошибки;\n"
+        "- вставь пропущенное слово;\n"
+        "- выбери правильный артикль.\n\n"
+        "Каждый вопрос должен быть коротким и на уровне ученика соответствующего уровня.\n\n"
         "Формат ответа строго один JSON-объект:\n"
         "{\n"
         '  "questions": [\n'
@@ -341,7 +348,6 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
         if not isinstance(q.get("correct_index", 0), int):
             continue
 
-        # Чистим возможные теги
         question_text = strip_html_tags(q.get("question", ""))
         options_clean = [strip_html_tags(o) for o in opts]
 
@@ -353,7 +359,6 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
             }
         )
 
-    # Ограничим максимум 5 на всякий случай
     random.shuffle(clean_questions)
     return clean_questions[:5]
 
@@ -381,7 +386,7 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
 
 allowed_users: set[int] = set()
 
-WORDS: List[Word] = []
+WORDS: List[Dict[str, Any]] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 LEVEL_COUNTS: Dict[str, int] = defaultdict(int)
 TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)
@@ -501,7 +506,7 @@ def load_words(path: str = "words.json") -> None:
         subtopic = (subtopic_raw or "").strip() or "Общее"
 
         idx = len(WORDS)
-        word: Word = {
+        word: Dict[str, Any] = {
             "id": idx,
             "de": de,
             "tr": tr,
@@ -1764,11 +1769,17 @@ async def cb_quiz_start(callback: CallbackQuery) -> None:
         await callback.answer("Правило не найдено.", show_alert=True)
         return
 
-    await callback.answer("Генерирую упражнения...")
+    # Просто закрываем уведомление на кнопке
+    await callback.answer()
+
+    # Сообщение о том, что генерируем упражнения
+    wait_msg = await callback.message.answer(
+        "⌛ Генерирую упражнения по этой теме, подожди немного..."
+    )
 
     questions = await generate_quiz_for_rule(rule)
     if not questions:
-        await callback.message.answer("Не удалось создать упражнения для этой темы.")
+        await wait_msg.edit_text("Не удалось создать упражнения для этой темы. Попробуй еще раз позже.")
         return
 
     USER_QUIZ_STATE[uid] = {
@@ -1776,12 +1787,15 @@ async def cb_quiz_start(callback: CallbackQuery) -> None:
         "questions": questions,
         "index": 0,
         "correct": 0,
+        "wrong": 0,
     }
 
-    await send_current_quiz_question(callback.message, uid)
+    await wait_msg.edit_text("Упражнения готовы. Начинаем первый вопрос.")
+    # Первый вопрос отправляем отдельным сообщением, чтобы правило осталось выше
+    await send_current_quiz_question(callback.message, uid, new_message=True)
 
 
-async def send_current_quiz_question(message: Message, user_id: int):
+async def send_current_quiz_question(message: Message, user_id: int, new_message: bool = False):
     state = USER_QUIZ_STATE.get(user_id)
     if not state:
         return
@@ -1794,7 +1808,16 @@ async def send_current_quiz_question(message: Message, user_id: int):
     q = questions[idx]
     text = f"Вопрос {idx + 1} из {len(questions)}:\n\n{q['question']}"
     kb = kb_quiz_answers(state["rule_id"], idx, q["options"])
-    await message.edit_text(text, reply_markup=kb)
+
+    if new_message:
+        # Отправляем новый вопрос отдельным сообщением
+        await message.answer(text, reply_markup=kb)
+    else:
+        # Обновляем существующее сообщение с вопросом
+        try:
+            await message.edit_text(text, reply_markup=kb)
+        except Exception:
+            await message.answer(text, reply_markup=kb)
 
 
 @dp.callback_query(F.data.startswith("grammar_quiz_ans:"))
@@ -1816,19 +1839,58 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
 
     questions = state["questions"]
     if q_index != state["index"]:
+        # Уже перешли к другому вопросу
         await callback.answer()
         return
 
     current = questions[q_index]
     correct = int(current.get("correct_index", 0))
+    total_questions = len(questions)
+    number = q_index + 1
 
+    # Правильный ответ
     if opt_index == correct:
         state["correct"] += 1
         state["index"] += 1
         await callback.answer("Правильно ✅")
-        await send_current_quiz_question(callback.message, uid)
+
+        correct_text = current["options"][correct]
+        feedback = (
+            f"Вопрос {number} из {total_questions}:\n\n"
+            f"{current['question']}\n\n"
+            f"✅ Правильный ответ: {correct_text}"
+        )
+
+        # Показываем, что именно было правильно
+        try:
+            await callback.message.edit_text(feedback)
+        except Exception:
+            await callback.message.answer(feedback)
+
+        # Переходим к следующему вопросу, как к новому сообщению
+        await send_current_quiz_question(callback.message, uid, new_message=True)
+
     else:
+        # Неправильный ответ, остаемся на этом же вопросе
+        state["wrong"] += 1
+
         await callback.answer("Неправильно. Попробуй еще раз.", show_alert=False)
+
+        wrong_text = current["options"][opt_index]
+        text = (
+            f"Вопрос {number} из {total_questions}:\n\n"
+            f"{current['question']}\n\n"
+            f"❌ {wrong_text} - это неверный ответ.\n"
+            "Попробуй еще раз."
+        )
+
+        kb = kb_quiz_answers(rule_id, q_index, current["options"])
+
+        # Обновляем сообщение с вопросом, но индекс вопроса не меняем
+        try:
+            await callback.message.edit_text(text, reply_markup=kb)
+        except Exception:
+            await callback.message.answer(text, reply_markup=kb)
 
 
 async def send_quiz_result(message: Message, user_id: int):
