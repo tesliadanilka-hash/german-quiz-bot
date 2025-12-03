@@ -282,8 +282,7 @@ def kb_after_quiz(rule_id: str) -> InlineKeyboardMarkup:
 
 def get_quiz_instruction_ru() -> str:
     """
-    Объяснение задания ТОЛЬКО на русском.
-    Универсальное, но понятное: всегда нужно выбрать один правильный вариант.
+    Объяснение задания только на русском.
     """
     return (
         "📝 Задание: выбери один правильный вариант ответа, "
@@ -298,7 +297,7 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     Важно:
     - Упражнения строго по текущему правилу.
     - Только немецкий язык внутри упражнений.
-    - В question только предложение или задание на немецком, без объяснений на других языках.
+    - В question только предложение или задание на немецком, без инструкций.
     - Всегда 4 варианта, 1 правильный.
     """
 
@@ -535,7 +534,7 @@ def load_words(path: str = "words.json") -> None:
     TOPIC_ID_BY_KEY = {}
     TOPIC_KEY_BY_ID = {}
     SUBTOPIC_ID_BY_KEY = {}
-    SUBTOPIPIC_KEY_BY_ID = {}  # опечатка, но не используется
+    SUBTOPIC_KEY_BY_ID = {}
 
     file_path = Path(path)
     if not file_path.exists():
@@ -705,7 +704,7 @@ def build_options(word_ids: List[int], correct_id: int, mode: str) -> InlineKeyb
         if mode == "de_ru":
             text = w["ru"]
         else:
-            text = f'{w["de"]} [{w["tr"]}]'
+            text = f'{w["de"]} ({w["tr"]})'
         cb_data = f"ans|{correct_id}|{mode}|{1 if wid == correct_id else 0}"
         buttons.append([InlineKeyboardButton(text=text, callback_data=cb_data)])
 
@@ -733,7 +732,7 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
 
     if answer_mode == "choice":
         if mode == "de_ru":
-            text = f'🇩🇪 Слово: {w["de"]} [{w["tr"]}]\nВыбери правильный перевод на русский.'
+            text = f'🇩🇪 Слово: {w["de"]} ({w["tr"]})\nВыбери правильный перевод на русский.'
         else:
             text = f'🇷🇺 Слово: {w["ru"]}\nВыбери правильный перевод на немецкий.'
         kb = build_options(word_pool, word_id, mode)
@@ -757,7 +756,7 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
         text = (
             "❌ Неправильно.\n"
             "Попробуй еще раз.\n\n"
-            f'🇩🇪 Слово: {w["de"]} [{w["tr"]}]\nВыбери правильный перевод на русский.'
+            f'🇩🇪 Слово: {w["de"]} ({w["tr"]})\nВыбери правильный перевод на русский.'
         )
     else:
         text = (
@@ -1324,7 +1323,7 @@ async def handle_plain_text(message: Message) -> None:
 
             reply = (
                 "✅ Правильно.\n\n"
-                f'{w["de"]} [{w["tr"]}] - {w["ru"]}'
+                f'{w["de"]} ({w["tr"]}) - {w["ru"]}'
             )
             await message.answer(reply)
         else:
@@ -1336,7 +1335,7 @@ async def handle_plain_text(message: Message) -> None:
             reply = (
                 "❌ Неправильно.\n\n"
                 f"Правильный ответ:\n"
-                f'{w["de"]} [{w["tr"]}] - {w["ru"]}\n\n'
+                f'{w["de"]} ({w["tr"]}) - {w["ru"]}\n\n'
                 "Пиши только немецкое слово, без транскрипции."
             )
             await message.answer(reply)
@@ -1729,12 +1728,12 @@ async def cb_answer(callback: CallbackQuery) -> None:
         if mode == "de_ru":
             text = (
                 "✅ Правильно.\n\n"
-                f'{w["de"]} [{w["tr"]}] - {w["ru"]}'
+                f'{w["de"]} ({w["tr"]}) - {w["ru"]}'
             )
         else:
             text = (
                 "✅ Правильно.\n\n"
-                f'{w["ru"]} - {w["de"]} [{w["tr"]}]'
+                f'{w["ru"]} - {w["de"]} ({w["tr"]})'
             )
 
         finished_now = not state["remaining"]
@@ -1884,7 +1883,7 @@ async def cb_quiz_start(callback: CallbackQuery) -> None:
         "wrong": 0,
     }
 
-    await wait_msg.edit_text("Упражнения готовы. Начинаем первый вопрос.")
+    await wait_msg.edit_text("Упражнения готовы. Начинаем первый вопрос.", parse_mode=None)
     await send_current_quiz_question(callback.message, uid, new_message=True)
 
 
@@ -1912,12 +1911,12 @@ async def send_current_quiz_question(message: Message, user_id: int, new_message
     kb = kb_quiz_answers(state["rule_id"], idx, q["options"])
 
     if new_message:
-        await message.answer(text, reply_markup=kb)
+        await message.answer(text, reply_markup=kb, parse_mode=None)
     else:
         try:
-            await message.edit_text(text, reply_markup=kb)
+            await message.edit_text(text, reply_markup=kb, parse_mode=None)
         except Exception:
-            await message.answer(text, reply_markup=kb)
+            await message.answer(text, reply_markup=kb, parse_mode=None)
 
 
 @dp.callback_query(F.data.startswith("grammar_quiz_ans:"))
@@ -1955,7 +1954,6 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
         state["index"] += 1
         await callback.answer("Правильно ✅")
 
-        # Если вопросов больше нет
         if state["index"] >= len(questions):
             await send_quiz_result(callback.message, uid)
             return
@@ -1974,9 +1972,9 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
         kb = kb_quiz_answers(rule_id, state["index"], next_q["options"])
 
         try:
-            await callback.message.edit_text(text, reply_markup=kb)
+            await callback.message.edit_text(text, reply_markup=kb, parse_mode=None)
         except Exception:
-            await callback.message.answer(text, reply_markup=kb)
+            await callback.message.answer(text, reply_markup=kb, parse_mode=None)
 
     else:
         # Неправильный ответ
@@ -2001,9 +1999,9 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
         kb = kb_quiz_answers(rule_id, q_index, current["options"])
 
         try:
-            await callback.message.edit_text(text, reply_markup=kb)
+            await callback.message.edit_text(text, reply_markup=kb, parse_mode=None)
         except Exception:
-            await callback.message.answer(text, reply_markup=kb)
+            await callback.message.answer(text, reply_markup=kb, parse_mode=None)
 
 
 async def send_quiz_result(message: Message, user_id: int):
@@ -2035,7 +2033,7 @@ async def send_quiz_result(message: Message, user_id: int):
         f"{comment}"
     )
 
-    await message.edit_text(text, reply_markup=kb_after_quiz(rule_id))
+    await message.edit_text(text, reply_markup=kb_after_quiz(rule_id), parse_mode=None)
 
 # ==========================
 # ЗАПУСК
