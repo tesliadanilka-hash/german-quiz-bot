@@ -84,6 +84,9 @@ GRAMMAR_RULES: List[Dict[str, Any]] = []
 # user_id -> { "rule_id": str, "questions": [...], "index": int, "correct": int, "wrong": int }
 USER_QUIZ_STATE: Dict[int, Dict[str, Any]] = {}
 
+# rule_id -> список вопросов, чтобы не генерировать каждый раз заново
+QUIZ_CACHE: Dict[str, List[Dict[str, Any]]] = {}
+
 
 def strip_html_tags(text: str) -> str:
     """Простой снос <b>, <i>, <u> и т.п., чтобы в боте не было тегов."""
@@ -279,44 +282,64 @@ def kb_after_quiz(rule_id: str) -> InlineKeyboardMarkup:
 
 async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Делаем запрос к OpenAI и получаем 5 вопросов формата:
-    {
-      "question": "...",
-      "options": ["...", "...", "...", "..."],
-      "correct_index": 0-3
-    }
+    Генерируем вопросы по конкретному правилу через OpenAI.
+
+    Важно:
+    - Упражнения строго по текущему правилу (теме), которую открыл пользователь.
+    - Все задания только на немецком языке.
+    - В каждом вопросе есть четкий рабочий инструктаж: что нужно сделать.
+    - Ровно 4 варианта ответа, один правильный.
+    - Ответ от модели всегда должен быть валидным JSON.
     """
+
     if client is None:
         print("Нет OPENAI_API_KEY, викторина по грамматике недоступна.")
         return []
+
+    rule_id = str(rule.get("id", ""))
+    if not rule_id:
+        print("У правила нет id, не могу кэшировать упражнения.")
+        return []
+
+    # Если для этой темы мы уже когда-то сгенерировали упражнения,
+    # используем их из кэша, чтобы не ждать каждый раз ИИ.
+    cached = QUIZ_CACHE.get(rule_id)
+    if cached:
+        return cached
 
     title = strip_html_tags(rule.get("title", ""))
     explanation = strip_html_tags(rule.get("explanation", ""))
 
     user_prompt = (
-        "Ты преподаватель немецкого языка.\n"
-        "Сгенерируй 5 разных тестовых вопросов по этой грамматической теме.\n"
-        "Смешай типы заданий, например:\n"
-        "- выбери правильную форму глагола;\n"
-        "- выбери правильный порядок слов;\n"
-        "- выбери предложение без ошибки;\n"
-        "- вставь пропущенное слово;\n"
-        "- выбери правильный артикль.\n\n"
-        "Каждый вопрос должен быть коротким и на уровне ученика соответствующего уровня.\n\n"
-        "Формат ответа строго один JSON-объект:\n"
+        "Du bist ein professioneller Lehrer fuer Deutsch als Fremdsprache.\n"
+        "Erstelle 5 kurze Uebungsaufgaben GENAU zu diesem Grammatikthema.\n"
+        "Alle Saetze und Woerter muessen diesem Thema entsprechen.\n\n"
+        "WICHTIG:\n"
+        "- Schreibe ALLES nur auf Deutsch.\n"
+        "- Kein Englisch, keine Uebersetzungen, keine Erklaerungen in anderen Sprachen.\n"
+        "- Jede Aufgabe beginnt mit einem klaren Arbeitsauftrag, zum Beispiel:\n"
+        "  \"Waehle die richtige Antwort.\",\n"
+        "  \"Setze das richtige Wort ein.\",\n"
+        "  \"Ordne die Woerter in der richtigen Reihenfolge.\",\n"
+        "  \"Waehle den Satz ohne Fehler.\" usw.\n"
+        "- Direkt nach dem Arbeitsauftrag kommt der Satz oder die Saetze des Beispiels.\n"
+        "- Jede Aufgabe hat GENAU 4 Antwortoptionen.\n"
+        "- Es gibt GENAU EINE richtige Antwort (correct_index).\n"
+        "- Mische die Aufgabentypen, aber bleibe immer in diesem Grammatikthema.\n\n"
+        "Antwortformat: ein einziges JSON-Objekt:\n"
         "{\n"
-        '  "questions": [\n'
-        '    {\n'
-        '      "question": "строка с текстом вопроса",\n'
-        '      "options": ["вариант 1","вариант 2","вариант 3","вариант 4"],\n'
-        '      "correct_index": 0\n'
-        "    }, ...\n"
+        "  \"questions\": [\n"
+        "    {\n"
+        "      \"question\": \"Arbeitsauftrag und Satz/Saetze auf Deutsch\",\n"
+        "      \"options\": [\"Antwort 1\",\"Antwort 2\",\"Antwort 3\",\"Antwort 4\"],\n"
+        "      \"correct_index\": 0\n"
+        "    }\n"
         "  ]\n"
         "}\n\n"
-        "Не добавляй пояснений, комментариев и текста вне JSON. "
-        "Не используй HTML-теги типа <b>.\n\n"
-        f"Тема: {title}\n\n"
-        f"Объяснение:\n{explanation}"
+        "Schreibe WIRKLICH nur JSON, ohne Kommentar, ohne Erklaerung,\n"
+        "ohne Text ausserhalb des JSON. Benutze keine HTML-Tags.\n\n"
+        f"Grammatikthema (Titel): {title}\n\n"
+        f"Erklaerung des Themas:\n{explanation}\n"
     )
 
     try:
@@ -325,12 +348,30 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
             messages=[
                 {
                     "role": "system",
-                    "content": "Ты преподаватель немецкого языка. Отвечай строго в формате валидного JSON.",
+                    "content": (
+                        "Du bist ein strenger JSON-Generator und "
+                        "professioneller Lehrer fuer Deutsch als Fremdsprache. "
+                        "Antwort immer NUR mit einem gueltigen JSON-Objekt."
+                    ),
                 },
                 {"role": "user", "content": user_prompt},
             ],
+            temperature=0.35,
+            max_tokens=700,
         )
         content = completion.choices[0].message.content.strip()
+
+        # На случай если модель вернула блок ```json ... ```
+        if content.startswith("```"):
+            content = content.strip()
+            if content.startswith("```"):
+                content = content[3:]
+            if content.endswith("```"):
+                content = content[:-3]
+            content = content.strip()
+            if content.lower().startswith("json"):
+                content = content[4:].lstrip()
+
         data = json.loads(content)
     except Exception as e:
         print("Ошибка при генерации викторины:", e)
@@ -359,9 +400,16 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
             }
         )
 
-    random.shuffle(clean_questions)
-    return clean_questions[:5]
+    if not clean_questions:
+        return []
 
+    random.shuffle(clean_questions)
+    clean_questions = clean_questions[:5]
+
+    # Кладем в кэш для этой темы
+    QUIZ_CACHE[rule_id] = clean_questions
+
+    return clean_questions
 
 # ==========================
 # ТЕМЫ ДЛЯ СЛОВ
@@ -1769,10 +1817,8 @@ async def cb_quiz_start(callback: CallbackQuery) -> None:
         await callback.answer("Правило не найдено.", show_alert=True)
         return
 
-    # Просто закрываем уведомление на кнопке
     await callback.answer()
 
-    # Сообщение о том, что генерируем упражнения
     wait_msg = await callback.message.answer(
         "⌛ Генерирую упражнения по этой теме, подожди немного..."
     )
@@ -1791,7 +1837,6 @@ async def cb_quiz_start(callback: CallbackQuery) -> None:
     }
 
     await wait_msg.edit_text("Упражнения готовы. Начинаем первый вопрос.")
-    # Первый вопрос отправляем отдельным сообщением, чтобы правило осталось выше
     await send_current_quiz_question(callback.message, uid, new_message=True)
 
 
@@ -1810,10 +1855,8 @@ async def send_current_quiz_question(message: Message, user_id: int, new_message
     kb = kb_quiz_answers(state["rule_id"], idx, q["options"])
 
     if new_message:
-        # Отправляем новый вопрос отдельным сообщением
         await message.answer(text, reply_markup=kb)
     else:
-        # Обновляем существующее сообщение с вопросом
         try:
             await message.edit_text(text, reply_markup=kb)
         except Exception:
@@ -1839,7 +1882,6 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
 
     questions = state["questions"]
     if q_index != state["index"]:
-        # Уже перешли к другому вопросу
         await callback.answer()
         return
 
@@ -1848,7 +1890,6 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
     total_questions = len(questions)
     number = q_index + 1
 
-    # Правильный ответ
     if opt_index == correct:
         state["correct"] += 1
         state["index"] += 1
@@ -1861,17 +1902,14 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
             f"✅ Правильный ответ: {correct_text}"
         )
 
-        # Показываем, что именно было правильно
         try:
             await callback.message.edit_text(feedback)
         except Exception:
             await callback.message.answer(feedback)
 
-        # Переходим к следующему вопросу, как к новому сообщению
         await send_current_quiz_question(callback.message, uid, new_message=True)
 
     else:
-        # Неправильный ответ, остаемся на этом же вопросе
         state["wrong"] += 1
 
         await callback.answer("Неправильно. Попробуй еще раз.", show_alert=False)
@@ -1886,7 +1924,6 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
 
         kb = kb_quiz_answers(rule_id, q_index, current["options"])
 
-        # Обновляем сообщение с вопросом, но индекс вопроса не меняем
         try:
             await callback.message.edit_text(text, reply_markup=kb)
         except Exception:
