@@ -69,7 +69,269 @@ AI_SYSTEM_PROMPT = (
 
 # Типы
 Word = Dict[str, Any]
-GrammarRule = Dict[str, Any]
+
+# ==========================
+# ГРАММАТИКА: КНОПКИ, ПРАВИЛА, ВИКТОРИНЫ (grammar.json)
+# ==========================
+
+GRAMMAR_FILE = Path("grammar.json")
+
+# Здесь будут лежать все правила из grammar.json
+GRAMMAR_RULES: List[Dict[str, Any]] = []
+
+# Состояние викторины по пользователям:
+# user_id -> {
+#   "rule_id": str,
+#   "questions": [ {...}, ... ],
+#   "index": int,
+#   "correct": int
+# }
+USER_QUIZ_STATE: Dict[int, Dict[str, Any]] = {}
+
+
+def load_grammar_rules() -> None:
+    """Загрузка всех правил из grammar.json в плоский список GRAMMAR_RULES."""
+    global GRAMMAR_RULES
+    if not GRAMMAR_FILE.exists():
+        print("grammar.json не найден.")
+        GRAMMAR_RULES = []
+        return
+
+    with GRAMMAR_FILE.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Поддержка разных структур
+    if isinstance(data, list):
+        GRAMMAR_RULES = data
+    elif isinstance(data, dict) and "rules" in data:
+        GRAMMAR_RULES = data["rules"]
+    elif isinstance(data, dict):
+        # Например { "A1.1": [ {...}, ... ], "A1.2": [ ... ] }
+        rules: List[Dict[str, Any]] = []
+        for v in data.values():
+            if isinstance(v, list):
+                rules.extend(v)
+        GRAMMAR_RULES = rules
+    else:
+        GRAMMAR_RULES = []
+
+    print(f"Загружено грамматических правил: {len(GRAMMAR_RULES)}")
+
+
+def get_sublevel_from_topic(topic: str) -> str:
+    # "A1.1 - Базовые структуры" или "A1.1 — Базовые структуры" -> "A1.1"
+    if "—" in topic:
+        return topic.split("—", 1)[0].strip()
+    if "-" in topic:
+        return topic.split("-", 1)[0].strip()
+    return topic.strip()
+
+
+def get_rules_by_level(level: str) -> List[Dict[str, Any]]:
+    # level: "A1" или "A2"
+    return [r for r in GRAMMAR_RULES if r.get("level") == level]
+
+
+def get_sublevels_for_level(level: str) -> List[str]:
+    sublevels = set()
+    for rule in get_rules_by_level(level):
+        topic = rule.get("topic", "")
+        sub = get_sublevel_from_topic(topic)
+        if sub.startswith(level):
+            sublevels.add(sub)
+    return sorted(sublevels)
+
+
+def get_rules_by_sublevel(sublevel: str) -> List[Dict[str, Any]]:
+    result: List[Dict[str, Any]] = []
+    for r in GRAMMAR_RULES:
+        topic = r.get("topic", "")
+        if get_sublevel_from_topic(topic) == sublevel:
+            result.append(r)
+    return result
+
+
+def get_rule_by_id(rule_id: str) -> Optional[Dict[str, Any]]:
+    for r in GRAMMAR_RULES:
+        if r.get("id") == rule_id:
+            return r
+    return None
+
+
+# ---------- КНОПКИ ГРАММАТИКИ ----------
+
+def kb_grammar_levels() -> InlineKeyboardMarkup:
+    kb = [
+        [
+            InlineKeyboardButton(text="Правила уровня A1", callback_data="grammar_level:A1"),
+            InlineKeyboardButton(text="Правила уровня A2", callback_data="grammar_level:A2"),
+        ],
+        [
+            InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")
+        ],
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+
+def kb_grammar_sublevels(level: str) -> InlineKeyboardMarkup:
+    sublevels = get_sublevels_for_level(level)
+    rows: List[List[InlineKeyboardButton]] = []
+    row: List[InlineKeyboardButton] = []
+    for sub in sublevels:
+        row.append(
+            InlineKeyboardButton(
+                text=sub,
+                callback_data=f"grammar_sub:{sub}",
+            )
+        )
+        if len(row) == 2:
+            rows.append(row)
+            row = []
+    if row:
+        rows.append(row)
+
+    rows.append([InlineKeyboardButton(text="⬅ Выбор уровня", callback_data="grammar_menu")])
+    rows.append([InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def kb_grammar_rules_list(sublevel: str) -> InlineKeyboardMarkup:
+    rules = get_rules_by_sublevel(sublevel)
+    rows: List[List[InlineKeyboardButton]] = []
+    for r in rules:
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=r.get("title", "Правило"),
+                    callback_data=f"grammar_rule:{r['id']}",
+                )
+            ]
+        )
+    rows.append(
+        [
+            InlineKeyboardButton(
+                text="⬅ Подуровни",
+                callback_data=f"grammar_level:{sublevel.split('.')[0]}",
+            )
+        ]
+    )
+    rows.append([InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def kb_rule_after_explanation(rule_id: str) -> InlineKeyboardMarkup:
+    kb = [
+        [
+            InlineKeyboardButton(
+                text="🧠 Практиковать упражнение по этой теме",
+                callback_data=f"grammar_quiz_start:{rule_id}",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="⬅ К списку правил",
+                callback_data="grammar_back_rules",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="⬅ Главное меню",
+                callback_data="main_menu",
+            )
+        ],
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+
+def kb_quiz_answers(rule_id: str, q_index: int, options: List[str]) -> InlineKeyboardMarkup:
+    rows: List[List[InlineKeyboardButton]] = []
+    for i, opt in enumerate(options):
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=opt,
+                    callback_data=f"grammar_quiz_ans:{rule_id}:{q_index}:{i}",
+                )
+            ]
+        )
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def kb_after_quiz(rule_id: str) -> InlineKeyboardMarkup:
+    kb = [
+        [
+            InlineKeyboardButton(
+                text="🔁 Практиковать еще раз",
+                callback_data=f"grammar_quiz_start:{rule_id}",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="📚 К выбору правил",
+                callback_data="grammar_menu",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="⬅ Главное меню",
+                callback_data="main_menu",
+            )
+        ],
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+
+# ---------- ГЕНЕРАЦИЯ ВИКТОРИНЫ ЧЕРЕЗ ИИ ----------
+
+async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Возвращает список вопросов формата:
+    {
+      "question": str,
+      "options": [str, str, str, str],
+      "correct_index": int
+    }
+    """
+    if client is None:
+        print("Нет OPENAI_API_KEY, викторина по грамматике недоступна.")
+        return []
+
+    title = rule.get("title", "")
+    explanation = rule.get("explanation", "")
+
+    prompt = (
+        "Ты преподаватель немецкого языка. Сгенерируй 5 коротких тестовых вопросов по грамматической теме.\n"
+        "Формат строго JSON с ключом 'questions'. Каждый элемент:\n"
+        "{'question': '...', 'options': ['A','B','C','D'], 'correct_index': 0-3}.\n"
+        "Тема:\n"
+        f"{title}\n\n"
+        "Объяснение:\n"
+        f"{explanation}\n\n"
+        "Пиши только JSON, без комментариев, без текста вокруг."
+    )
+
+    resp = client.responses.create(
+        model="gpt-4.1-mini",
+        input=prompt,
+        response_format={"type": "json_object"},
+    )
+    content = resp.output[0].content[0].text
+    data = json.loads(content)
+    questions = data.get("questions", [])
+
+    clean_questions: List[Dict[str, Any]] = []
+    for q in questions:
+        if not isinstance(q, dict):
+            continue
+        opts = q.get("options", [])
+        if len(opts) != 4:
+            continue
+        if not isinstance(q.get("correct_index", 0), int):
+            continue
+        clean_questions.append(q)
+    random.shuffle(clean_questions)
+    return clean_questions
+
 
 # ==========================
 # ТЕМЫ ДЛЯ СЛОВ
@@ -96,8 +358,6 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
     }
 )
 
-grammar_state: Dict[int, Dict[int, Dict[str, int]]] = defaultdict(dict)
-
 allowed_users: set[int] = set()
 
 # Слова и индексы
@@ -120,14 +380,6 @@ TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
 
 SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
-
-# ==========================
-# ГРАММАТИКА - ЗАГОТОВКА
-# ==========================
-
-GRAMMAR_RULES: List[GrammarRule] = [
-    # Сюда можно добавить свои правила грамматики
-]
 
 # ==========================
 # ФУНКЦИИ РАБОТЫ С ДОСТУПОМ
@@ -356,7 +608,7 @@ def pretty_topic_name(topic_key: str) -> str:
     parts = topic_key.split("|")
     if len(parts) == 3:
         level, topic, subtopic = parts
-        return f"Уровень {level}: {topic} → {subtopic}"
+        return f"Уровень {level}: {topic} -> {subtopic}"
     if len(parts) == 2:
         level, topic = parts
         return f"Уровень {level}: {topic}"
@@ -417,7 +669,7 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
         await bot.send_message(
             chat_id,
             "В этой подборке пока нет слов или ты уже прошел все слова.\n"
-            "Выбери уровень и тему через Тренировку слов."
+            "Выбери уровень и тему через Тренировку слов.",
         )
         return
 
@@ -435,7 +687,6 @@ async def send_new_word(user_id: int, chat_id: int) -> None:
         kb = build_options(word_pool, word_id, mode)
         await bot.send_message(chat_id, text, reply_markup=kb)
     else:
-        # Режим ввода: показываем русское слово, просим написать по-немецки без транскрипции
         text = (
             f'🇷🇺 Слово: {w["ru"]}\n\n'
             "Напиши это слово по немецки, только само немецкое слово, без транскрипции и без скобок."
@@ -482,7 +733,7 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="📘 Грамматика",
-                    callback_data="menu_grammar",
+                    callback_data="grammar_menu",  # сразу в новый раздел грамматики
                 )
             ],
             [
@@ -594,13 +845,13 @@ def build_mode_keyboard_for_settings(current_mode: str) -> List[List[InlineKeybo
     return [
         [
             InlineKeyboardButton(
-                text=f"{de_selected}🇩🇪 → 🇷🇺 Немецкое слово",
+                text=f"{de_selected}🇩🇪 -> 🇷🇺 Немецкое слово",
                 callback_data="mode|de_ru",
             )
         ],
         [
             InlineKeyboardButton(
-                text=f"{ru_selected}🇷🇺 → 🇩🇪 Русское слово",
+                text=f"{ru_selected}🇷🇺 -> 🇩🇪 Русское слово",
                 callback_data="mode|ru_de",
             )
         ],
@@ -633,79 +884,6 @@ def build_full_format_keyboard(current_mode: str, current_answer: str) -> Inline
     rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-
-def build_grammar_keyboard() -> InlineKeyboardMarkup:
-    if not GRAMMAR_RULES:
-        return InlineKeyboardMarkup(
-            inline_keyboard=build_back_to_main_row()
-        )
-
-    rows: List[List[InlineKeyboardButton]] = []
-    for rule in GRAMMAR_RULES:
-        text = f'{rule["level"]}: {rule["title"]}'
-        cb = f'gram|{rule["id"]}'
-        rows.append([InlineKeyboardButton(text=text, callback_data=cb)])
-
-    rows.extend(build_back_to_main_row())
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-# ==========================
-# ВСПОМОГАТЕЛЬНЫЕ ДЛЯ ГРАММАТИКИ
-# ==========================
-
-def get_grammar_rule_by_id(rule_id: int) -> Optional[GrammarRule]:
-    for rule in GRAMMAR_RULES:
-        if rule["id"] == rule_id:
-            return rule
-    return None
-
-
-def build_grammar_explanation_text(rule: GrammarRule) -> str:
-    lines: List[str] = []
-    lines.append(f'📘 Уровень {rule["level"]}')
-    lines.append(f'Тема: {rule["title"]}\n')
-    lines.append(rule["description"])
-    lines.append("\nПримеры:\n")
-    for ex in rule["examples"]:
-        lines.append(f'{ex["de"]}\n{ex["ru"]}\n')
-    lines.append("Сейчас будут вопросы по этой теме. Выбирай один правильный ответ из четырех.")
-    return "\n".join(lines)
-
-
-def build_grammar_question_text(rule: GrammarRule, q_index: int) -> str:
-    question = rule["questions"][q_index]
-    num = q_index + 1
-    text = (
-        f'📗 Упражнение {num} по теме: {rule["title"]}\n\n'
-        f'{question["prompt"]}\n\n'
-        f'{question["question_de"]}'
-    )
-    return text
-
-
-def build_grammar_question_keyboard(rule_id: int, q_index: int) -> InlineKeyboardMarkup:
-    rule = get_grammar_rule_by_id(rule_id)
-    if rule is None:
-        return InlineKeyboardMarkup(inline_keyboard=[])
-    question = rule["questions"][q_index]
-    buttons = []
-    for idx, option in enumerate(question["options"]):
-        cb_data = f"gramq|{rule_id}|{q_index}|{idx}"
-        buttons.append([InlineKeyboardButton(text=option, callback_data=cb_data)])
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-
-async def send_grammar_question(chat_id: int, rule_id: int, q_index: int) -> None:
-    rule = get_grammar_rule_by_id(rule_id)
-    if rule is None:
-        return
-    if q_index < 0 or q_index >= len(rule["questions"]):
-        await bot.send_message(chat_id, "Вопросы по этой теме закончились.")
-        return
-    text = build_grammar_question_text(rule, q_index)
-    kb = build_grammar_question_keyboard(rule_id, q_index)
-    await bot.send_message(chat_id, text, reply_markup=kb)
-
 # ==========================
 # СТАТИСТИКА ПОЛЬЗОВАТЕЛЯ
 # ==========================
@@ -719,13 +897,16 @@ def update_topic_stats(uid: int, topic: str, correct: int, wrong: int) -> None:
 
     state = user_state[uid]
     topic_stats = state.setdefault("topic_stats", {})
-    stats = topic_stats.get(topic, {
-        "runs": 0,
-        "best_accuracy": 0.0,
-        "last_accuracy": 0.0,
-        "total_correct": 0,
-        "total_wrong": 0,
-    })
+    stats = topic_stats.get(
+        topic,
+        {
+            "runs": 0,
+            "best_accuracy": 0.0,
+            "last_accuracy": 0.0,
+            "total_correct": 0,
+            "total_wrong": 0,
+        },
+    )
 
     stats["runs"] += 1
     stats["last_accuracy"] = accuracy
@@ -892,7 +1073,7 @@ async def cmd_access(message: Message) -> None:
             [
                 InlineKeyboardButton(
                     text="✅ Разрешить доступ",
-                    callback_data=f"allow|{uid}"
+                    callback_data=f"allow|{uid}",
                 )
             ]
         ]
@@ -954,20 +1135,18 @@ async def cmd_mode(message: Message) -> None:
 
 @dp.message(Command("grammar"))
 async def cmd_grammar(message: Message) -> None:
+    """Команда /grammar открывает новый раздел грамматики (с уровнями A1/A2)."""
     uid = message.from_user.id
-
     if uid != ADMIN_ID and uid not in allowed_users:
         await message.answer("Нет доступа.")
         return
 
+    load_grammar_rules()
     if not GRAMMAR_RULES:
-        await message.answer(
-            "Раздел грамматики пока не настроен. Добавь свои правила в список GRAMMAR_RULES."
-        )
+        await message.answer("Файл grammar.json не найден или в нем нет правил.")
         return
 
-    kb = build_grammar_keyboard()
-    await message.answer("Выбери грамматическое правило:", reply_markup=kb)
+    await message.answer("Выбери уровень грамматики:", reply_markup=kb_grammar_levels())
 
 
 @dp.message(Command("check"))
@@ -1082,7 +1261,7 @@ async def handle_plain_text(message: Message) -> None:
     return
 
 # ==========================
-# CALLBACK ХЕНДЛЕРЫ
+# CALLBACK ХЕНДЛЕРЫ: ДОСТУП
 # ==========================
 
 @dp.callback_query(F.data == "req_access")
@@ -1098,7 +1277,7 @@ async def cb_req_access(callback: CallbackQuery) -> None:
             [
                 InlineKeyboardButton(
                     text="✅ Разрешить доступ",
-                    callback_data=f"allow|{uid}"
+                    callback_data=f"allow|{uid}",
                 )
             ]
         ]
@@ -1169,6 +1348,15 @@ async def cb_back_main(callback: CallbackQuery) -> None:
         await callback.message.answer(text, reply_markup=kb)
 
 
+@dp.callback_query(F.data == "main_menu")
+async def cb_main_menu(callback: CallbackQuery) -> None:
+    """Обработчик кнопки '⬅ Главное меню' из раздела грамматики."""
+    await cb_back_main(callback)
+
+# ==========================
+# CALLBACK ХЕНДЛЕРЫ: СЛОВА
+# ==========================
+
 @dp.callback_query(F.data == "menu_words")
 async def cb_menu_words(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
@@ -1200,36 +1388,13 @@ async def cb_menu_answer_mode(callback: CallbackQuery) -> None:
     text = (
         "⚙️ Формат ответа.\n\n"
         "1) Направление перевода:\n"
-        "   • 🇩🇪 → 🇷🇺 Немецкое слово → выбираешь перевод на русский\n"
-        "   • 🇷🇺 → 🇩🇪 Русское слово → выбираешь или вводишь вариант на немецком\n\n"
+        "   • 🇩🇪 -> 🇷🇺 Немецкое слово -> выбираешь перевод на русский\n"
+        "   • 🇷🇺 -> 🇩🇪 Русское слово -> выбираешь или вводишь вариант на немецком\n\n"
         "2) Формат ответа:\n"
         "   • Варианты ответа (4) - как тест\n"
         "   • Ввод слова вручную - ты пишешь немецкое слово сам"
     )
     await callback.message.answer(text, reply_markup=kb)
-
-
-@dp.callback_query(F.data == "menu_grammar")
-async def cb_menu_grammar(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    if not GRAMMAR_RULES:
-        await callback.message.answer(
-            "Раздел грамматики пока не настроен. Добавь свои правила в список GRAMMAR_RULES.",
-            reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=build_back_to_main_row()
-            ),
-        )
-        return
-
-    kb = build_grammar_keyboard()
-    await callback.message.answer("Выбери грамматическую тему:", reply_markup=kb)
 
 
 @dp.callback_query(F.data == "menu_check")
@@ -1520,102 +1685,194 @@ async def cb_answer(callback: CallbackQuery) -> None:
             await callback.message.answer("❌ Неправильно. Сейчас повторим это слово.")
         await resend_same_word(callback.message.chat.id, word_id, mode, uid)
 
+# ==========================
+# CALLBACK ХЕНДЛЕРЫ: НОВАЯ ГРАММАТИКА
+# ==========================
 
-@dp.callback_query(F.data.startswith("gram|"))
+@dp.callback_query(F.data == "grammar_menu")
+async def cb_grammar_menu(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    load_grammar_rules()
+    if not GRAMMAR_RULES:
+        await callback.answer("Правила не найдены.", show_alert=True)
+        return
+
+    await callback.message.edit_text("Выбери уровень грамматики:", reply_markup=kb_grammar_levels())
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("grammar_level:"))
+async def cb_grammar_level(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, level = callback.data.split(":", 1)
+    sublevels = get_sublevels_for_level(level)
+    if not sublevels:
+        await callback.answer("Для этого уровня пока нет правил.", show_alert=True)
+        return
+    await callback.message.edit_text(f"Выбери подуровень для {level}:", reply_markup=kb_grammar_sublevels(level))
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("grammar_sub:"))
+async def cb_grammar_sub(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, sub = callback.data.split(":", 1)
+    rules = get_rules_by_sublevel(sub)
+    if not rules:
+        await callback.answer("В этом подуровне пока нет правил.", show_alert=True)
+        return
+    await callback.message.edit_text(f"Правила для {sub}:", reply_markup=kb_grammar_rules_list(sub))
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("grammar_rule:"))
 async def cb_grammar_rule(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
-
     if uid != ADMIN_ID and uid not in allowed_users:
         await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    _, rule_id_str = callback.data.split("|", maxsplit=1)
-    rule_id = int(rule_id_str)
-
-    rule = get_grammar_rule_by_id(rule_id)
-    if rule is None:
+    _, rule_id = callback.data.split(":", 1)
+    rule = get_rule_by_id(rule_id)
+    if not rule:
         await callback.answer("Правило не найдено.", show_alert=True)
         return
 
-    grammar_state[uid][rule_id] = {"correct": 0, "wrong": 0, "q_index": 0}
-
-    text = build_grammar_explanation_text(rule)
-    await callback.message.answer(text)
-
+    text = f"<b>{rule.get('title','Правило')}</b>\n\n{rule.get('explanation','')}"
+    await callback.message.edit_text(text, reply_markup=kb_rule_after_explanation(rule_id))
     await callback.answer()
-    await send_grammar_question(callback.message.chat.id, rule_id, 0)
 
 
-@dp.callback_query(F.data.startswith("gramq|"))
-async def cb_grammar_question(callback: CallbackQuery) -> None:
+@dp.callback_query(F.data == "grammar_back_rules")
+async def cb_grammar_back_rules(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
-
     if uid != ADMIN_ID and uid not in allowed_users:
         await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    _, rule_id_str, q_index_str, chosen_idx_str = callback.data.split("|")
-    rule_id = int(rule_id_str)
-    q_index = int(q_index_str)
-    chosen_idx = int(chosen_idx_str)
+    await callback.message.edit_text("Выбери уровень грамматики:", reply_markup=kb_grammar_levels())
+    await callback.answer()
 
-    rule = get_grammar_rule_by_id(rule_id)
-    if rule is None:
+
+@dp.callback_query(F.data.startswith("grammar_quiz_start:"))
+async def cb_quiz_start(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, rule_id = callback.data.split(":", 1)
+    rule = get_rule_by_id(rule_id)
+    if not rule:
         await callback.answer("Правило не найдено.", show_alert=True)
         return
 
-    questions = rule["questions"]
-    if q_index < 0 or q_index >= len(questions):
-        await callback.answer("Вопросы по этой теме закончились.", show_alert=True)
+    await callback.answer("Генерирую упражнения...")
+
+    questions = await generate_quiz_for_rule(rule)
+    if not questions:
+        await callback.message.answer("Не удалось создать упражнения для этой темы.")
         return
 
-    question = questions[q_index]
-    correct_idx = question["correct"]
-    is_correct = chosen_idx == correct_idx
+    USER_QUIZ_STATE[uid] = {
+        "rule_id": rule_id,
+        "questions": questions,
+        "index": 0,
+        "correct": 0,
+    }
 
-    user_rule_state = grammar_state[uid].setdefault(
-        rule_id, {"correct": 0, "wrong": 0, "q_index": 0}
-    )
+    await send_current_quiz_question(callback.message, uid)
 
-    if is_correct:
-        user_rule_state["correct"] += 1
-        result_text = "✅ Правильно."
+
+async def send_current_quiz_question(message: Message, user_id: int):
+    state = USER_QUIZ_STATE.get(user_id)
+    if not state:
+        return
+    idx = state["index"]
+    questions = state["questions"]
+    if idx >= len(questions):
+        await send_quiz_result(message, user_id)
+        return
+
+    q = questions[idx]
+    text = f"Вопрос {idx + 1} из {len(questions)}:\n\n{q['question']}"
+    kb = kb_quiz_answers(state["rule_id"], idx, q["options"])
+    await message.edit_text(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("grammar_quiz_ans:"))
+async def cb_quiz_answer(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, rule_id, q_index_str, opt_index_str = callback.data.split(":", 3)
+    state = USER_QUIZ_STATE.get(uid)
+
+    if not state or state["rule_id"] != rule_id:
+        await callback.answer("Состояние викторины потеряно. Начни заново.", show_alert=True)
+        return
+
+    q_index = int(q_index_str)
+    opt_index = int(opt_index_str)
+
+    questions = state["questions"]
+    if q_index != state["index"]:
+        # старая кнопка
+        await callback.answer()
+        return
+
+    current = questions[q_index]
+    correct = int(current.get("correct_index", 0))
+
+    if opt_index == correct:
+        state["correct"] += 1
+        state["index"] += 1
+        await callback.answer("Правильно ✅")
+        await send_current_quiz_question(callback.message, uid)
     else:
-        user_rule_state["wrong"] += 1
-        result_text = "❌ Неправильно."
+        await callback.answer("Неправильно. Попробуй еще раз.", show_alert=False)
 
-    answer_de = question["answer_de"]
-    answer_ru = question["answer_ru"]
 
+async def send_quiz_result(message: Message, user_id: int):
+    state = USER_QUIZ_STATE.get(user_id)
+    if not state:
+        return
+    total = len(state["questions"])
+    correct = state["correct"]
+    percent = round(correct / total * 100)
+
+    if percent == 100:
+        comment = "Отлично! Ты владеешь этой темой на очень высоком уровне."
+    elif percent >= 80:
+        comment = "Очень хорошо! Есть пара мелочей, которые можно повторить."
+    elif percent >= 50:
+        comment = "Неплохо, но стоит еще потренироваться."
+    else:
+        comment = "Пока уровень слабый, лучше повторить правило и пройти упражнения еще раз."
+
+    rule_id = state["rule_id"]
     text = (
-        f"{result_text}\n\n"
-        "Правильный ответ:\n"
-        f"{answer_de}\n{answer_ru}"
+        f"Результат по теме:\n\n"
+        f"Правильных ответов: {correct} из {total} ({percent} %)\n\n"
+        f"{comment}"
     )
 
-    try:
-        await callback.message.edit_text(text)
-    except Exception:
-        await callback.message.answer(text)
-
-    await callback.answer()
-
-    next_index = q_index + 1
-    user_rule_state["q_index"] = next_index
-
-    if next_index >= len(questions):
-        total_correct = user_rule_state["correct"]
-        total_wrong = user_rule_state["wrong"]
-        summary = (
-            f"Ты прошел все упражнения по теме: {rule['title']}.\n\n"
-            f"✅ Правильных ответов: {total_correct}\n"
-            f"❌ Неправильных ответов: {total_wrong}\n\n"
-            "Можно выбрать другую грамматическую тему."
-        )
-        await callback.message.answer(summary)
-        return
-
-    await send_grammar_question(callback.message.chat.id, rule_id, next_index)
+    await message.edit_text(text, reply_markup=kb_after_quiz(rule_id))
+    # состояние можно оставить или чистить по желанию
 
 # ==========================
 # ЗАПУСК БОТА
@@ -1625,9 +1882,11 @@ async def main() -> None:
     load_allowed_users()
     load_words("words.json")
     load_user_state()
+    # заранее попробуем подгрузить грамматику (не обязательно)
+    if GRAMMAR_FILE.exists():
+        load_grammar_rules()
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-
