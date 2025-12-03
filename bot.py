@@ -14,6 +14,7 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
+from aiogram.client.default import DefaultBotProperties
 
 from openai import OpenAI
 
@@ -41,11 +42,15 @@ if not TOKEN:
         "и в ней записан токен от BotFather."
     )
 
-bot = Bot(token=TOKEN)
+# Включаем Markdown как основной формат
+bot = Bot(
+    token=TOKEN,
+    default=DefaultBotProperties(parse_mode="Markdown")
+)
 dp = Dispatcher()
 
 # ==========================
-# НАСТРОЙКИ ПРОВЕРКИ ПРЕДЛОЖЕНИЙ
+# НАСТРОЙКИ OPENAI
 # ==========================
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -67,7 +72,6 @@ AI_SYSTEM_PROMPT = (
     "Ошибок не найдено. Предложение грамматически корректно."
 )
 
-# Типы
 Word = Dict[str, Any]
 
 # ==========================
@@ -75,22 +79,22 @@ Word = Dict[str, Any]
 # ==========================
 
 GRAMMAR_FILE = Path("grammar.json")
-
-# Здесь будут лежать все правила из grammar.json
 GRAMMAR_RULES: List[Dict[str, Any]] = []
 
-# Состояние викторины по пользователям:
-# user_id -> {
-#   "rule_id": str,
-#   "questions": [ {...}, ... ],
-#   "index": int,
-#   "correct": int
-# }
+# user_id -> { "rule_id": str, "questions": [...], "index": int, "correct": int }
 USER_QUIZ_STATE: Dict[int, Dict[str, Any]] = {}
 
 
+def strip_html_tags(text: str) -> str:
+    """Простой снос <b>, <i>, <u> и т.п., чтобы в боте не было тегов."""
+    if not isinstance(text, str):
+        return str(text)
+    for tag in ("<b>", "</b>", "<i>", "</i>", "<u>", "</u>"):
+        text = text.replace(tag, "")
+    return text
+
+
 def load_grammar_rules() -> None:
-    """Загрузка всех правил из grammar.json в плоский список GRAMMAR_RULES."""
     global GRAMMAR_RULES
     if not GRAMMAR_FILE.exists():
         print("grammar.json не найден.")
@@ -100,13 +104,11 @@ def load_grammar_rules() -> None:
     with GRAMMAR_FILE.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Поддержка разных структур
     if isinstance(data, list):
         GRAMMAR_RULES = data
     elif isinstance(data, dict) and "rules" in data:
         GRAMMAR_RULES = data["rules"]
     elif isinstance(data, dict):
-        # Например { "A1.1": [ {...}, ... ], "A1.2": [ ... ] }
         rules: List[Dict[str, Any]] = []
         for v in data.values():
             if isinstance(v, list):
@@ -119,7 +121,6 @@ def load_grammar_rules() -> None:
 
 
 def get_sublevel_from_topic(topic: str) -> str:
-    # "A1.1 - Базовые структуры" или "A1.1 — Базовые структуры" -> "A1.1"
     if "—" in topic:
         return topic.split("—", 1)[0].strip()
     if "-" in topic:
@@ -128,7 +129,6 @@ def get_sublevel_from_topic(topic: str) -> str:
 
 
 def get_rules_by_level(level: str) -> List[Dict[str, Any]]:
-    # level: "A1" или "A2"
     return [r for r in GRAMMAR_RULES if r.get("level") == level]
 
 
@@ -158,17 +158,13 @@ def get_rule_by_id(rule_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-# ---------- КНОПКИ ГРАММАТИКИ ----------
-
 def kb_grammar_levels() -> InlineKeyboardMarkup:
     kb = [
         [
             InlineKeyboardButton(text="Правила уровня A1", callback_data="grammar_level:A1"),
             InlineKeyboardButton(text="Правила уровня A2", callback_data="grammar_level:A2"),
         ],
-        [
-            InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")
-        ],
+        [InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")],
     ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
@@ -281,45 +277,61 @@ def kb_after_quiz(rule_id: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 
-# ---------- ГЕНЕРАЦИЯ ВИКТОРИНЫ ЧЕРЕЗ ИИ ----------
-
 async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Возвращает список вопросов формата:
+    Делаем запрос к OpenAI и получаем 5 вопросов формата:
     {
-      "question": str,
-      "options": [str, str, str, str],
-      "correct_index": int
+      "question": "...",
+      "options": ["...", "...", "...", "..."],
+      "correct_index": 0-3
     }
     """
     if client is None:
         print("Нет OPENAI_API_KEY, викторина по грамматике недоступна.")
         return []
 
-    title = rule.get("title", "")
-    explanation = rule.get("explanation", "")
+    title = strip_html_tags(rule.get("title", ""))
+    explanation = strip_html_tags(rule.get("explanation", ""))
 
-    prompt = (
-        "Ты преподаватель немецкого языка. Сгенерируй 5 коротких тестовых вопросов по грамматической теме.\n"
-        "Формат строго JSON с ключом 'questions'. Каждый элемент:\n"
-        "{'question': '...', 'options': ['A','B','C','D'], 'correct_index': 0-3}.\n"
-        "Тема:\n"
-        f"{title}\n\n"
-        "Объяснение:\n"
-        f"{explanation}\n\n"
-        "Пиши только JSON, без комментариев, без текста вокруг."
+    user_prompt = (
+        "Ты преподаватель немецкого языка.\n"
+        "Сгенерируй 5 коротких тестовых вопросов по этой грамматической теме.\n\n"
+        "Формат ответа строго один JSON-объект:\n"
+        "{\n"
+        '  "questions": [\n'
+        '    {\n'
+        '      "question": "строка с текстом вопроса",\n'
+        '      "options": ["вариант 1","вариант 2","вариант 3","вариант 4"],\n'
+        '      "correct_index": 0\n'
+        "    }, ...\n"
+        "  ]\n"
+        "}\n\n"
+        "Не добавляй пояснений, комментариев и текста вне JSON. "
+        "Не используй HTML-теги типа <b>.\n\n"
+        f"Тема: {title}\n\n"
+        f"Объяснение:\n{explanation}"
     )
 
-    resp = client.responses.create(
-        model="gpt-4.1-mini",
-        input=prompt,
-        response_format={"type": "json_object"},
-    )
-    content = resp.output[0].content[0].text
-    data = json.loads(content)
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Ты преподаватель немецкого языка. Отвечай строго в формате валидного JSON.",
+                },
+                {"role": "user", "content": user_prompt},
+            ],
+        )
+        content = completion.choices[0].message.content.strip()
+        data = json.loads(content)
+    except Exception as e:
+        print("Ошибка при генерации викторины:", e)
+        return []
+
     questions = data.get("questions", [])
-
     clean_questions: List[Dict[str, Any]] = []
+
     for q in questions:
         if not isinstance(q, dict):
             continue
@@ -328,61 +340,60 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
             continue
         if not isinstance(q.get("correct_index", 0), int):
             continue
-        clean_questions.append(q)
+
+        # Чистим возможные теги
+        question_text = strip_html_tags(q.get("question", ""))
+        options_clean = [strip_html_tags(o) for o in opts]
+
+        clean_questions.append(
+            {
+                "question": question_text,
+                "options": options_clean,
+                "correct_index": int(q["correct_index"]),
+            }
+        )
+
+    # Ограничим максимум 5 на всякий случай
     random.shuffle(clean_questions)
-    return clean_questions
+    return clean_questions[:5]
 
 
 # ==========================
 # ТЕМЫ ДЛЯ СЛОВ
 # ==========================
 
-TOPIC_ALL = "ALL"  # внутренняя тема "все слова"
-
-# ==========================
-# СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
-# ==========================
+TOPIC_ALL = "ALL"
 
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
-        "mode": "de_ru",              # направление перевода (для вариантов)
-        "topic": TOPIC_ALL,           # текущая тема / подтема
+        "mode": "de_ru",
+        "topic": TOPIC_ALL,
         "correct": 0,
         "wrong": 0,
         "remaining": None,
-        "check_mode": False,          # режим проверки предложений
+        "check_mode": False,
         "topic_stats": {},
-        "answer_mode": "choice",      # "choice" или "typing"
-        "waiting_text_answer": False, # ожидаем ли написанный ответ
-        "current_word_id": None,      # id текущего слова для ввода
+        "answer_mode": "choice",
+        "waiting_text_answer": False,
+        "current_word_id": None,
     }
 )
 
 allowed_users: set[int] = set()
 
-# Слова и индексы
 WORDS: List[Word] = []
-
-# Ключи WORDS_BY_TOPIC:
-# TOPIC_ALL                                          -> все слова
-# "A1|Тема"                                          -> все слова темы
-# "A1|Тема|Подтема"                                  -> слова конкретной подтемы
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
-
-# Статистика для меню
 LEVEL_COUNTS: Dict[str, int] = defaultdict(int)
 TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)
 SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int)
 
-# Короткие ID для тем и подтем
 TOPIC_ID_BY_KEY: Dict[Tuple[str, str], str] = {}
 TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
-
 SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
 
 # ==========================
-# ФУНКЦИИ РАБОТЫ С ДОСТУПОМ
+# ДОСТУП
 # ==========================
 
 def load_allowed_users() -> None:
@@ -412,7 +423,7 @@ def save_allowed_users() -> None:
     print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
 
 # ==========================
-# РАБОТА С СОСТОЯНИЕМ ПОЛЬЗОВАТЕЛЕЙ
+# СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
 # ==========================
 
 def load_user_state() -> None:
@@ -446,29 +457,10 @@ def save_user_state() -> None:
         print("Ошибка при сохранении состояний пользователей:", e)
 
 # ==========================
-# ЗАГРУЗКА СЛОВ ИЗ words.json
+# ЗАГРУЗКА СЛОВ
 # ==========================
 
 def load_words(path: str = "words.json") -> None:
-    """
-    Ожидаемый формат:
-
-    {
-      "topics": [
-        {
-          "topic": "Приветствия и базовые фразы",
-          "level": "A1",
-          "subtopic": "Приветствия",
-          "words": [
-            { "de": "...", "tr": "...", "ru": "..." },
-            ...
-          ]
-        },
-        ...
-      ]
-    }
-    """
-
     global WORDS, WORDS_BY_TOPIC, LEVEL_COUNTS, TOPIC_COUNTS, SUBTOPIC_COUNTS
     global TOPIC_ID_BY_KEY, TOPIC_KEY_BY_ID, SUBTOPIC_ID_BY_KEY, SUBTOPIC_KEY_BY_ID
 
@@ -563,7 +555,6 @@ def load_words(path: str = "words.json") -> None:
         print(f"Уровень {level}: {LEVEL_COUNTS[level]} слов")
     print(f"Всего тем: {len(TOPIC_COUNTS)}, всего подтем: {len(SUBTOPIC_COUNTS)}")
 
-    # Генерируем короткие ID для тем и подтем
     for i, key in enumerate(sorted(TOPIC_COUNTS.keys())):
         tid = f"t{i}"
         TOPIC_ID_BY_KEY[key] = tid
@@ -574,10 +565,8 @@ def load_words(path: str = "words.json") -> None:
         SUBTOPIC_ID_BY_KEY[key] = sid
         SUBTOPIC_KEY_BY_ID[sid] = key
 
-    print(f"Сгенерировано ID для тем: {len(TOPIC_ID_BY_KEY)}, для подтем: {len(SUBTOPIC_ID_BY_KEY)}")
-
 # ==========================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ТЕМ
+# ВСПОМОГАТЕЛЬНЫЕ ДЛЯ ТЕМ
 # ==========================
 
 def get_levels() -> List[str]:
@@ -615,7 +604,7 @@ def pretty_topic_name(topic_key: str) -> str:
     return topic_key
 
 # ==========================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ СЛОВ
+# ФУНКЦИИ ДЛЯ СЛОВ
 # ==========================
 
 def get_user_words(uid: int) -> List[int]:
@@ -718,7 +707,7 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
     await bot.send_message(chat_id, text, reply_markup=kb)
 
 # ==========================
-# КЛАВИАТУРЫ
+# КЛАВИАТУРЫ МЕНЮ
 # ==========================
 
 def build_main_menu_keyboard() -> InlineKeyboardMarkup:
@@ -733,7 +722,7 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="📘 Грамматика",
-                    callback_data="grammar_menu",  # сразу в новый раздел грамматики
+                    callback_data="grammar_menu",
                 )
             ],
             [
@@ -885,7 +874,7 @@ def build_full_format_keyboard(current_mode: str, current_answer: str) -> Inline
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 # ==========================
-# СТАТИСТИКА ПОЛЬЗОВАТЕЛЯ
+# СТАТИСТИКА
 # ==========================
 
 def update_topic_stats(uid: int, topic: str, correct: int, wrong: int) -> None:
@@ -1008,7 +997,7 @@ async def check_text_with_ai(text: str) -> str:
         return "Произошла ошибка при проверке. Попробуй еще раз позже."
 
 # ==========================
-# ХЕНДЛЕРЫ КОМАНД
+# КОМАНДЫ
 # ==========================
 
 @dp.message(CommandStart())
@@ -1135,7 +1124,6 @@ async def cmd_mode(message: Message) -> None:
 
 @dp.message(Command("grammar"))
 async def cmd_grammar(message: Message) -> None:
-    """Команда /grammar открывает новый раздел грамматики (с уровнями A1/A2)."""
     uid = message.from_user.id
     if uid != ADMIN_ID and uid not in allowed_users:
         await message.answer("Нет доступа.")
@@ -1208,14 +1196,12 @@ async def handle_plain_text(message: Message) -> None:
 
     state = user_state[uid]
 
-    # 1. Режим проверки предложений
     if state.get("check_mode", False):
         waiting_msg = await message.answer("⌛ Проверяю предложение...")
         result = await check_text_with_ai(text)
         await waiting_msg.edit_text(result)
         return
 
-    # 2. Режим ввода слова вручную
     if state.get("answer_mode") == "typing" and state.get("waiting_text_answer"):
         word_id = state.get("current_word_id")
         if word_id is None or word_id < 0 or word_id >= len(WORDS):
@@ -1257,11 +1243,8 @@ async def handle_plain_text(message: Message) -> None:
         await send_new_word(uid, message.chat.id)
         return
 
-    # иначе просто игнорируем текст
-    return
-
 # ==========================
-# CALLBACK ХЕНДЛЕРЫ: ДОСТУП
+# CALLBACK: ДОСТУП
 # ==========================
 
 @dp.callback_query(F.data == "req_access")
@@ -1350,11 +1333,10 @@ async def cb_back_main(callback: CallbackQuery) -> None:
 
 @dp.callback_query(F.data == "main_menu")
 async def cb_main_menu(callback: CallbackQuery) -> None:
-    """Обработчик кнопки '⬅ Главное меню' из раздела грамматики."""
     await cb_back_main(callback)
 
 # ==========================
-# CALLBACK ХЕНДЛЕРЫ: СЛОВА
+# CALLBACK: СЛОВА
 # ==========================
 
 @dp.callback_query(F.data == "menu_words")
@@ -1686,7 +1668,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
         await resend_same_word(callback.message.chat.id, word_id, mode, uid)
 
 # ==========================
-# CALLBACK ХЕНДЛЕРЫ: НОВАЯ ГРАММАТИКА
+# CALLBACK: НОВАЯ ГРАММАТИКА
 # ==========================
 
 @dp.callback_query(F.data == "grammar_menu")
@@ -1750,7 +1732,10 @@ async def cb_grammar_rule(callback: CallbackQuery) -> None:
         await callback.answer("Правило не найдено.", show_alert=True)
         return
 
-    text = f"<b>{rule.get('title','Правило')}</b>\n\n{rule.get('explanation','')}"
+    title_clean = strip_html_tags(rule.get("title", "Правило"))
+    expl_clean = strip_html_tags(rule.get("explanation", ""))
+
+    text = f"*{title_clean}*\n\n{expl_clean}"
     await callback.message.edit_text(text, reply_markup=kb_rule_after_explanation(rule_id))
     await callback.answer()
 
@@ -1831,7 +1816,6 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
 
     questions = state["questions"]
     if q_index != state["index"]:
-        # старая кнопка
         await callback.answer()
         return
 
@@ -1872,17 +1856,15 @@ async def send_quiz_result(message: Message, user_id: int):
     )
 
     await message.edit_text(text, reply_markup=kb_after_quiz(rule_id))
-    # состояние можно оставить или чистить по желанию
 
 # ==========================
-# ЗАПУСК БОТА
+# ЗАПУСК
 # ==========================
 
 async def main() -> None:
     load_allowed_users()
     load_words("words.json")
     load_user_state()
-    # заранее попробуем подгрузить грамматику (не обязательно)
     if GRAMMAR_FILE.exists():
         load_grammar_rules()
     await dp.start_polling(bot)
