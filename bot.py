@@ -75,7 +75,7 @@ AI_SYSTEM_PROMPT = (
 Word = Dict[str, Any]
 
 # ==========================
-# ГРАММАТИКА: КНОПКИ, ПРАВИЛА, ВИКТОРИНЫ (grammar.json)
+# ГРАММАТИКА: КНОПКИ, ПРАВИЛА, ВИКТОРИНЫ
 # ==========================
 
 GRAMMAR_FILE = Path("grammar.json")
@@ -89,7 +89,7 @@ QUIZ_CACHE: Dict[str, List[Dict[str, Any]]] = {}
 
 
 def strip_html_tags(text: str) -> str:
-    """Простой снос <b>, <i>, <u> и т.п., чтобы в боте не было тегов."""
+    """Убираем простые HTML-теги, чтобы не мешали в Markdown."""
     if not isinstance(text, str):
         return str(text)
     for tag in ("<b>", "</b>", "<i>", "</i>", "<u>", "</u>"):
@@ -280,25 +280,15 @@ def kb_after_quiz(rule_id: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 
-def get_quiz_instruction_ru(question_text: str) -> str:
-    """Короткое объяснение задания на русском по тексту вопроса на немецком."""
-    if not isinstance(question_text, str):
-        return "Задание: внимательно прочитай задание и выбери один правильный вариант."
-
-    t = question_text.lower()
-
-    if "waehle die richtige antwort" in t or "wähle die richtige antwort" in t:
-        return "Задание: выбери один правильный вариант из четырех."
-    if "setze das richtige wort ein" in t:
-        return "Задание: вставь подходящее слово в пропуск."
-    if "ordne die woerter in der richtigen reihenfolge" in t or "ordne die wörter in der richtigen reihenfolge" in t:
-        return "Задание: выбери вариант с правильным порядком слов."
-    if "welcher satz ist richtig" in t:
-        return "Задание: выбери предложение без ошибки."
-    if "waehle den satz ohne fehler" in t or "wähle den satz ohne fehler" in t:
-        return "Задание: выбери предложение без ошибки."
-
-    return "Задание: внимательно прочитай задание и выбери один правильный вариант."
+def get_quiz_instruction_ru() -> str:
+    """
+    Объяснение задания ТОЛЬКО на русском.
+    Универсальное, но понятное: всегда нужно выбрать один правильный вариант.
+    """
+    return (
+        "📝 Задание: выбери один правильный вариант ответа, "
+        "который грамматически подходит к этому предложению по текущему правилу."
+    )
 
 
 async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -306,11 +296,10 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     Генерируем вопросы по конкретному правилу через OpenAI.
 
     Важно:
-    - Упражнения строго по текущему правилу (теме), которую открыл пользователь.
-    - Все задания только на немецком языке.
-    - В каждом вопросе есть четкий рабочий инструктаж на немецком.
-    - Ровно 4 варианта ответа, один правильный.
-    - Ответ от модели всегда должен быть валидным JSON.
+    - Упражнения строго по текущему правилу.
+    - Только немецкий язык внутри упражнений.
+    - В question только предложение или задание на немецком, без объяснений на других языках.
+    - Всегда 4 варианта, 1 правильный.
     """
 
     if client is None:
@@ -322,7 +311,6 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
         print("У правила нет id, не могу кэшировать упражнения.")
         return []
 
-    # Кэш по теме, чтобы не дергать ИИ каждый раз
     cached = QUIZ_CACHE.get(rule_id)
     if cached:
         return cached
@@ -332,31 +320,28 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     user_prompt = (
         "Du bist ein professioneller Lehrer fuer Deutsch als Fremdsprache.\n"
-        "Erstelle 5 kurze Uebungsaufgaben GENAU zu diesem Grammatikthema.\n"
-        "Alle Saetze und Woerter muessen diesem Thema entsprechen.\n\n"
+        "Erstelle 5 kurze Uebungsaufgaben, die AUSSCHLIESSLICH dieses Grammatikthema pruefen.\n"
+        "Benutze KEINE anderen Grammatikstrukturen, die nicht zu diesem Thema gehoeren.\n\n"
         "WICHTIG:\n"
         "- Schreibe ALLES nur auf Deutsch.\n"
-        "- Kein Englisch, keine Uebersetzungen, keine Erklaerungen in anderen Sprachen.\n"
-        "- Jede Aufgabe beginnt mit einem klaren Arbeitsauftrag, zum Beispiel:\n"
-        "  \"Waehle die richtige Antwort.\",\n"
-        "  \"Setze das richtige Wort ein.\",\n"
-        "  \"Ordne die Woerter in der richtigen Reihenfolge.\",\n"
-        "  \"Waehle den Satz ohne Fehler.\" usw.\n"
-        "- Direkt nach dem Arbeitsauftrag kommt der Satz oder die Saetze des Beispiels.\n"
+        "- Keine Erklaerungen, kein Englisch, keine anderen Sprachen.\n"
+        "- Feld \"question\" enthaelt nur den Beispielsatz oder Satz mit Luecke, "
+        "ohne Arbeitsanweisungen wie \"Waehle die richtige Antwort\".\n"
+        "- Die Arbeitsanweisung wird der Bot auf Russisch erklaeren, du brauchst sie NICHT zu schreiben.\n"
         "- Jede Aufgabe hat GENAU 4 Antwortoptionen.\n"
         "- Es gibt GENAU EINE richtige Antwort (correct_index).\n"
-        "- Mische die Aufgabentypen, bleibe aber immer in diesem Grammatikthema.\n\n"
+        "- Mische die Aufgabentypen, aber bleibe immer in diesem Grammatikthema.\n\n"
         "Antwortformat: ein einziges JSON-Objekt:\n"
         "{\n"
         "  \"questions\": [\n"
         "    {\n"
-        "      \"question\": \"Arbeitsauftrag und Satz/Saetze auf Deutsch\",\n"
+        "      \"question\": \"Satz oder Satz mit Luecke auf Deutsch\",\n"
         "      \"options\": [\"Antwort 1\",\"Antwort 2\",\"Antwort 3\",\"Antwort 4\"],\n"
         "      \"correct_index\": 0\n"
         "    }\n"
         "  ]\n"
         "}\n\n"
-        "Schreibe WIRKLICH nur JSON, ohne Kommentar, ohne Erklaerung,\n"
+        "Schreibe WIRKLICH nur JSON, ohne Kommentar, ohne Erklaerung, "
         "ohne Text ausserhalb des JSON. Benutze keine HTML-Tags.\n\n"
         f"Grammatikthema (Titel): {title}\n\n"
         f"Erklaerung des Themas:\n{explanation}\n"
@@ -381,7 +366,6 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
         )
         content = completion.choices[0].message.content.strip()
 
-        # На случай, если модель обернула JSON в ```json ... ```
         if content.startswith("```"):
             content = content.strip()
             if content.startswith("```"):
@@ -514,7 +498,6 @@ def load_user_state() -> None:
                 uid = int(uid_str)
             except ValueError:
                 continue
-            # Аккуратно обновляем, чтобы была структура по умолчанию
             base = user_state[uid]
             base.update(state)
             user_state[uid] = base
@@ -552,7 +535,7 @@ def load_words(path: str = "words.json") -> None:
     TOPIC_ID_BY_KEY = {}
     TOPIC_KEY_BY_ID = {}
     SUBTOPIC_ID_BY_KEY = {}
-    SUBTOPIC_KEY_BY_ID = {}
+    SUBTOPIPIC_KEY_BY_ID = {}  # опечатка, но не используется
 
     file_path = Path(path)
     if not file_path.exists():
@@ -991,9 +974,6 @@ def update_topic_stats(uid: int, topic: str, correct: int, wrong: int) -> None:
 def update_grammar_stats(uid: int, rule_id: str, correct_delta: int = 0, wrong_delta: int = 0, finished_quiz: bool = False) -> None:
     """
     Обновляет статистику по грамматическим упражнениям.
-    correct_delta: сколько правильных попыток добавить
-    wrong_delta: сколько неправильных попыток добавить
-    finished_quiz: увеличить счетчик проходов по этой теме
     """
     state = user_state[uid]
 
@@ -1090,7 +1070,6 @@ def build_user_stats_text(uid: int) -> str:
     else:
         lines.append("Пока нет завершенных кругов по темам.")
 
-    # Можно дописать вывод статистики по грамматике позже, сейчас она только в фоне копится
     return "\n".join(lines)
 
 # ==========================
@@ -1790,7 +1769,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
         await resend_same_word(callback.message.chat.id, word_id, mode, uid)
 
 # ==========================
-# CALLBACK: НОВАЯ ГРАММАТИКА
+# CALLBACK: ГРАММАТИКА
 # ==========================
 
 @dp.callback_query(F.data == "grammar_menu")
@@ -1921,12 +1900,13 @@ async def send_current_quiz_question(message: Message, user_id: int, new_message
         return
 
     q = questions[idx]
-    instr_ru = get_quiz_instruction_ru(q["question"])
+    instr_ru = get_quiz_instruction_ru()
 
     text = (
-        f"Вопрос {idx + 1} из {len(questions)}:\n\n"
+        "📘 Грамматика: упражнение\n\n"
+        f"Вопрос {idx + 1} из {len(questions)}\n\n"
         f"{instr_ru}\n\n"
-        f"{q['question']}"
+        f"🇩🇪 {q['question']}"
     )
 
     kb = kb_quiz_answers(state["rule_id"], idx, q["options"])
@@ -1975,39 +1955,46 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
         state["index"] += 1
         await callback.answer("Правильно ✅")
 
-        correct_text = current["options"][correct]
-        instr_ru = get_quiz_instruction_ru(current["question"])
+        # Если вопросов больше нет
+        if state["index"] >= len(questions):
+            await send_quiz_result(callback.message, uid)
+            return
 
-        feedback = (
-            f"Вопрос {number} из {total_questions}:\n\n"
+        next_q = questions[state["index"]]
+        instr_ru = get_quiz_instruction_ru()
+
+        text = (
+            "✅ Ответ правильный!\n\n"
+            "📘 Грамматика: следующее упражнение\n\n"
+            f"Вопрос {state['index'] + 1} из {total_questions}\n\n"
             f"{instr_ru}\n\n"
-            f"{current['question']}\n\n"
-            f"✅ Правильный ответ: {correct_text}"
+            f"🇩🇪 {next_q['question']}"
         )
 
-        try:
-            await callback.message.edit_text(feedback)
-        except Exception:
-            await callback.message.answer(feedback)
+        kb = kb_quiz_answers(rule_id, state["index"], next_q["options"])
 
-        # Сразу даем следующее упражнение
-        await send_current_quiz_question(callback.message, uid, new_message=True)
+        try:
+            await callback.message.edit_text(text, reply_markup=kb)
+        except Exception:
+            await callback.message.answer(text, reply_markup=kb)
 
     else:
-        # Неправильный ответ - остаемся на этом же вопросе
+        # Неправильный ответ
         state["wrong"] += 1
         update_grammar_stats(uid, rule_id, wrong_delta=1)
 
         await callback.answer("Неправильно. Попробуй еще раз.", show_alert=False)
 
         wrong_text = current["options"][opt_index]
-        instr_ru = get_quiz_instruction_ru(current["question"])
+        instr_ru = get_quiz_instruction_ru()
 
         text = (
-            f"Вопрос {number} из {total_questions}:\n\n"
+            "❌ Это неверный ответ.\n\n"
+            "📘 Грамматика: упражнение\n\n"
+            f"Вопрос {number} из {total_questions}\n\n"
             f"{instr_ru}\n\n"
-            f"{current['question']}\n\n"
-            f"❌ {wrong_text} - это неверный ответ.\n"
+            f"🇩🇪 {current['question']}\n\n"
+            f"Выбранный вариант: {wrong_text}\n"
             "Попробуй еще раз."
         )
 
@@ -2042,7 +2029,7 @@ async def send_quiz_result(message: Message, user_id: int):
     update_grammar_stats(user_id, rule_id, finished_quiz=True)
 
     text = (
-        f"Результат по теме:\n\n"
+        "📊 Результат по грамматике\n\n"
         f"Правильных ответов: {correct} из {total} ({percent} %)\n"
         f"Неправильных попыток: {wrong}\n\n"
         f"{comment}"
