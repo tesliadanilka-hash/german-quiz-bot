@@ -1129,20 +1129,23 @@ def build_user_stats_text(uid: int) -> str:
     lines.append("Когда круг заканчивается, результаты сохраняются в общую статистику по темам.")
     lines.append("")
 
-    topic_stats = state.get("topic_stats", {})
-   	if topic_stats:
-        lines.append("📚 Результаты по темам, которые ты уже проходил:\n")
-        for topic, stats in topic_stats.items():
-            runs = stats.get("runs", 0)
-            best = stats.get("best_accuracy", 0.0)
-            last = stats.get("last_accuracy", 0.0)
-            nice = pretty_topic_name(topic)
-            lines.append(
-                f"• {nice}\n"
-                f"  Проходов: {runs}\n"
-                f"  Лучшая точность: {best:.1f}%\n"
-                f"  Последний результат: {last:.1f}%\n"
-            )
+   topic_stats = state.get("topic_stats", {})
+
+if topic_stats:
+    lines.append("📚 Результаты по темам, которые ты уже проходил:\n")
+    for topic, stats in topic_stats.items():
+        runs = stats.get("runs", 0)
+        best = stats.get("best_accuracy", 0.0)
+        last = stats.get("last_accuracy", 0.0)
+        nice = pretty_topic_name(topic)
+
+        lines.append(
+            f"• {nice}\n"
+            f"  Проходов: {runs}\n"
+            f"  Лучшая точность: {best:.1f}%\n"
+            f"  Последний результат: {last:.1f}%\n"
+        )
+
     else:
         lines.append("Пока нет завершенных кругов по темам.")
 
@@ -2221,3 +2224,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
