@@ -72,6 +72,28 @@ AI_SYSTEM_PROMPT = (
     "Ошибок не найдено. Предложение грамматически корректно."
 )
 
+# >>> Новый системный промпт для проверки писем
+LETTER_SYSTEM_PROMPT = (
+    "Ты преподаватель немецкого языка. "
+    "Твоя задача - проверять письма на немецком языке (E-Mail, Brief) уровней A1-B1.\n"
+    "Исправляй грамматику, орфографию и при необходимости слегка улучшай стиль, "
+    "но сохраняй смысл и уровень автора.\n\n"
+    "Всегда отвечай строго в таком формате:\n\n"
+    "Исправленный вариант письма:\n"
+    "{здесь напиши исправленный вариант письма целиком}\n\n"
+    "Комментарии:\n"
+    "1) {кратко по-русски объясни первую важную ошибку или группу ошибок}\n"
+    "2) {вторая ошибка или рекомендация, если есть}\n"
+    "3) {третья рекомендация, если уместно}\n\n"
+    "Оценка:\n"
+    "- Примерный уровень: {A1, A2 или B1}\n"
+    "- Сильные стороны: {1-2 коротких пункта по-русски}\n"
+    "- Что улучшить: {1-2 коротких пункта по-русски}\n\n"
+    "Если серьезных ошибок нет, все равно повтори письмо в разделе "
+    "\"Исправленный вариант письма\" и в \"Комментарии\" напиши:\n"
+    "1) Серьезных ошибок нет, письмо звучит естественно для данного уровня."
+)
+
 Word = Dict[str, Any]
 
 # ==========================
@@ -448,6 +470,8 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
             "total_wrong": 0,
             "per_rule": {}
         },
+        # >>> Новый флаг режима проверки писем
+        "letter_mode": False,
     }
 )
 
@@ -841,6 +865,13 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
                     callback_data="menu_check",
                 )
             ],
+            # >>> Новая кнопка для проверки письма
+            [
+                InlineKeyboardButton(
+                    text="📨 Проверка письма",
+                    callback_data="menu_letter",
+                )
+            ],
             [
                 InlineKeyboardButton(
                     text="⚙️ Формат ответа",
@@ -1099,7 +1130,7 @@ def build_user_stats_text(uid: int) -> str:
     lines.append("")
 
     topic_stats = state.get("topic_stats", {})
-    if topic_stats:
+   	if topic_stats:
         lines.append("📚 Результаты по темам, которые ты уже проходил:\n")
         for topic, stats in topic_stats.items():
             runs = stats.get("runs", 0)
@@ -1142,6 +1173,29 @@ async def check_text_with_ai(text: str) -> str:
         print("Ошибка при проверке предложения:", e)
         return "Произошла ошибка при проверке. Попробуй еще раз позже."
 
+
+# >>> Новая функция проверки письма
+async def check_letter_with_ai(text: str) -> str:
+    if client is None:
+        return (
+            "Проверка писем сейчас недоступна.\n"
+            "Обратись к администратору."
+        )
+
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {"role": "system", "content": LETTER_SYSTEM_PROMPT},
+                {"role": "user", "content": text},
+            ],
+        )
+        answer = completion.choices[0].message.content.strip()
+        return answer
+    except Exception as e:
+        print("Ошибка при проверке письма:", e)
+        return "Произошла ошибка при проверке письма. Попробуй еще раз позже."
+
 # ==========================
 # КОМАНДЫ
 # ==========================
@@ -1180,6 +1234,7 @@ async def cmd_start(message: Message) -> None:
         "• Тренировать слова по уровням, темам и подтемам\n"
         "• Разбирать грамматику\n"
         "• Проверять свои предложения\n"
+        "• Проверять и улучшать письма\n"
         "• Смотреть статистику по темам\n\n"
         f"Сейчас в базе {total_words} слов.\n"
         f"Тем: {total_topics}, подтем: {total_subtopics}.\n\n"
@@ -1190,6 +1245,7 @@ async def cmd_start(message: Message) -> None:
     await message.answer(text, reply_markup=kb)
 
     user_state[uid]["check_mode"] = False
+    user_state[uid]["letter_mode"] = False
     save_user_state()
 
 
@@ -1292,6 +1348,7 @@ async def cmd_check_on(message: Message) -> None:
         return
 
     user_state[uid]["check_mode"] = True
+    user_state[uid]["letter_mode"] = False
     save_user_state()
     await message.answer(
         "✏️ Режим проверки предложений включен.\n\n"
@@ -1342,12 +1399,21 @@ async def handle_plain_text(message: Message) -> None:
 
     state = user_state[uid]
 
+    # >>> Сначала проверка письма, если включен режим письма
+    if state.get("letter_mode", False):
+        waiting_msg = await message.answer("⌛ Проверяю письмо...")
+        result = await check_letter_with_ai(text)
+        await waiting_msg.edit_text(result)
+        return
+
+    # Обычная проверка предложений
     if state.get("check_mode", False):
         waiting_msg = await message.answer("⌛ Проверяю предложение...")
         result = await check_text_with_ai(text)
         await waiting_msg.edit_text(result)
         return
 
+    # Ответ ручным вводом слова
     if state.get("answer_mode") == "typing" and state.get("waiting_text_answer"):
         word_id = state.get("current_word_id")
         if word_id is None or word_id < 0 or word_id >= len(WORDS):
@@ -1453,7 +1519,8 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
             "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
-            "Выбирай тренировки слов, грамматику, проверку предложений, формат ответа или статистику с помощью кнопок."
+            "Выбирай тренировки слов, грамматику, проверку предложений, проверку писем, "
+            "формат ответа или статистику с помощью кнопок."
         )
         await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
     except Exception:
@@ -1536,6 +1603,7 @@ async def cb_menu_check(callback: CallbackQuery) -> None:
     await callback.answer()
 
     user_state[uid]["check_mode"] = True
+    user_state[uid]["letter_mode"] = False
     save_user_state()
 
     await callback.message.answer(
@@ -1557,6 +1625,65 @@ async def cb_menu_stats(callback: CallbackQuery) -> None:
     text = build_user_stats_text(uid)
     await callback.message.answer(text)
 
+# >>> Новый callback: меню проверки письма
+@dp.callback_query(F.data == "menu_letter")
+async def cb_menu_letter(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    state = user_state[uid]
+    state["letter_mode"] = True
+    state["check_mode"] = False
+    save_user_state()
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="❌ Выйти из режима проверки письма",
+                    callback_data="menu_letter_off",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅ Главное меню",
+                    callback_data="back_main",
+                )
+            ],
+        ]
+    )
+
+    text = (
+        "📨 Режим проверки писем включен.\n\n"
+        "Отправь сюда письмо на немецком языке:\n"
+        "• Это может быть формальное или неформальное письмо.\n"
+        "• Можно добавить задание, например текст условия с экзамена.\n\n"
+        "Я исправлю письмо, укажу ошибки и примерный уровень (A1-A2-B1)."
+    )
+    await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data == "menu_letter_off")
+async def cb_menu_letter_off(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    user_state[uid]["letter_mode"] = False
+    save_user_state()
+
+    await callback.answer("Режим проверки писем выключен.")
+    await callback.message.answer(
+        "Режим проверки писем выключен. Можно вернуться к другим тренировкам.",
+        reply_markup=build_main_menu_keyboard(),
+    )
 
 @dp.callback_query(F.data == "topic_all")
 async def cb_topic_all(callback: CallbackQuery) -> None:
