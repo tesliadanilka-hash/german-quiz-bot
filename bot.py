@@ -185,7 +185,7 @@ def kb_grammar_levels() -> InlineKeyboardMarkup:
     kb = [
         [
             InlineKeyboardButton(text="Правила уровня A1", callback_data="grammar_level:A1"),
-            InlineKeyboardButton(text="Правила уровня A2", callback_data="grammar_level:A2"),
+            InlineKeyboardButton(text="Правила уровня А2", callback_data="grammar_level:A2"),
         ],
         [InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")],
     ]
@@ -633,6 +633,8 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
         "letter_stats": {
             "checked": 0
         },
+        # Путь интеграции
+        "integration_progress": 0,   # индекс открытой темы
     }
 )
 
@@ -648,6 +650,107 @@ TOPIC_ID_BY_KEY: Dict[Tuple[str, str], str] = {}
 TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
 SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
+
+# ==========================
+# ПУТЬ ИНТЕГРАЦИИ: ТЕМЫ
+# ==========================
+
+INTEGRATION_TOPICS: List[Dict[str, str]] = [
+    {
+        "id": "a1_1_intro",
+        "title": "A1.1 Знакомство",
+        "goal": "Познакомиться с людьми на интеграционном курсе.",
+    },
+    {
+        "id": "a1_1_greetings",
+        "title": "A1.1 Приветствия и вежливость",
+        "goal": "Научиться здороваться и прощаться в разных ситуациях.",
+    },
+    {
+        "id": "a1_1_numbers_time",
+        "title": "A1.1 Числа и время",
+        "goal": "Понимать время и договариваться о встречах.",
+    },
+    # Потом добавишь сюда остальные темы по плану.
+]
+
+
+def get_integration_progress(uid: int) -> int:
+    state = user_state[uid]
+    try:
+        return int(state.get("integration_progress", 0))
+    except Exception:
+        return 0
+
+
+def set_integration_progress(uid: int, index: int) -> None:
+    state = user_state[uid]
+    state["integration_progress"] = max(0, index)
+    user_state[uid] = state
+    save_user_state()
+
+
+def complete_integration_topic(uid: int, topic_id: str) -> None:
+    """
+    Отмечаем тему как пройденную и открываем следующую.
+    """
+    current_index = get_integration_progress(uid)
+    index = None
+    for i, t in enumerate(INTEGRATION_TOPICS):
+        if t["id"] == topic_id:
+            index = i
+            break
+    if index is None:
+        return
+    if index >= current_index:
+        set_integration_progress(uid, index + 1)
+
+
+def build_integration_topics_keyboard(uid: int) -> InlineKeyboardMarkup:
+    progress_index = get_integration_progress(uid)
+
+    buttons: List[List[InlineKeyboardButton]] = []
+    for index, topic in enumerate(INTEGRATION_TOPICS):
+        is_open = index <= progress_index
+        status_emoji = "🔓" if is_open else "🔒"
+        text = f"{status_emoji} {topic['title']}"
+        if is_open:
+            cb = f"integration_topic_open:{topic['id']}"
+        else:
+            cb = "integration_locked"
+        buttons.append(
+            [InlineKeyboardButton(text=text, callback_data=cb)]
+        )
+
+    buttons.append(
+        [InlineKeyboardButton(text="⬅ Главное меню", callback_data="back_main")]
+    )
+
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+async def send_integration_path(message: Message, uid: int, edit: bool = False) -> None:
+    # Если пользователь еще не начинал, пусть будет открыта первая тема
+    if "integration_progress" not in user_state[uid]:
+        set_integration_progress(uid, 0)
+
+    text = (
+        "📍 Путь интеграции\n\n"
+        "Каждая тема открывается только после прохождения предыдущей.\n"
+        "Каждая тема имеет свою мини цель.\n"
+        "Ты проходишь путь так же как в реальной жизни:\n"
+        "от знакомства до работы, писем, врачей и официальных дел.\n\n"
+        "Выбери доступную тему ниже."
+    )
+    kb = build_integration_topics_keyboard(uid)
+
+    if edit:
+        try:
+            await message.edit_text(text, reply_markup=kb)
+        except Exception:
+            await message.answer(text, reply_markup=kb)
+    else:
+        await message.answer(text, reply_markup=kb)
 
 # ==========================
 # ДОСТУП
@@ -978,6 +1081,12 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
 def build_main_menu_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🛣 Путь интеграции",
+                    callback_data="menu_integration",
+                )
+            ],
             [
                 InlineKeyboardButton(
                     text="🧠 Тренировать слова",
@@ -1455,6 +1564,7 @@ async def cmd_start(message: Message) -> None:
         "• Разбирать грамматику\n"
         "• Учиться писать письма (A1-A2-B1)\n"
         "• Проверять свои предложения\n"
+        "• Проходить Путь интеграции от A1 до B1\n"
         "• Смотреть статистику по темам\n\n"
         f"Сейчас в базе {total_words} слов.\n"
         f"Тем: {total_topics}, подтем: {total_subtopics}.\n\n"
@@ -1464,8 +1574,10 @@ async def cmd_start(message: Message) -> None:
     kb = build_main_menu_keyboard()
     await message.answer(text, reply_markup=kb)
 
-    user_state[uid]["check_mode"] = False
-    user_state[uid]["letter_mode"] = False
+    state = user_state[uid]
+    state["check_mode"] = False
+    state["letter_mode"] = False
+    user_state[uid] = state
     save_user_state()
 
 
@@ -1749,7 +1861,7 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
             "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
-            "Выбирай тренировки слов, грамматику, письма, проверку предложений, формат ответа или статистику с помощью кнопок."
+            "Выбирай тренировки слов, грамматику, письма, проверку предложений, Путь интеграции, формат ответа или статистику с помощью кнопок."
         )
         await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
     except Exception:
@@ -2041,7 +2153,7 @@ async def cb_answer_mode(callback: CallbackQuery) -> None:
     else:
         text = (
             "Теперь формат ответа: ввод слова вручную.\n\n"
-            "Я показываю русское слово, а ты пишешь его по немецки."
+            "Я показываю русское слово, а ты пишешь его по немецики."
         )
 
     try:
@@ -2536,6 +2648,208 @@ async def cb_letter_progress(callback: CallbackQuery) -> None:
         )
 
     await callback.message.answer(text, reply_markup=build_letter_main_keyboard())
+
+# ==========================
+# CALLBACK: ПУТЬ ИНТЕГРАЦИИ
+# ==========================
+
+
+@dp.callback_query(F.data == "menu_integration")
+async def cb_menu_integration(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    await send_integration_path(callback.message, uid, edit=False)
+
+
+@dp.callback_query(F.data == "integration_locked")
+async def cb_integration_locked(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer("Эта тема пока закрыта. Сначала пройди предыдущую.", show_alert=True)
+    await callback.message.answer(
+        "Эта тема пока закрыта.\n\n"
+        "Сначала нужно пройти предыдущую тему в Пути интеграции.\n"
+        "После выполнения текущей темы вернись сюда."
+    )
+
+
+@dp.callback_query(F.data == "integration_path_back")
+async def cb_integration_path_back(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    await send_integration_path(callback.message, uid, edit=True)
+
+
+@dp.callback_query(F.data.startswith("integration_topic_open:"))
+async def cb_integration_topic_open(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, topic_id = callback.data.split(":", maxsplit=1)
+    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
+    if not topic:
+        await callback.answer("Тема не найдена.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    text = (
+        f"🔹 {topic['title']}\n\n"
+        f"Игровая цель:\n{topic['goal']}\n\n"
+        "Когда будешь готов, нажми кнопку ниже чтобы начать мини задание по этой теме."
+    )
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🚀 Начать мини задание",
+                    callback_data=f"integration_start:{topic_id}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅ Назад к Пути интеграции",
+                    callback_data="integration_path_back",
+                )
+            ],
+        ]
+    )
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("integration_start:"))
+async def cb_integration_start(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, topic_id = callback.data.split(":", maxsplit=1)
+    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
+    if not topic:
+        await callback.answer("Тема не найдена.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    if topic_id == "a1_1_intro":
+        text = (
+            "🎮 Тема A1.1 Знакомство.\n\n"
+            "Мини задание:\n"
+            "Представь, что ты на интеграционном курсе и знакомишься с новым человеком.\n\n"
+            "Сделай это вслух или в голове на немецком по шагам:\n"
+            "1. Скажи, как тебя зовут. (Ich heiße ...)\n"
+            "2. Скажи, откуда ты. (Ich komme aus ...)\n"
+            "3. Скажи, на каких языках ты говоришь. (Ich spreche ...)\n\n"
+            "Когда проговоришь все 3 пункта по немецки, нажми кнопку ниже, чтобы отметить тему как пройденную.\n"
+        )
+    else:
+        text = (
+            f"🎮 {topic['title']}\n\n"
+            "Сейчас это небольшое мини задание по этой теме.\n"
+            "Проработай тему вслух или на бумаге, а потом нажми кнопку ниже.\n\n"
+            "Позже сюда можно добавить полноценный сценарий с диалогами и проверкой."
+        )
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="✅ Я сделал это задание",
+                    callback_data=f"integration_done:{topic_id}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅ Назад к Пути интеграции",
+                    callback_data="integration_path_back",
+                )
+            ],
+        ]
+    )
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("integration_done:"))
+async def cb_integration_done(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, topic_id = callback.data.split(":", maxsplit=1)
+    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
+    if not topic:
+        await callback.answer("Тема не найдена.", show_alert=True)
+        return
+
+    complete_integration_topic(uid, topic_id)
+
+    idx = None
+    for i, t in enumerate(INTEGRATION_TOPICS):
+        if t["id"] == topic_id:
+            idx = i
+            break
+
+    if idx is not None and idx + 1 < len(INTEGRATION_TOPICS):
+        next_topic = INTEGRATION_TOPICS[idx + 1]
+        extra = (
+            f"Следующая тема теперь открыта: {next_topic['title']}.\n"
+            "Можешь выбрать ее в Пути интеграции."
+        )
+    else:
+        extra = "Ты прошел все текущие темы Пути интеграции A1.1. Дальше можно добавить новые уровни."
+
+    text = (
+        f"✅ Тема {topic['title']} отмечена как пройденная.\n\n"
+        "Отлично, ты сделал еще один шаг в интеграции.\n\n"
+        f"{extra}"
+    )
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🛣 Вернуться к Пути интеграции",
+                    callback_data="integration_path_back",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅ Главное меню",
+                    callback_data="back_main",
+                )
+            ],
+        ]
+    )
+
+    await callback.answer("Тема отмечена как пройденная.")
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
 
 # ==========================
 # ЗАПУСК
