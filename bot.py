@@ -418,7 +418,6 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     QUIZ_CACHE[rule_id] = clean_questions
     return clean_questions
-
 # ==========================
 # ТЕМЫ ДЛЯ СЛОВ
 # ==========================
@@ -634,7 +633,7 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
             "checked": 0
         },
         # Путь интеграции
-        "integration_progress": 0,   # индекс открытой темы
+        "integration_progress": 0,
     }
 )
 
@@ -752,6 +751,14 @@ async def send_integration_path(message: Message, uid: int, edit: bool = False) 
     else:
         await message.answer(text, reply_markup=kb)
 # ==========================
+# ПАМЯТЬ УРОКА 1 (A1.1 Урок 1)
+# ==========================
+
+# Эти словари используются в игровом уроке /lesson1
+USER_L1_NAME: Dict[int, str] = {}
+USER_L1_WAIT_NAME: Dict[int, bool] = {}
+
+# ==========================
 # ДОСТУП
 # ==========================
 
@@ -781,6 +788,7 @@ def save_allowed_users() -> None:
         for uid in sorted(allowed_users):
             f.write(str(uid) + "\n")
     print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
+
 
 # ==========================
 # СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ: ЗАГРУЗКА/СОХРАНЕНИЕ
@@ -818,6 +826,7 @@ def save_user_state() -> None:
         print(f"Состояние пользователей сохранено. Всего пользователей: {len(raw)}")
     except Exception as e:
         print("Ошибка при сохранении состояний пользователей:", e)
+
 
 # ==========================
 # ЗАГРУЗКА СЛОВ
@@ -929,6 +938,7 @@ def load_words(path: str = "words.json") -> None:
         SUBTOPIC_ID_BY_KEY[key] = sid
         SUBTOPIC_KEY_BY_ID[sid] = key
 
+
 # ==========================
 # ВСПОМОГАТЕЛЬНЫЕ ДЛЯ ТЕМ
 # ==========================
@@ -967,6 +977,8 @@ def pretty_topic_name(topic_key: str) -> str:
         level, topic = parts
         return f"Уровень {level}: {topic}"
     return topic_key
+
+
 # ==========================
 # ФУНКЦИИ ДЛЯ СЛОВ
 # ==========================
@@ -1070,7 +1082,6 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
 
     kb = build_options(word_pool, word_id, mode)
     await bot.send_message(chat_id, text, reply_markup=kb)
-
 # ==========================
 # КЛАВИАТУРЫ МЕНЮ
 # ==========================
@@ -1171,7 +1182,7 @@ def build_topics_keyboard_for_level(level: str) -> InlineKeyboardMarkup:
         topic_id = TOPIC_ID_BY_KEY.get(key)
         if not topic_id:
             continue
-        count = TOPIC_COUNTS.get(key, 0)
+        count = TOPIC_COUNTS.get((level, topic), 0)
         rows.append(
             [
                 InlineKeyboardButton(
@@ -1251,6 +1262,7 @@ def build_full_format_keyboard(current_mode: str, current_answer: str) -> Inline
     rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+
 # ==========================
 # КЛАВИАТУРЫ ДЛЯ ПИСЕМ
 # ==========================
@@ -1329,6 +1341,7 @@ def build_letter_tasks_keyboard(level: str) -> InlineKeyboardMarkup:
         ]
     )
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
 
 # ==========================
 # СТАТИСТИКА
@@ -1464,6 +1477,7 @@ def build_user_stats_text(uid: int) -> str:
         lines.append("Пока нет завершенных кругов по темам.")
 
     return "\n".join(lines)
+
 
 # ==========================
 # ПРОВЕРКА ПРЕДЛОЖЕНИЙ И ПИСЕМ
@@ -1713,6 +1727,36 @@ async def cmd_stats(message: Message) -> None:
     await message.answer(text)
 
 
+# ====== НОВЫЙ УРОК 1: /lesson1 ======
+
+
+@dp.message(F.text == "/lesson1")
+@dp.message(F.text == "/a1_1_l1")
+async def start_lesson1(message: Message):
+    """
+    Блок 1. Запуск урока 1.
+    """
+    uid = message.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await message.answer("Нет доступа.")
+        return
+
+    USER_L1_WAIT_NAME[uid] = False
+
+    text = (
+        "🇩🇪 A1.1 Урок 1\n"
+        "Ankommen - Первое знакомство\n\n"
+        "Сегодня ты:\n"
+        "• Познакомишься с персонажем Toni\n"
+        "• Научишься говорить, как тебя зовут\n"
+        "• Увидишь в действии фразы \"Ich bin...\" и \"Du bist...\"\n\n"
+        "Нажми кнопку, чтобы начать."
+    )
+
+    await message.answer(text, reply_markup=kb_l1_start())
+
+
 # ==========================
 # ОБРАБОТЧИК ТЕКСТА
 # ==========================
@@ -1727,6 +1771,35 @@ async def handle_plain_text(message: Message) -> None:
 
     text = message.text.strip()
     if not text:
+        return
+
+    # 0) УРОК 1: ВВОД ИМЕНИ (новый сценарий)
+    if USER_L1_WAIT_NAME.get(uid):
+        user_name_raw = text.strip()
+        if not user_name_raw:
+            await message.answer("Попробуй еще раз, просто напиши свое имя.")
+            return
+
+        USER_L1_NAME[uid] = user_name_raw
+        USER_L1_WAIT_NAME[uid] = False
+
+        name = user_name_raw
+
+        toni_reply = f'Toni:\n\n"Aha! Du bist {name}. Schön, {name}."'
+        await message.answer(toni_reply)
+
+        explain = (
+            "✅ Супер. У тебя уже есть два немецких предложения.\n\n"
+            "Ich bin Toni. - Я Тони.\n"
+            f"Du bist {name}. - Ты {name}.\n\n"
+            "Слова:\n"
+            "• Ich - я\n"
+            "• Du - ты\n"
+            "• bin - есть (для \"ich\")\n"
+            "• bist - есть (для \"du\")"
+        )
+
+        await message.answer(explain, reply_markup=kb_l1_continue_block4())
         return
 
     state = user_state[uid]
@@ -1745,14 +1818,14 @@ async def handle_plain_text(message: Message) -> None:
         await waiting_msg.edit_text(result)
         return
 
-    # 2) РЕЖИМ ПРОВЕРКИ ПРЕДЛОЖЕНИЙ
+    # 2) РЕЖИМ ПРОВЕРКИ ОТДЕЛЬНЫХ ПРЕДЛОЖЕНИЙ
     if state.get("check_mode", False):
         waiting_msg = await message.answer("⌛ Проверяю предложение...")
         result = await check_text_with_ai(text)
         await waiting_msg.edit_text(result)
         return
 
-    # 3) РЕЖИМ ВВОДА НЕМЕЦКОГО СЛОВА ВРУЧНУЮ
+    # 3) РЕЖИМ ВВОДА СЛОВА ВРУЧНУЮ (ТРЕНИРОВКА СЛОВ)
     if state.get("answer_mode") == "typing" and state.get("waiting_text_answer"):
         word_id = state.get("current_word_id")
         if word_id is None or word_id < 0 or word_id >= len(WORDS):
@@ -1793,960 +1866,1058 @@ async def handle_plain_text(message: Message) -> None:
 
         await send_new_word(uid, message.chat.id)
         return
-# ==========================
-# CALLBACK — ГЛАВНОЕ МЕНЮ
-# ==========================
-
-
-@dp.callback_query(F.data == "back_main")
-async def cb_back_main(cb: CallbackQuery) -> None:
-    await cb.message.answer("Главное меню:", reply_markup=build_main_menu_keyboard())
-    await cb.answer()
-
-
-@dp.callback_query(F.data == "menu_integration")
-async def cb_menu_integration(cb: CallbackQuery) -> None:
-    await send_integration_path(cb.message.chat.id)
-    await cb.answer()
-
-
-@dp.callback_query(F.data == "menu_words")
-async def cb_menu_words(cb: CallbackQuery) -> None:
-    await cb.message.answer(
-        "Выбери уровень или тему слов:", reply_markup=build_themes_keyboard()
-    )
-    await cb.answer()
-
-
-@dp.callback_query(F.data == "menu_letters")
-async def cb_menu_letters(cb: CallbackQuery) -> None:
-    await cb.message.answer(
-        "Учимся писать письма — выбери уровень:",
-        reply_markup=build_letter_main_keyboard(),
-    )
-    await cb.answer()
-
-
-@dp.callback_query(F.data == "menu_check")
-async def cb_menu_check(cb: CallbackQuery) -> None:
-    uid = cb.from_user.id
-    state = user_state[uid]
-    state["check_mode"] = True
-    state["letter_mode"] = False
-    save_user_state()
-
-    await cb.message.answer(
-        "✏ Режим проверки предложений включён.\n"
-        "Напиши любое предложение на немецком, я проверю.",
-    )
-    await cb.answer()
-
-
-@dp.callback_query(F.data == "menu_answer_mode")
-async def cb_menu_answer_mode(cb: CallbackQuery) -> None:
-    uid = cb.from_user.id
-    state = user_state[uid]
-
-    mode = state.get("mode", "de_ru")
-    answer_mode = state.get("answer_mode", "choice")
-
-    kb = build_full_format_keyboard(mode, answer_mode)
-    await cb.message.answer(
-        "Настройки формата тренировки:",
-        reply_markup=kb,
-    )
-    await cb.answer()
-
-
-@dp.callback_query(F.data == "menu_stats")
-async def cb_menu_stats(cb: CallbackQuery) -> None:
-    uid = cb.from_user.id
-    text = build_user_stats_text(uid)
-    await cb.message.answer(text)
-    await cb.answer()
 
 
 # ==========================
-# CALLBACK — ДОБАВИТЬ ПОЛЬЗОВАТЕЛЯ
+# CALLBACK: ДОСТУП
 # ==========================
-
-
-@dp.callback_query(F.data.startswith("allow|"))
-async def cb_allow_user(cb: CallbackQuery) -> None:
-    if cb.from_user.id != ADMIN_ID:
-        await cb.answer("Нет прав.", show_alert=True)
-        return
-
-    try:
-        uid = int(cb.data.split("|")[1])
-    except Exception:
-        await cb.answer("Ошибка ID.")
-        return
-
-    allowed_users.add(uid)
-    save_allowed_users()
-
-    await bot.send_message(uid, "🎉 Твой доступ к боту одобрен. Добро пожаловать!")
-    await cb.message.answer(f"Готово. Пользователь {uid} добавлен.")
-    await cb.answer()
 
 
 @dp.callback_query(F.data == "req_access")
-async def cb_request_access(cb: CallbackQuery) -> None:
-    uid = cb.from_user.id
+async def cb_req_access(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
 
-    txt = (
-        "🆕 Запрос на доступ:\n"
-        f"Имя: {cb.from_user.full_name}\n"
-        f"ID: {uid}"
-    )
+    if uid == ADMIN_ID or uid in allowed_users:
+        await callback.answer("Доступ уже есть.")
+        return
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Разрешить доступ",
+                    text="✅ Разрешить доступ",
                     callback_data=f"allow|{uid}",
                 )
             ]
         ]
     )
 
-    await bot.send_message(ADMIN_ID, txt, reply_markup=kb)
-    await cb.message.answer("Запрос отправлен. Жди одобрения администратора.")
-    await cb.answer()
+    txt = (
+        "🆕 Новый запрос на доступ.\n"
+        f"Пользователь: {callback.from_user.full_name}\n"
+        f"ID: {uid}"
+    )
+
+    try:
+        await bot.send_message(
+            ADMIN_ID,
+            txt,
+            reply_markup=kb,
+        )
+        await callback.answer("Запрос отправлен администратору.")
+        await callback.message.answer(
+            "Запрос на доступ отправлен. Ожидай решение администратора."
+        )
+    except Exception:
+        await callback.answer("Ошибка отправки запроса.", show_alert=True)
 
 
+@dp.callback_query(F.data.startswith("allow|"))
+async def cb_allow_user(callback: CallbackQuery) -> None:
+    if callback.from_user.id != ADMIN_ID:
+        await callback.answer("Нет прав.", show_alert=True)
+        return
+
+    _, user_id_str = callback.data.split("|", maxsplit=1)
+    user_id = int(user_id_str)
+
+    allowed_users.add(user_id)
+    save_allowed_users()
+
+    await callback.answer("Доступ разрешен.")
+    await callback.message.edit_text(
+        f"✅ Доступ пользователю {user_id} разрешен."
+    )
+
+    try:
+        text = (
+            "✅ Доступ к боту одобрен.\n\n"
+            "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
+            "Выбирай тренировки слов, грамматику, письма, проверку предложений, "
+            "Путь интеграции, формат ответа или статистику с помощью кнопок."
+        )
+        await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
+    except Exception:
+        pass
+
+
+@dp.callback_query(F.data == "back_main")
+async def cb_back_main(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    kb = build_main_menu_keyboard()
+    text = "Главное меню. Выбери режим:"
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data == "main_menu")
+async def cb_main_menu(callback: CallbackQuery) -> None:
+    await cb_back_main(callback)
 # ==========================
-# CALLBACK — ВЫБОР ТЕМ И ПОДТЕМ
+# CALLBACK: СЛОВА
 # ==========================
+
+
+@dp.callback_query(F.data == "menu_words")
+async def cb_menu_words(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    kb = build_themes_keyboard()
+    await callback.message.answer(
+        "Выбери уровень, затем тему и подтему. В скобках показано количество слов.",
+        reply_markup=kb,
+    )
+
+
+@dp.callback_query(F.data == "menu_answer_mode")
+async def cb_menu_answer_mode(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    current_mode = user_state[uid].get("mode", "de_ru")
+    current_answer = user_state[uid].get("answer_mode", "choice")
+    kb = build_full_format_keyboard(current_mode, current_answer)
+    text = (
+        "⚙️ Формат ответа.\n\n"
+        "1) Направление перевода:\n"
+        "   • 🇩🇪 -> 🇷🇺 Немецкое слово -> выбираешь перевод на русский\n"
+        "   • 🇷🇺 -> 🇩🇪 Русское слово -> выбираешь или вводишь вариант на немецком\n\n"
+        "2) Формат ответа:\n"
+        "   • Варианты ответа (4) - как тест\n"
+        "   • Ввод слова вручную - ты пишешь немецкое слово сам"
+    )
+    await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data == "menu_check")
+async def cb_menu_check(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    state = user_state[uid]
+    state["check_mode"] = True
+    state["letter_mode"] = False
+    save_user_state()
+
+    await callback.message.answer(
+        "✏️ Режим проверки предложений включен.\n\n"
+        "Напиши предложение на немецком, и я предложу исправленный вариант и отмечу ошибки."
+    )
+
+
+@dp.callback_query(F.data == "menu_stats")
+async def cb_menu_stats(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    text = build_user_stats_text(uid)
+    await callback.message.answer(text)
 
 
 @dp.callback_query(F.data == "topic_all")
-async def cb_topic_all(cb: CallbackQuery) -> None:
-    uid = cb.from_user.id
+async def cb_topic_all(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
 
-    st = user_state[uid]
-    st["topic"] = TOPIC_ALL
-    st["remaining"] = None
-    st["correct"] = 0
-    st["wrong"] = 0
-    save_user_state()
+    user_state[uid]["topic"] = TOPIC_ALL
+    reset_progress(uid)
+    count = len(WORDS_BY_TOPIC.get(TOPIC_ALL, []))
 
-    await cb.message.answer(
-        "Выбраны *все слова*.\nЧтобы начать тренировку — напиши /next",
-        parse_mode="Markdown",
+    await callback.answer("Режим обновлен.")
+    text = (
+        "🔁 Ты выбрал режим: все слова.\n\n"
+        f"Всего слов в базе: {count}.\n\n"
+        "Буду давать слова из всех уровней, тем и подтем."
     )
-    await cb.answer()
+    try:
+        await callback.message.edit_text(text)
+    except Exception:
+        await callback.message.answer(text)
+
+    await send_new_word(uid, callback.message.chat.id)
 
 
 @dp.callback_query(F.data.startswith("level|"))
-async def cb_select_level(cb: CallbackQuery) -> None:
-    _, level = cb.data.split("|")
+async def cb_level(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
 
-    await cb.message.answer(
-        f"Уровень {level}. Теперь выбери тему:",
-        reply_markup=build_topics_keyboard_for_level(level),
+    _, level = callback.data.split("|", maxsplit=1)
+    if level not in LEVEL_COUNTS:
+        await callback.answer("Для этого уровня пока нет слов.", show_alert=True)
+        return
+
+    await callback.answer()
+    kb = build_topics_keyboard_for_level(level)
+    text = (
+        f"Ты выбрал уровень {level}.\n\n"
+        "Теперь выбери тему. В скобках указано, сколько слов во всех подтемах этой темы."
     )
-    await cb.answer()
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
 
 
 @dp.callback_query(F.data.startswith("topic_select|"))
-async def cb_select_topic(cb: CallbackQuery) -> None:
-    _, topic_id = cb.data.split("|")
-    key = TOPIC_KEY_BY_ID.get(topic_id)
-
-    if not key:
-        await cb.answer("Ошибка темы.", show_alert=True)
+async def cb_topic_select(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    level, topic = key
+    _, topic_id = callback.data.split("|", maxsplit=1)
 
-    await cb.message.answer(
-        f"Тема: {topic}\nВыбери подтему:",
-        reply_markup=build_subtopics_keyboard(level, topic),
+    if topic_id not in TOPIC_KEY_BY_ID:
+        await callback.answer("Тема не найдена.", show_alert=True)
+        return
+
+    level, topic = TOPIC_KEY_BY_ID[topic_id]
+
+    await callback.answer()
+    kb = build_subtopics_keyboard(level, topic)
+
+    total_in_topic = TOPIC_COUNTS.get((level, topic), 0)
+    text = (
+        f"Уровень: {level}\n"
+        f"Тема: {topic}\n"
+        f"Всего слов в этой теме: {total_in_topic}\n\n"
+        "Теперь выбери подтему. В скобках указано количество слов в каждой подтеме."
     )
-    await cb.answer()
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
 
 
 @dp.callback_query(F.data.startswith("subtopic|"))
-async def cb_select_subtopic(cb: CallbackQuery) -> None:
-    _, sid = cb.data.split("|")
-    key = SUBTOPIC_KEY_BY_ID.get(sid)
-
-    if not key:
-        await cb.answer("Ошибка подтемы.", show_alert=True)
+async def cb_subtopic(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    level, topic, subtopic = key
+    _, sub_id = callback.data.split("|", maxsplit=1)
+
+    if sub_id not in SUBTOPIC_KEY_BY_ID:
+        await callback.answer("Подтема не найдена.", show_alert=True)
+        return
+
+    level, topic, subtopic = SUBTOPIC_KEY_BY_ID[sub_id]
+
     topic_key = f"{level}|{topic}|{subtopic}"
+    user_state[uid]["topic"] = topic_key
+    reset_progress(uid)
 
-    uid = cb.from_user.id
-    st = user_state[uid]
+    count = len(WORDS_BY_TOPIC.get(topic_key, []))
 
-    st["topic"] = topic_key
-    st["remaining"] = None
-    st["correct"] = 0
-    st["wrong"] = 0
-    save_user_state()
-
-    await cb.message.answer(
-        f"Подтема выбрана: {subtopic}\nЧтобы начать — введи /next"
+    await callback.answer("Тема выбрана.")
+    text = (
+        f"Уровень: {level}\n"
+        f"Тема: {topic}\n"
+        f"Подтема: {subtopic}\n"
+        f"Слов в этой подтеме: {count}\n\n"
+        "Теперь я буду давать слова только из этой подтемы."
     )
-    await cb.answer()
 
+    try:
+        await callback.message.edit_text(text)
+    except Exception:
+        await callback.message.answer(text)
 
-# ==========================
-# CALLBACK — ИНТЕРАКТИВНЫЕ РЕЖИМЫ (mode, answer mode)
-# ==========================
+    await send_new_word(uid, callback.message.chat.id)
 
 
 @dp.callback_query(F.data.startswith("mode|"))
-async def cb_change_mode(cb: CallbackQuery) -> None:
-    _, mode = cb.data.split("|")
-    uid = cb.from_user.id
+async def cb_mode(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
 
-    state = user_state[uid]
-    state["mode"] = mode
+    _, mode = callback.data.split("|", maxsplit=1)
+    if mode not in ("de_ru", "ru_de"):
+        await callback.answer("Неизвестное направление.", show_alert=True)
+        return
+
+    user_state[uid]["mode"] = mode
     save_user_state()
 
-    kb = build_full_format_keyboard(mode, state.get("answer_mode", "choice"))
+    await callback.answer("Направление перевода обновлено.")
 
-    await cb.message.edit_reply_markup(reply_markup=kb)
-    await cb.answer(f"Режим обновлён: {mode}")
+    current_mode = user_state[uid].get("mode", "de_ru")
+    current_answer = user_state[uid].get("answer_mode", "choice")
+    kb = build_full_format_keyboard(current_mode, current_answer)
+
+    if mode == "de_ru":
+        txt = "Теперь я буду показывать немецкое слово, а ты отвечаешь по русски."
+    else:
+        txt = "Теперь я буду показывать русское слово, а ты отвечаешь по немецки."
+
+    try:
+        await callback.message.edit_text(txt, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(txt, reply_markup=kb)
 
 
 @dp.callback_query(F.data.startswith("answer_mode|"))
-async def cb_change_answer_mode(cb: CallbackQuery) -> None:
-    _, am = cb.data.split("|")
-    uid = cb.from_user.id
+async def cb_answer_mode(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
 
-    state = user_state[uid]
-    state["answer_mode"] = am
-    save_user_state()
-
-    kb = build_full_format_keyboard(state.get("mode", "de_ru"), am)
-
-    await cb.message.edit_reply_markup(reply_markup=kb)
-    await cb.answer("Формат ответа обновлён.")
-
-
-# ==========================
-# CALLBACK — ПИСЬМА
-# ==========================
-
-
-@dp.callback_query(F.data.startswith("letter_level|"))
-async def cb_letter_level(cb: CallbackQuery) -> None:
-    _, level = cb.data.split("|")
-
-    kb = build_letter_tasks_keyboard(level)
-    await cb.message.answer(
-        f"Ты выбрал уровень {level}. Теперь выбери тип письма:",
-        reply_markup=kb,
-    )
-    await cb.answer()
-
-
-@dp.callback_query(F.data.startswith("letter_task|"))
-async def cb_letter_task(cb: CallbackQuery) -> None:
-    _, level, task_key = cb.data.split("|")
-
-    task = LETTER_TASKS.get(level, {}).get(task_key)
-    if not task:
-        await cb.answer("Ошибка письма.", show_alert=True)
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    title = task.get("title", task_key)
-    points = task.get("points", [])
+    _, mode = callback.data.split("|", maxsplit=1)
+    if mode not in ("choice", "typing"):
+        await callback.answer("Неизвестный формат ответа.", show_alert=True)
+        return
 
-    text = f"📬 Письмо: {title}\n\nТвоё задание:\n"
-    for p in points:
-        text += f"• {p}\n"
-
-    text += "\nНапиши письмо ниже, я проверю его."
-
-    uid = cb.from_user.id
     state = user_state[uid]
-    state["letter_mode"] = True
+    state["answer_mode"] = mode
+    state["waiting_text_answer"] = False
+    state["current_word_id"] = None
     save_user_state()
 
-    await cb.message.answer(text)
-    await cb.answer()
+    await callback.answer("Формат ответа обновлен.")
 
+    current_mode = state.get("mode", "de_ru")
+    current_answer = state.get("answer_mode", "choice")
+    kb = build_full_format_keyboard(current_mode, current_answer)
 
-@dp.callback_query(F.data == "letter_templates")
-async def cb_letter_templates(cb: CallbackQuery) -> None:
-    text = (
-        "📚 Шаблоны писем пока в разработке.\n"
-        "Скоро появятся готовые структуры для A1-A2-B1."
-    )
-    await cb.message.answer(text)
-    await cb.answer()
+    if mode == "choice":
+        text = (
+            "Теперь формат ответа: варианты.\n\n"
+            "По каждому слову будет 4 варианта ответа на кнопках."
+        )
+    else:
+        text = (
+            "Теперь формат ответа: ввод слова вручную.\n\n"
+            "Я показываю русское слово, а ты пишешь его по немецики."
+        )
 
-
-@dp.callback_query(F.data == "letter_practice")
-async def cb_letter_practice(cb: CallbackQuery) -> None:
-    uid = cb.from_user.id
-    st = user_state[uid]
-    st["letter_mode"] = True
-    save_user_state()
-
-    await cb.message.answer(
-        "Напиши любое письмо на немецком, я исправлю и объясню ошибки."
-    )
-    await cb.answer()
-
-
-@dp.callback_query(F.data == "letter_progress")
-async def cb_letter_progress(cb: CallbackQuery) -> None:
-    uid = cb.from_user.id
-    st = user_state[uid]
-    ls = st.get("letter_stats", {})
-
-    checked = ls.get("checked", 0)
-
-    text = (
-        "📊 Прогресс по письмам:\n\n"
-        f"Писем проверено: {checked}"
-    )
-
-    await cb.message.answer(text)
-    await cb.answer()
-
-
-# ==========================
-# CALLBACK — ТРЕНИРОВКА СЛОВ (ответы)
-# ==========================
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
 
 
 @dp.callback_query(F.data.startswith("ans|"))
-async def cb_answer_word(cb: CallbackQuery) -> None:
-    uid = cb.from_user.id
-    chat_id = cb.message.chat.id
+async def cb_answer(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
 
-    _, correct_id, mode, is_correct = cb.data.split("|")
-    correct_id = int(correct_id)
-    is_correct = int(is_correct)
+    state = user_state[uid]
 
-    st = user_state[uid]
+    _, word_id_str, mode, is_correct_str = callback.data.split("|")
+    word_id = int(word_id_str)
+    is_correct = is_correct_str == "1"
+    w = WORDS[word_id]
+
+    await callback.answer()
 
     if is_correct:
-        st["correct"] += 1
+        state["correct"] += 1
         save_user_state()
 
-        w = WORDS[correct_id]
+        if mode == "de_ru":
+            text = (
+                "✅ Правильно.\n\n"
+                f'{w["de"]} ({w["tr"]}) - {w["ru"]}'
+            )
+        else:
+            text = (
+                "✅ Правильно.\n\n"
+                f'{w["ru"]} - {w["de"]} ({w["tr"]})'
+            )
+
+        finished_now = not state["remaining"]
+        if finished_now:
+            current_topic = state.get("topic", TOPIC_ALL)
+            correct = state.get("correct", 0)
+            wrong = state.get("wrong", 0)
+            update_topic_stats(uid, current_topic, correct, wrong)
+
+            text += (
+                "\n\nТы прошел все слова в этой подборке.\n"
+                f"✅ Правильных ответов: {state['correct']}\n"
+                f"❌ Неправильных ответов: {state['wrong']}\n\n"
+                "Можно выбрать другую подтему в Тренировке слов "
+                "или начать новую тренировку."
+            )
+
+        try:
+            await callback.message.edit_text(text)
+        except Exception:
+            await callback.message.answer(text)
+
+        if not finished_now:
+            await send_new_word(uid, callback.message.chat.id)
+
+    else:
+        state["wrong"] += 1
+        save_user_state()
+        try:
+            await callback.message.edit_text("❌ Неправильно. Сейчас повторим это слово.")
+        except Exception:
+            await callback.message.answer("❌ Неправильно. Сейчас повторим это слово.")
+        await resend_same_word(callback.message.chat.id, word_id, mode, uid)
+
+
+# ==========================
+# CALLBACK: ГРАММАТИКА
+# ==========================
+
+
+@dp.callback_query(F.data == "grammar_menu")
+async def cb_grammar_menu(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    load_grammar_rules()
+    if not GRAMMAR_RULES:
+        await callback.answer("Правила не найдены.", show_alert=True)
+        return
+
+    await callback.message.edit_text("Выбери уровень грамматики:", reply_markup=kb_grammar_levels())
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("grammar_level:"))
+async def cb_grammar_level(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, level = callback.data.split(":", 1)
+    sublevels = get_sublevels_for_level(level)
+    if not sublevels:
+        await callback.answer("Для этого уровня пока нет правил.", show_alert=True)
+        return
+    await callback.message.edit_text(f"Выбери подуровень для {level}:", reply_markup=kb_grammar_sublevels(level))
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("grammar_sub:"))
+async def cb_grammar_sub(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, sub = callback.data.split(":", 1)
+    rules = get_rules_by_sublevel(sub)
+    if not rules:
+        await callback.answer("В этом подуровне пока нет правил.", show_alert=True)
+        return
+    await callback.message.edit_text(f"Правила для {sub}:", reply_markup=kb_grammar_rules_list(sub))
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("grammar_rule:"))
+async def cb_grammar_rule(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, rule_id = callback.data.split(":", 1)
+    rule = get_rule_by_id(rule_id)
+    if not rule:
+        await callback.answer("Правило не найдено.", show_alert=True)
+        return
+
+    title_clean = strip_html_tags(rule.get("title", "Правило"))
+    expl_clean = strip_html_tags(rule.get("explanation", ""))
+
+    text = f"*{title_clean}*\n\n{expl_clean}"
+    await callback.message.edit_text(text, reply_markup=kb_rule_after_explanation(rule_id))
+    await callback.answer()
+
+
+@dp.callback_query(F.data == "grammar_back_rules")
+async def cb_grammar_back_rules(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.message.edit_text("Выбери уровень грамматики:", reply_markup=kb_grammar_levels())
+    await callback.answer()
+
+
+@dp.callback_query(F.data.startswith("grammar_quiz_start:"))
+async def cb_quiz_start(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, rule_id = callback.data.split(":", 1)
+    rule = get_rule_by_id(rule_id)
+    if not rule:
+        await callback.answer("Правило не найдено.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    wait_msg = await callback.message.answer(
+        "⌛ Генерирую упражнения по этой теме, подожди немного..."
+    )
+
+    questions = await generate_quiz_for_rule(rule)
+    if not questions:
+        await wait_msg.edit_text("Не удалось создать упражнения для этой темы. Попробуй еще раз позже.")
+        return
+
+    USER_QUIZ_STATE[uid] = {
+        "rule_id": rule_id,
+        "questions": questions,
+        "index": 0,
+        "correct": 0,
+        "wrong": 0,
+    }
+
+    await wait_msg.edit_text("Упражнения готовы. Начинаем первый вопрос.", parse_mode=None)
+    await send_current_quiz_question(callback.message, uid, new_message=True)
+
+
+async def send_current_quiz_question(message: Message, user_id: int, new_message: bool = False):
+    state = USER_QUIZ_STATE.get(user_id)
+    if not state:
+        return
+
+    idx = state["index"]
+    questions = state["questions"]
+    if idx >= len(questions):
+        await send_quiz_result(message, user_id)
+        return
+
+    q = questions[idx]
+    instr_ru = get_quiz_instruction_ru()
+
+    text = (
+        "📘 Грамматика: упражнение\n\n"
+        f"Вопрос {idx + 1} из {len(questions)}\n\n"
+        f"{instr_ru}\n\n"
+        f"🇩🇪 {q['question']}"
+    )
+
+    kb = kb_quiz_answers(state["rule_id"], idx, q["options"])
+
+    if new_message:
+        await message.answer(text, reply_markup=kb, parse_mode=None)
+    else:
+        try:
+            await message.edit_text(text, reply_markup=kb, parse_mode=None)
+        except Exception:
+            await message.answer(text, reply_markup=kb, parse_mode=None)
+
+
+@dp.callback_query(F.data.startswith("grammar_quiz_ans:"))
+async def cb_quiz_answer(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, rule_id, q_index_str, opt_index_str = callback.data.split(":", 3)
+    state = USER_QUIZ_STATE.get(uid)
+
+    if not state or state["rule_id"] != rule_id:
+        await callback.answer("Состояние викторины потеряно. Начни заново.", show_alert=True)
+        return
+
+    q_index = int(q_index_str)
+    opt_index = int(opt_index_str)
+
+    questions = state["questions"]
+    if q_index != state["index"]:
+        await callback.answer()
+        return
+
+    current = questions[q_index]
+    correct = int(current.get("correct_index", 0))
+    total_questions = len(questions)
+    number = q_index + 1
+
+    if opt_index == correct:
+        state["correct"] += 1
+        update_grammar_stats(uid, rule_id, correct_delta=1)
+
+        state["index"] += 1
+        await callback.answer("Правильно ✅")
+
+        if state["index"] >= len(questions):
+            await send_quiz_result(callback.message, uid)
+            return
+
+        next_q = questions[state["index"]]
+        instr_ru = get_quiz_instruction_ru()
+
         text = (
-            "✅ Правильно!\n\n"
-            f'{w["de"]} ({w["tr"]}) - {w["ru"]}'
+            "✅ Ответ правильный.\n\n"
+            "📘 Грамматика: следующее упражнение\n\n"
+            f"Вопрос {state['index'] + 1} из {total_questions}\n\n"
+            f"{instr_ru}\n\n"
+            f"🇩🇪 {next_q['question']}"
         )
-        await cb.message.answer(text)
-        await send_new_word(uid, chat_id)
+
+        kb = kb_quiz_answers(rule_id, state["index"], next_q["options"])
+
+        try:
+            await callback.message.edit_text(text, reply_markup=kb, parse_mode=None)
+        except Exception:
+            await callback.message.answer(text, reply_markup=kb, parse_mode=None)
+
     else:
-        st["wrong"] += 1
-        save_user_state()
+        state["wrong"] += 1
+        update_grammar_stats(uid, rule_id, wrong_delta=1)
 
-        await resend_same_word(chat_id, correct_id, mode, uid)
+        await callback.answer("Неправильно. Попробуй еще раз.", show_alert=False)
 
-    await cb.answer()
+        wrong_text = current["options"][opt_index]
+        instr_ru = get_quiz_instruction_ru()
 
+        text = (
+            "❌ Это неверный ответ.\n\n"
+            "📘 Грамматика: упражнение\n\n"
+            f"Вопрос {number} из {total_questions}\n\n"
+            f"{instr_ru}\n\n"
+            f"🇩🇪 {current['question']}\n\n"
+            f"Выбранный вариант: {wrong_text}\n"
+            "Попробуй еще раз."
+        )
 
-# ==========================
-# УРОК 1 A1.1 — ANKOMMEN (TONI)
-# ==========================
+        kb = kb_quiz_answers(rule_id, q_index, current["options"])
 
-from aiogram import Router as LessonRouter
-
-lesson1_router = LessonRouter()
-
-# Память в рантайме. Потом можно заменить на БД.
-USER_L1_NAME: Dict[int, str] = {}
-USER_L1_WAIT_NAME: Dict[int, bool] = {}
-
-
-# ------------- ВСПОМОГАТЕЛЬНЫЕ КНОПКИ УРОКА 1 -------------
-
-def kb_l1_start() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="▶ Начать урок", callback_data="l1_start")]
-        ]
-    )
+        try:
+            await callback.message.edit_text(text, reply_markup=kb, parse_mode=None)
+        except Exception:
+            await callback.message.answer(text, reply_markup=kb, parse_mode=None)
 
 
-def kb_l1_hallo_silent() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="👋 Hallo", callback_data="l1_b2_hallo")],
-            [InlineKeyboardButton(text="🤫 Ничего не говорить", callback_data="l1_b2_silent")],
-        ]
-    )
+async def send_quiz_result(message: Message, user_id: int):
+    state = USER_QUIZ_STATE.get(user_id)
+    if not state:
+        return
+    total = len(state["questions"])
+    correct = state["correct"]
+    wrong = state["wrong"]
+    percent = round(correct / total * 100)
 
-
-def kb_l1_hallo_only() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="👋 Hallo", callback_data="l1_b2_force_hallo")]
-        ]
-    )
-
-
-def kb_l1_continue_block4() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="▶ Продолжить", callback_data="l1_block5")]
-        ]
-    )
-
-
-def kb_l1_block6_next() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="✔ Я понял", callback_data="l1_block7")]
-        ]
-    )
-
-
-def kb_l1_block7_next() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="▶ Дальше", callback_data="l1_block8")]
-        ]
-    )
-
-
-def kb_l1_vocab_next() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="🧠 Хочу мини тест", callback_data="l1_test_q1")]
-        ]
-    )
-
-
-def kb_l1_finish_next() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="➡ Перейти к уроку 2", callback_data="l1_go_lesson2")]
-        ]
-    )
-
-
-# ------------- БЛОК 5: ВОПРОС "Я Alex" -------------
-
-def kb_l1_block5_answers(user_name: str) -> InlineKeyboardMarkup:
-    # Варианты: Ich bin Name, Du bist Name, Ich bin Toni
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=f"Ich bin {user_name}.", callback_data="l1_b5_opt1")],
-            [InlineKeyboardButton(text=f"Du bist {user_name}.", callback_data="l1_b5_opt2")],
-            [InlineKeyboardButton(text="Ich bin Toni.", callback_data="l1_b5_opt3")],
-        ]
-    )
-
-
-async def send_l1_block5_question(message_or_cb):
-    """
-    Показываем вопрос Блока 5: "Выбери фразу, которая значит 'Я Alex'."
-    message_or_cb - это либо Message, либо CallbackQuery.
-    """
-    if isinstance(message_or_cb, CallbackQuery):
-        user_id = message_or_cb.from_user.id
-        send = message_or_cb.message.answer
+    if percent == 100:
+        comment = "Отлично. Ты владеешь этой темой на очень высоком уровне."
+    elif percent >= 80:
+        comment = "Очень хорошо. Есть пара мелочей, которые можно повторить."
+    elif percent >= 50:
+        comment = "Неплохо, но стоит еще потренироваться."
     else:
-        user_id = message_or_cb.from_user.id
-        send = message_or_cb.answer
+        comment = "Пока уровень слабый, лучше повторить правило и пройти упражнения еще раз."
 
-    user_name = USER_L1_NAME.get(user_id, "Alex")
+    rule_id = state["rule_id"]
 
-    text = (
-        "Давай потренируемся.\n\n"
-        f"Выбери фразу, которая значит \"Я {user_name}\"."
-    )
-
-    await send(
-        text=text,
-        reply_markup=kb_l1_block5_answers(user_name)
-    )
-
-
-# ------------- БЛОК 6: МИНИ ДИАЛОГ -------------
-
-def kb_l1_block6_answers(user_name: str) -> InlineKeyboardMarkup:
-    # Варианты: Ich bin Name, Du bist Toni, Hallo Name
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=f"Ich bin {user_name}.", callback_data="l1_b6_opt1")],
-            [InlineKeyboardButton(text="Du bist Toni.", callback_data="l1_b6_opt2")],
-            [InlineKeyboardButton(text=f"Hallo {user_name}.", callback_data="l1_b6_opt3")],
-        ]
-    )
-
-
-async def send_l1_block6_question(callback: CallbackQuery):
-    user_id = callback.from_user.id
-    user_name = USER_L1_NAME.get(user_id, "Alex")
-
-    text_toni = "Toni:\n\n\"Gut. Jetzt du.\""
-    await callback.message.answer(text_toni)
-
-    text = "Выбери, что ты скажешь Toni."
-    await callback.message.answer(
-        text=text,
-        reply_markup=kb_l1_block6_answers(user_name)
-    )
-
-
-# ------------- БЛОК 7: УПРАЖНЕНИЯ Ich / Du -------------
-
-def kb_l1_block7_q1() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Ich bin Toni.", callback_data="l1_b7_q1_opt1")],
-            [InlineKeyboardButton(text="Du bist Toni.", callback_data="l1_b7_q1_opt2")],
-        ]
-    )
-
-
-def kb_l1_block7_q2() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Ich bin Toni.", callback_data="l1_b7_q2_opt1")],
-            [InlineKeyboardButton(text="Du bist Toni.", callback_data="l1_b7_q2_opt2")],
-        ]
-    )
-
-
-# ------------- БЛОК 9: МИНИ ТЕСТ -------------
-
-def kb_l1_test_q1() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Как тебя зовут", callback_data="l1_q1_opt1")],
-            [InlineKeyboardButton(text="Как у тебя дела", callback_data="l1_q1_opt2")],
-            [InlineKeyboardButton(text="Откуда ты", callback_data="l1_q1_opt3")],
-        ]
-    )
-
-
-def kb_l1_test_q2(user_name: str) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=f"Ich bin {user_name}.", callback_data="l1_q2_opt1")],
-            [InlineKeyboardButton(text=f"Du bist {user_name}.", callback_data="l1_q2_opt2")],
-            [InlineKeyboardButton(text="Ich du Alex.", callback_data="l1_q2_opt3")],
-        ]
-    )
-
-
-def kb_l1_test_q3() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Ich bin Toni.", callback_data="l1_q3_opt1")],
-            [InlineKeyboardButton(text="Du bist Toni.", callback_data="l1_q3_opt2")],
-            [InlineKeyboardButton(text="Du bin Toni.", callback_data="l1_q3_opt3")],
-        ]
-    )
-
-
-# ------------- ХЕНДЛЕРЫ УРОКА 1 -------------
-
-
-@lesson1_router.message(F.text == "/lesson1")
-@lesson1_router.message(F.text == "/a1_1_l1")
-async def start_lesson1(message: Message):
-    """
-    Блок 1. Запуск урока.
-    """
-    user_id = message.from_user.id
-    USER_L1_WAIT_NAME[user_id] = False
+    update_grammar_stats(user_id, rule_id, finished_quiz=True)
 
     text = (
-        "🇩🇪 A1.1 Урок 1\n"
-        "Ankommen - Первое знакомство\n\n"
-        "Сегодня ты:\n"
-        "• Познакомишься с персонажем Toni\n"
-        "• Научишься говорить, как тебя зовут\n"
-        "• Увидишь в действии фразы \"Ich bin...\" и \"Du bist...\"\n\n"
-        "Нажми кнопку, чтобы начать."
+        "📊 Результат по грамматике\n\n"
+        f"Правильных ответов: {correct} из {total} ({percent} %)\n"
+        f"Неправильных попыток: {wrong}\n\n"
+        f"{comment}"
     )
 
-    await message.answer(text, reply_markup=kb_l1_start())
+    await message.edit_text(text, reply_markup=kb_after_quiz(rule_id), parse_mode=None)
+# ==========================
+# CALLBACK: ПИСЬМА
+# ==========================
 
 
-@lesson1_router.callback_query(F.data == "l1_start")
-async def lesson1_block2(callback: CallbackQuery):
-    """
-    Блок 2. Сцена вокзал и первое Hallo.
-    """
+@dp.callback_query(F.data == "menu_letters")
+async def cb_menu_letters(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+
     text = (
-        "🚉 Ты стоишь на вокзале в маленьком немецком городе.\n"
-        "У тебя чемодан и немного волнения внутри.\n\n"
-        "К тебе подходит человек и улыбается."
+        "📬 Учимся писать письма.\n\n"
+        "Выбери уровень или тип письма:\n"
+        "• A1 - простые короткие письма\n"
+        "• A2 - бытовые и формальные письма\n"
+        "• B1 - экзаменационные письма\n"
+        "• Шаблоны писем\n"
+        "• Практика: проверить свое письмо\n"
+        "• Мой прогресс\n"
+    )
+    await callback.message.answer(text, reply_markup=build_letter_main_keyboard())
+
+
+@dp.callback_query(F.data.startswith("letter_level|"))
+async def cb_letter_level(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, level = callback.data.split("|", maxsplit=1)
+    if level not in LETTER_TASKS:
+        await callback.answer("Для этого уровня пока нет заданий.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    text = (
+        f"Уровень писем {level}.\n\n"
+        "Выбери тип письма, который хочешь потренировать."
+    )
+    kb = build_letter_tasks_keyboard(level)
+    await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("letter_task|"))
+async def cb_letter_task(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, level, task_key = callback.data.split("|", maxsplit=2)
+    task = LETTER_TASKS.get(level, {}).get(task_key)
+    if not task:
+        await callback.answer("Задание не найдено.", show_alert=True)
+        return
+
+    state = user_state[uid]
+    state["letter_mode"] = True
+    state["letter_task"] = f"{level}:{task_key}"
+    state["check_mode"] = False
+    save_user_state()
+
+    await callback.answer()
+
+    text = (
+        f"{task['title']}\n\n"
+        f"{task['instruction']}\n\n"
+        "Когда будешь готов, просто отправь сюда свое письмо на немецком. "
+        "Я сразу его проверю и дам обратную связь."
     )
 
     await callback.message.answer(text)
 
-    toni_text = 'Toni:\n\n"Hallo! Ich bin Toni."'
-    await callback.message.answer(toni_text, reply_markup=kb_l1_hallo_silent())
-    await callback.answer()
 
-
-@lesson1_router.callback_query(F.data == "l1_b2_hallo")
-@lesson1_router.callback_query(F.data == "l1_b2_force_hallo")
-async def lesson1_block3(callback: CallbackQuery):
-    """
-    Переход к блоку 3 после "Hallo".
-    """
-    user_id = callback.from_user.id
-    USER_L1_WAIT_NAME[user_id] = True
-
-    toni_text = (
-        "Toni:\n\n"
-        "\"Schön. Ich bin Toni.\"\n\n"
-        "\"Wie heißt du?\""
-    )
-    hint = (
-        "ℹ \"Wie heißt du?\" на русском:\n"
-        "\"Как тебя зовут?\"\n\n"
-        "Просто напиши свое имя латиницей."
-    )
-
-    await callback.message.answer(toni_text)
-    await callback.message.answer(hint)
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data == "l1_b2_silent")
-async def lesson1_block2_silent(callback: CallbackQuery):
-    """
-    Ветка если игрок выбрал "Ничего не говорить".
-    """
-    text = (
-        "Toni:\n\n"
-        "\"Alles gut. Viele sind ein bisschen schüchtern am Anfang.\"\n"
-        "(Все хорошо. Многие немного стесняются в начале.)\n\n"
-        "\"Versuch es mal. Sag einfach: Hallo.\"\n"
-        "(Попробуй еще раз. Скажи просто: \"Hallo\".)"
-    )
-
-    await callback.message.answer(text, reply_markup=kb_l1_hallo_only())
-    await callback.answer()
-
-
-@lesson1_router.message()
-async def lesson1_catch_name(message: Message):
-    """
-    Ловим имя, если мы ждем его в уроке 1.
-    """
-    user_id = message.from_user.id
-    if not USER_L1_WAIT_NAME.get(user_id):
+@dp.callback_query(F.data == "letter_templates")
+async def cb_letter_templates(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    user_name_raw = message.text.strip()
-    if not user_name_raw:
-        await message.answer("Попробуй еще раз, просто напиши свое имя.")
+    await callback.answer()
+
+    text = (
+        "📚 Шаблоны писем:\n\n"
+        "• 💼 Формальный шаблон (Sehr geehrte Damen und Herren ...)\n"
+        "• 😊 Неформальный шаблон (Hallo ..., Liebe ...)\n"
+        "• 📝 Шаблон жалобы\n"
+        "• ℹ️ Шаблон запроса информации\n"
+        "• 📆 Шаблон изменения термина\n"
+        "• 🏠 Шаблон письма арендодателю\n"
+        "• 🩺 Шаблон письма врачу\n\n"
+        "На этом этапе я просто показываю список. Дальше можно сделать "
+        "отдельные кнопки и примеры для каждого шаблона."
+    )
+
+    await callback.message.answer(text, reply_markup=build_letter_main_keyboard())
+
+
+@dp.callback_query(F.data == "letter_practice")
+async def cb_letter_practice(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    USER_L1_NAME[user_id] = user_name_raw
-    USER_L1_WAIT_NAME[user_id] = False
-
-    name = user_name_raw
-
-    toni_reply = f'Toni:\n\n"Aha! Du bist {name}. Schön, {name}."'
-    await message.answer(toni_reply)
-
-    explain = (
-        "✅ Супер. У тебя уже есть два немецких предложения.\n\n"
-        "Ich bin Toni. - Я Тони.\n"
-        f"Du bist {name}. - Ты {name}.\n\n"
-        "Слова:\n"
-        "• Ich - я\n"
-        "• Du - ты\n"
-        "• bin - есть (для \"ich\")\n"
-        "• bist - есть (для \"du\")"
-    )
-
-    await message.answer(explain, reply_markup=kb_l1_continue_block4())
-
-
-@lesson1_router.callback_query(F.data == "l1_block5")
-async def lesson1_block5(callback: CallbackQuery):
-    """
-    Блок 5. Повтор фраз кнопками. Вопрос "Я Alex".
-    """
-    await send_l1_block5_question(callback)
     await callback.answer()
 
+    state = user_state[uid]
+    state["letter_mode"] = True
+    state["letter_task"] = None
+    state["check_mode"] = False
+    save_user_state()
 
-@lesson1_router.callback_query(F.data.startswith("l1_b5_opt"))
-async def lesson1_block5_answer(callback: CallbackQuery):
-    """
-    Обработка ответа блока 5.
-    """
-    user_id = callback.from_user.id
-    user_name = USER_L1_NAME.get(user_id, "Alex")
-
-    data = callback.data
-
-    if data == "l1_b5_opt1":
-        # Правильный ответ: Ich bin Name
-        text = (
-            "✅ Правильно.\n"
-            f"Ich bin {user_name}. - \"Я {user_name}.\""
-        )
-        await callback.message.answer(text)
-        # Переход к блоку 6
-        await send_l1_block6_question(callback)
-    else:
-        text = (
-            "❌ Почти.\n\n"
-            f"\"Ich bin {user_name}.\" - это \"Я {user_name}.\".\n"
-            f"\"Du bist {user_name}.\" - это \"Ты {user_name}.\".\n\n"
-            "Попробуем еще раз."
-        )
-        await callback.message.answer(text)
-        await send_l1_block5_question(callback)
-
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data.startswith("l1_b6_opt"))
-async def lesson1_block6_answer(callback: CallbackQuery):
-    """
-    Блок 6. Выбор фразы "Ich bin Name".
-    """
-    user_id = callback.from_user.id
-    user_name = USER_L1_NAME.get(user_id, "Alex")
-    data = callback.data
-
-    if data == "l1_b6_opt1":
-        # Правильный ответ
-        toni = f'Toni:\n\n"Super, {user_name}."\n"Ich bin Toni. Du bist {user_name}."'
-        await callback.message.answer(toni)
-
-        explain = (
-            "Видишь разницу:\n\n"
-            f"• Ich bin {user_name}. - Я {user_name}.\n"
-            f"• Du bist {user_name}. - Ты {user_name}.\n\n"
-            "Ты уже понимаешь целых два предложения на немецком."
-        )
-        await callback.message.answer(explain, reply_markup=kb_l1_block6_next())
-    else:
-        text = (
-            "Сначала лучше представиться самому.\n\n"
-            f"Выбери: \"Ich bin {user_name}.\""
-        )
-        await callback.message.answer(text)
-        await send_l1_block6_question(callback)
-
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data == "l1_block7")
-async def lesson1_block7(callback: CallbackQuery):
-    """
-    Блок 7. Упражнение на Ich / Du.
-    """
-    q1 = (
-        "Давай быстро проверим, чувствуешь ли ты разницу между Ich и Du.\n\n"
-        "Задание 1:\n\n"
-        "Как будет \"Я Toni\"?"
-    )
-    await callback.message.answer(q1, reply_markup=kb_l1_block7_q1())
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data.startswith("l1_b7_q1_opt"))
-async def lesson1_block7_q1_answer(callback: CallbackQuery):
-    """
-    Ответ на вопрос 1 блока 7.
-    """
-    if callback.data == "l1_b7_q1_opt1":
-        # Ich bin Toni. - правильный
-        await callback.message.answer("✅ Отлично, это правильно.\n\nIch bin Toni.")
-        # Переход ко второму вопросу
-        q2 = (
-            "Задание 2:\n\n"
-            "Как будет \"Ты Toni\"?"
-        )
-        await callback.message.answer(q2, reply_markup=kb_l1_block7_q2())
-    else:
-        await callback.message.answer(
-            "❌ Не совсем.\n\n"
-            "\"Ich bin Toni.\" - это \"Я Toni\".\n"
-            "\"Du bist Toni.\" - это \"Ты Toni\".\n\n"
-            "Попробуем еще раз."
-        )
-        q1 = "Как будет \"Я Toni\"?"
-        await callback.message.answer(q1, reply_markup=kb_l1_block7_q1())
-
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data.startswith("l1_b7_q2_opt"))
-async def lesson1_block7_q2_answer(callback: CallbackQuery):
-    """
-    Ответ на вопрос 2 блока 7.
-    """
-    if callback.data == "l1_b7_q2_opt2":
-        # Du bist Toni. - правильный
-        await callback.message.answer("✅ Отлично, ты чувствуешь разницу.\n\nDu bist Toni.")
-        summary = (
-            "🔁 Мини итог:\n\n"
-            "Ich bin [Name]. - Я [имя].\n"
-            "Du bist [Name]. - Ты [имя].\n\n"
-            "Это основа для всего общения."
-        )
-        await callback.message.answer(summary, reply_markup=kb_l1_block7_next())
-    else:
-        await callback.message.answer(
-            "❌ Не совсем.\n\n"
-            "\"Du bist Toni.\" - это \"Ты Toni\".\n\n"
-            "Попробуем еще раз."
-        )
-        q2 = "Как будет \"Ты Toni\"?"
-        await callback.message.answer(q2, reply_markup=kb_l1_block7_q2())
-
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data == "l1_block8")
-async def lesson1_block8_vocab(callback: CallbackQuery):
-    """
-    Блок 8. Мини словарь урока.
-    """
     text = (
-        "📚 Словарь урока 1\n\n"
-        "• Hallo - привет\n"
-        "• ich - я\n"
-        "• du - ты\n"
-        "• bin - есть (с \"ich\")\n"
-        "• bist - есть (с \"du\")\n"
-        "• ich bin ... - я ...\n"
-        "• du bist ... - ты ...\n"
-        "• der Name - имя\n"
-        "• Deutschland - Германия\n"
-        "• willkommen - добро пожаловать\n"
-        "• neu - новый\n\n"
-        "Не обязательно запомнить все сразу. Главное сейчас - Hallo, Ich bin ..., Wie heißt du?"
+        "🧪 Практика: проверить мое письмо.\n\n"
+        "Просто отправь сюда любое письмо на немецком языке.\n"
+        "Я исправлю текст, объясню ошибки и оценю примерный уровень (A1-A2-B1)."
     )
 
-    await callback.message.answer(text, reply_markup=kb_l1_vocab_next())
+    await callback.message.answer(text)
+
+
+@dp.callback_query(F.data == "letter_progress")
+async def cb_letter_progress(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
     await callback.answer()
 
+    state = user_state[uid]
+    stats = state.get("letter_stats", {})
+    checked = stats.get("checked", 0)
 
-# ------------- МИНИ ТЕСТ УРОКА 1 -------------
-
-
-@lesson1_router.callback_query(F.data == "l1_test_q1")
-async def lesson1_test_q1(callback: CallbackQuery):
-    text = (
-        "Вопрос 1\n\n"
-        "Что значит \"Wie heißt du?\" на русском?"
-    )
-    await callback.message.answer(text, reply_markup=kb_l1_test_q1())
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data.startswith("l1_q1_opt"))
-async def lesson1_test_q1_answer(callback: CallbackQuery):
-    data = callback.data
-    if data == "l1_q1_opt1":
-        await callback.message.answer("✅ Правильно. \"Wie heißt du?\" - \"Как тебя зовут\".")
-        # Переходим к вопросу 2
-        user_id = callback.from_user.id
-        user_name = USER_L1_NAME.get(user_id, "Alex")
+    if checked == 0:
         text = (
-            "Вопрос 2\n\n"
-            f"Выбери правильное предложение \"Я {user_name}\"."
+            "📊 Прогресс по письмам.\n\n"
+            "Ты пока не отправлял письма на проверку.\n"
+            "Начни с любого задания A1-A2-B1 или отправь письмо в режиме практики."
         )
-        await callback.message.answer(text, reply_markup=kb_l1_test_q2(user_name))
     else:
-        await callback.message.answer(
-            "❌ Не совсем.\n\n"
-            "\"Wie heißt du?\" значит \"Как тебя зовут\".\n"
-            "Попробуем еще раз."
-        )
-        text = "Что значит \"Wie heißt du?\" на русском?"
-        await callback.message.answer(text, reply_markup=kb_l1_test_q1())
-
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data.startswith("l1_q2_opt"))
-async def lesson1_test_q2_answer(callback: CallbackQuery):
-    user_id = callback.from_user.id
-    user_name = USER_L1_NAME.get(user_id, "Alex")
-    data = callback.data
-
-    if data == "l1_q2_opt1":
-        await callback.message.answer(f"✅ Отлично. \"Ich bin {user_name}.\" - \"Я {user_name}.\".")
-        # Переходим к вопросу 3
         text = (
-            "Вопрос 3\n\n"
-            "Представь, ты говоришь с Toni.\n"
-            "Как сказать \"Ты Toni\"?"
+            "📊 Прогресс по письмам.\n\n"
+            f"Писем проверено: {checked}\n\n"
+            "Каждая проверка помогает тебе улучшать структуру, лексику и грамматику.\n"
+            "Продолжай писать письма регулярно, как минимум 2-3 раза в неделю."
         )
-        await callback.message.answer(text, reply_markup=kb_l1_test_q3())
-    else:
-        await callback.message.answer(
-            "❌ Не совсем.\n\n"
-            "Нужна форма \"Ich bin ...\" для \"Я ...\".\n"
-            "Попробуем еще раз."
-        )
-        text = "Выбери правильное предложение:"
-        await callback.message.answer(text, reply_markup=kb_l1_test_q2(user_name))
 
-    await callback.answer()
+    await callback.message.answer(text, reply_markup=build_letter_main_keyboard())
 
 
-@lesson1_router.callback_query(F.data.startswith("l1_q3_opt"))
-async def lesson1_test_q3_answer(callback: CallbackQuery):
-    data = callback.data
-    user_id = callback.from_user.id
-    user_name = USER_L1_NAME.get(user_id, "Alex")
-
-    if data == "l1_q3_opt2":
-        # Du bist Toni - правильно
-        finish = (
-            "🎉 Отлично, урок 1 пройден.\n\n"
-            "Теперь ты умеешь:\n"
-            "• Поздороваться: Hallo\n"
-            f"• Представиться: Ich bin {user_name}.\n"
-            "• Понимать и отвечать на \"Wie heißt du?\"\n"
-            "• Различать Ich bin и Du bist\n\n"
-            "Ты сделал первый шаг в своем виртуальном дне в Германии."
-        )
-        await callback.message.answer(finish, reply_markup=kb_l1_finish_next())
-    else:
-        await callback.message.answer(
-            "❌ Не совсем.\n\n"
-            "\"Du bist Toni.\" - это \"Ты Toni\".\n"
-            "Попробуем еще раз."
-        )
-        text = (
-            "Представь, ты говоришь с Toni.\n"
-            "Как сказать \"Ты Toni\"?"
-        )
-        await callback.message.answer(text, reply_markup=kb_l1_test_q3())
-
-    await callback.answer()
-
-
-@lesson1_router.callback_query(F.data == "l1_go_lesson2")
-async def lesson1_go_lesson2(callback: CallbackQuery):
-    """
-    Заглушка перехода к уроку 2.
-    Потом заменишь на реальный запуск второго урока.
-    """
-    await callback.message.answer("Урок 2 скоро. Пока можешь повторить: /lesson1")
-    await callback.answer()
 # ==========================
-# ПОДКЛЮЧЕНИЕ УРОКА 1 И ЗАПУСК БОТА
+# CALLBACK: ПУТЬ ИНТЕГРАЦИИ
 # ==========================
 
-# Подключаем router урока 1 к основному диспетчеру
-dp.include_router(lesson1_router)
+
+@dp.callback_query(F.data == "menu_integration")
+async def cb_menu_integration(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    await send_integration_path(callback.message, uid, edit=False)
+
+
+@dp.callback_query(F.data == "integration_locked")
+async def cb_integration_locked(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer("Эта тема пока закрыта. Сначала пройди предыдущую.", show_alert=True)
+    await callback.message.answer(
+        "Эта тема пока закрыта.\n\n"
+        "Сначала нужно пройти предыдущую тему в Пути интеграции.\n"
+        "После выполнения текущей темы вернись сюда."
+    )
+
+
+@dp.callback_query(F.data == "integration_path_back")
+async def cb_integration_path_back(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+    await send_integration_path(callback.message, uid, edit=True)
+
+
+@dp.callback_query(F.data.startswith("integration_topic_open:"))
+async def cb_integration_topic_open(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, topic_id = callback.data.split(":", maxsplit=1)
+    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
+    if not topic:
+        await callback.answer("Тема не найдена.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    text = (
+        f"🔹 {topic['title']}\n\n"
+        f"Игровая цель:\n{topic['goal']}\n\n"
+        "Когда будешь готов, нажми кнопку ниже, чтобы начать."
+    )
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🚀 Начать мини задание",
+                    callback_data=f"integration_start:{topic_id}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅ Назад к Пути интеграции",
+                    callback_data="integration_path_back",
+                )
+            ],
+        ]
+    )
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("integration_start:"))
+async def cb_integration_start(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, topic_id = callback.data.split(":", maxsplit=1)
+    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
+    if not topic:
+        await callback.answer("Тема не найдена.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    text = (
+        f"🎮 {topic['title']}\n\n"
+        "Сейчас это небольшое мини задание по этой теме.\n"
+        "Подумай и проговори вслух фразы по теме, выпиши 3-5 предложений.\n\n"
+        "Когда сделаешь это, нажми кнопку ниже, чтобы отметить тему как пройденную."
+    )
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="✅ Я сделал это задание",
+                    callback_data=f"integration_done:{topic_id}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅ Назад к Пути интеграции",
+                    callback_data="integration_path_back",
+                )
+            ],
+        ]
+    )
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("integration_done:"))
+async def cb_integration_done(callback: CallbackQuery) -> None:
+    """Общий обработчик для простых тем Пути интеграции."""
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, topic_id = callback.data.split(":", maxsplit=1)
+    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
+    if not topic:
+        await callback.answer("Тема не найдена.", show_alert=True)
+        return
+
+    complete_integration_topic(uid, topic_id)
+
+    idx = None
+    for i, t in enumerate(INTEGRATION_TOPICS):
+        if t["id"] == topic_id:
+            idx = i
+            break
+
+    if idx is not None and idx + 1 < len(INTEGRATION_TOPICS):
+        next_topic = INTEGRATION_TOPICS[idx + 1]
+        extra = (
+            f"Следующая тема теперь открыта: {next_topic['title']}.\n"
+            "Можешь выбрать ее в Пути интеграции."
+        )
+    else:
+        extra = "Ты прошел все текущие темы Пути интеграции для этого блока."
+
+    text = (
+        f"✅ Тема {topic['title']} отмечена как пройденная.\n\n"
+        "Отлично, ты сделал еще один шаг в интеграции.\n\n"
+        f"{extra}"
+    )
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🛣 Вернуться к Пути интеграции",
+                    callback_data="integration_path_back",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅ Главное меню",
+                    callback_data="back_main",
+                )
+            ],
+        ]
+    )
+
+    await callback.answer("Тема отмечена как пройденная.")
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+# ==========================
+# ЗАПУСК
+# ==========================
 
 
 async def main() -> None:
@@ -2755,8 +2926,10 @@ async def main() -> None:
     load_user_state()
     if GRAMMAR_FILE.exists():
         load_grammar_rules()
-
-    print("Бот запущен. Ожидаю сообщения пользователей...")
+    # Если ты используешь отдельный Router для урока 1,
+    # не забудь включить его здесь, например:
+    # from lesson1_router import router as lesson1_router
+    # dp.include_router(lesson1_router)
     await dp.start_polling(bot)
 
 
