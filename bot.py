@@ -414,6 +414,95 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     return clean_questions
 
 # ==========================
+# ПУТЬ ИНТЕГРАЦИИ A1.1
+# ==========================
+
+INTEGRATION_LESSONS_FILENAME = "project_rootlessonsA1_1_L1.json"
+
+INTEGRATION_LESSONS_FILES = [
+    Path(INTEGRATION_LESSONS_FILENAME),                              # рядом с bot.py
+    Path("github") / INTEGRATION_LESSONS_FILENAME,                   # в папке github/...
+    Path("project_root") / "lessonsA1_1_L1.json",                    # пример другого варианта
+]
+
+INTEGRATION_LESSONS: List[Dict[str, Any]] = []
+INTEGRATION_LESSON_BY_ID: Dict[str, Dict[str, Any]] = {}
+
+
+def _find_integration_file_recursively() -> Optional[Path]:
+    """Рекурсивный поиск файла project_rootlessonsA1_1_L1.json по всему проекту."""
+    root = Path(".")
+    for dirpath, dirnames, filenames in os.walk(root):
+        if INTEGRATION_LESSONS_FILENAME in filenames:
+            found_path = Path(dirpath) / INTEGRATION_LESSONS_FILENAME
+            print(f"Найден файл уроков интеграции (рекурсивно): {found_path}")
+            return found_path
+    return None
+
+
+def load_integration_lessons() -> None:
+    """Загрузка уроков пути интеграции из json."""
+    global INTEGRATION_LESSONS, INTEGRATION_LESSON_BY_ID
+
+    data = None
+    used_path: Optional[Path] = None
+
+    # 1. Пробуем список известных путей
+    for p in INTEGRATION_LESSONS_FILES:
+        if p.exists():
+            used_path = p
+            try:
+                with p.open("r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception as e:
+                print(f"Ошибка чтения файла с уроками интеграции {p}: {e}")
+                data = None
+            break
+
+    # 2. Если не нашли — ищем рекурсивно по имени файла
+    if data is None:
+        found = _find_integration_file_recursively()
+        if found and found.exists():
+            used_path = found
+            try:
+                with found.open("r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception as e:
+                print(f"Ошибка чтения файла с уроками интеграции {found}: {e}")
+                data = None
+
+    if data is None:
+        print("Файл с уроками пути интеграции не найден.")
+        INTEGRATION_LESSONS = []
+        INTEGRATION_LESSON_BY_ID = {}
+        return
+
+    # Поддержка форматов: [ {...}, {...} ] или { "lessons": [ ... ] }
+    if isinstance(data, list):
+        lessons = data
+    elif isinstance(data, dict) and isinstance(data.get("lessons"), list):
+        lessons = data["lessons"]
+    else:
+        lessons = [data]
+
+    INTEGRATION_LESSONS = lessons
+    INTEGRATION_LESSON_BY_ID = {}
+
+    for lesson in lessons:
+        lid = lesson.get("id") or lesson.get("code") or lesson.get("lesson_id")
+        if lid is None:
+            lid = f"lesson_{len(INTEGRATION_LESSON_BY_ID) + 1}"
+            lesson["id"] = lid
+        lid_str = str(lid)
+        INTEGRATION_LESSON_BY_ID[lid_str] = lesson
+
+    print(
+        f"Загружено уроков пути интеграции: {len(INTEGRATION_LESSONS)} "
+        f"из файла: {used_path if used_path else 'неизвестно'}"
+    )
+    
+
+# ==========================
 # ТЕМЫ ДЛЯ СЛОВ
 # ==========================
 
@@ -2275,3 +2364,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
