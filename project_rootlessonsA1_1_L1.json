@@ -1,0 +1,198 @@
+{
+  "lesson_code": "A1_1_L1",
+  "lesson_title": "Ankommen. Znakomstvo. Pervye slova.",
+  "lesson_name_ru": "Прибытие. Знакомство. Первые слова.",
+  "steps": [
+    {
+      "step_index": 1,
+      "type": "text",
+      "text": "🎬 Сцена 1\nТы выходишь из поезда на маленьком немецком вокзале. Станция тихая, все новое. В руках чемодан, внутри немного страха и волнения.\n\nВдруг кто то машет рукой и подходит к тебе."
+    },
+    {
+      "step_index": 2,
+      "type": "text",
+      "text": "Toni: Hallo! Ich bin Toni. Willkommen in Deutschland!\n\nОн говорит медленно, очень дружелюбно. Ты чувствуешь немного облегчения: тебя понимают.\n\nToni: Wie heißt du?",
+      "answer_type": "input_text",
+      "save_as": "user_name",
+      "next_step": 3
+    },
+    {
+      "step_index": 3,
+      "type": "text",
+      "text": "Toni: Super! Jetzt kennst du schon zwei wichtige Sätze.\n\nIch bin Toni.\nIch heiße Alex.\n\nТы уже можешь сказать два предложения по немецки.",
+      "next_step": 4
+    },
+    {
+      "step_index": 4,
+      "type": "choice",
+      "text": "Toni показывает рукой на табличку с названием вокзала.\n\nToni: Und woher kommst du?",
+      "choices": [
+        { "id": "ua", "text": "Ich komme aus der Ukraine.", "is_correct": true },
+        { "id": "ru", "text": "Ich komme aus Russland.", "is_correct": false },
+        { "id": "md", "text": "Ich komme aus Moldau.", "is_correct": false },
+        { "id": "other", "text": "Ich komme aus einem anderen Land.", "is_correct": false }
+      ],
+      "feedback_correct": "Toni: Ah, schön! Willkommen!",
+      "feedback_wrong": "Fast! Wähl noch einmal. Du schaffst das.",
+      "next_step_if_correct": 5,
+      "next_step_if_wrong": 4
+    },
+    {
+      "step_index": 5,
+      "type": "text",
+      "text": "Теперь у тебя три ключевые фразы:\n\nIch bin Toni.  ich bin ...  я ...\nIch heiße Alex.  ich heiße ...  меня зовут ...\nIch komme aus der Ukraine.  ich komme aus ...  я из ...\n\nТы начинаешь понимать структуру языка прямо в действии.",
+      "next_step": 6
+    },
+    {
+      "step_index": 6,
+      "type": "text",
+      "text": "🟧 Мини лексика\nЭти слова нужны тебе уже сегодня:\n\nHallo  привет\nIch bin ...  я ...\nIch heiße ...  меня зовут ...\nWie heißt du  как тебя зовут\nWoher kommst du  откуда ты\nIch komme aus ...  я родом из ...\nWillkommen  добро пожаловать\nSprache  язык",
+      "next_step": 7
+    },
+    {
+      "step_index": 7,
+      "type": "text",
+      "text": "🟨 Практика речи\nToni: Sprich nach. Скажи вслух.\n\n1. Hallo\n2. Ich heiße ...\n3. Ich komme aus ...\n\nПредставь, что ты говоришь это человеку на вокзале. Можно просто проговорить про себя. Важно почувствовать, как звучат фразы.",
+      "next_step": 8
+    },
+    {
+      "step_index": 8,
+      "type": "quiz_mcq",
+      "text": "🟪 Мини игра\nToni: Wie heißt du?",
+      "choices": [
+        { "id": "a", "text": "Ich komme aus Berlin.", "is_correct": false },
+        { "id": "b", "text": "Ich heiße Max.", "is_correct": true },
+        { "id": "c", "text": "Guten Morgen.", "is_correct": false }
+      ],
+      "feedback_correct": "Toni: Genau. Klasse gemacht.",
+      "feedback_wrong": "Fast. Versuch es noch einmal. Du schaffst das.",
+      "next_step_if_correct": 9,
+      "next_step_if_wrong": 8
+    },
+    {
+      "step_index": 9,
+      "type": "gap_fill",
+      "text": "🟥 Диалог сборка\nЗаполни пропуски в диалоге.\n\nToni: Hallo. Ich bin Toni. Wie heißt du?\nDu: Ich ____ Alex.\nToni: Woher kommst du?\nDu: Ich komme ____ der Ukraine.",
+      "gaps": [
+        { "index": 1, "correct": "heiße" },
+        { "index": 2, "correct": "aus" }
+      ],
+      "button_text": "Проверить",
+      "feedback_correct": "Super. Der Dialog ist richtig.",
+      "feedback_wrong": "Noch nicht ganz. Achte auf heiße und aus der Ukraine.",
+      "next_step": 10
+    },
+    {
+      "step_index": 10,
+      "type": "input_text",
+      "text": "🎯 Коммуникативная задача\nToni: Jetzt bist du dran. Stell dich vor.\n\nНапиши короткое представление о себе по шаблону:\n\nHallo.\nIch heiße ...\nIch komme aus ...\nIch spreche ...",
+      "save_as": "user_intro",
+      "next_step": 11
+    },
+    {
+      "step_index": 11,
+      "type": "text",
+      "text": "Toni: Sehr gut. Genau so spricht man in Deutschland. Weiter gehts.\n\nТы сделал первую маленькую, но очень важную презентацию о себе.",
+      "next_step": 12
+    },
+    {
+      "step_index": 12,
+      "type": "text",
+      "text": "🌈 Переход к интеграционному курсу\nToni: Morgen beginnt dein Integrationskurs. Da lernst du andere Menschen kennen.\n\nНа следующий день ты приходишь в аудиторию курса. Люди из разных стран сидят за партами. Учитель улыбается.",
+      "next_step": 13
+    },
+    {
+      "step_index": 13,
+      "type": "text",
+      "text": "Herr Müller: Hallo. Wir machen eine Vorstellungsrunde.\n\nУченики представляются:\n\nOzge: Ich heiße Ozge. Ich komme aus der Türkei.\nMarco: Ich bin Marco. Ich komme aus Italien.\n\nТы понимаешь, о чем они говорят. Это момент успеха.",
+      "next_step": 14
+    },
+    {
+      "step_index": 14,
+      "type": "quiz_mcq",
+      "text": "🎉 Мини тест 1\nWas bedeutet „Ich heiße...“ auf Russisch",
+      "choices": [
+        { "id": "a", "text": "Я живу ...", "is_correct": false },
+        { "id": "b", "text": "Меня зовут ...", "is_correct": true },
+        { "id": "c", "text": "Я работаю ...", "is_correct": false }
+      ],
+      "feedback_correct": "Richtig. Ich heiße bedeutet Меня зовут.",
+      "feedback_wrong": "Fast. Denk an представление: Ich heiße Alex.",
+      "next_step_if_correct": 15,
+      "next_step_if_wrong": 14
+    },
+    {
+      "step_index": 15,
+      "type": "gap_fill",
+      "text": "🎉 Мини тест 2\nЗаполни предложение:\n\nIch komme ___ Deutschland.",
+      "gaps": [
+        { "index": 1, "correct": "aus" }
+      ],
+      "button_text": "Проверить",
+      "feedback_correct": "Super. Ich komme aus Deutschland.",
+      "feedback_wrong": "Noch nicht. Denk an: Ich komme aus der Ukraine.",
+      "next_step": 16
+    },
+    {
+      "step_index": 16,
+      "type": "quiz_mcq",
+      "text": "🎉 Мини тест 3\nВыбери правильный вариант:\n\nIch ___ Toni.",
+      "choices": [
+        { "id": "a", "text": "bist", "is_correct": false },
+        { "id": "b", "text": "heiße", "is_correct": false },
+        { "id": "c", "text": "bin", "is_correct": true }
+      ],
+      "feedback_correct": "Genau. Ich bin Toni.",
+      "feedback_wrong": "Fast. Für ich benutzt man bin.",
+      "next_step_if_correct": 17,
+      "next_step_if_wrong": 16
+    },
+    {
+      "step_index": 17,
+      "type": "input_text",
+      "text": "🎉 Мини тест 4\nОтветь коротко на вопрос:\n\nWoher kommst du",
+      "save_as": "test_origin_answer",
+      "hint": "Напиши по немецки: Ich komme aus ...",
+      "next_step": 18
+    },
+    {
+      "step_index": 18,
+      "type": "quiz_mcq",
+      "text": "🎉 Мини тест 5\nВыбери правильный диалог.",
+      "choices": [
+        {
+          "id": "a",
+          "text": "A: Hallo. Ich bin Alex.\nB: Ich komme Max.",
+          "is_correct": false
+        },
+        {
+          "id": "b",
+          "text": "A: Hallo. Ich bin Alex.\nB: Ich heiße Maria. Ich komme aus Spanien.",
+          "is_correct": true
+        },
+        {
+          "id": "c",
+          "text": "A: Guten Morgen. Ich komme aus Alex.\nB: Ich bin Spanien.",
+          "is_correct": false
+        }
+      ],
+      "feedback_correct": "Super Anfang. Weiter so.",
+      "feedback_wrong": "Schau genau hin. Nur ein Dialog ist grammatisch richtig.",
+      "next_step_if_correct": 19,
+      "next_step_if_wrong": 18
+    },
+    {
+      "step_index": 19,
+      "type": "real_life_task",
+      "text": "🏁 Задание в реальную жизнь\nToni: Heute hast du ein Ziel.\nSag einmal „Hallo“ einer Person  im Haus, im Laden, auf der Straße.\n\nКогда сделаешь это, нажми кнопку.",
+      "button_text": "☑ Я сделал это",
+      "next_step": 20
+    },
+    {
+      "step_index": 20,
+      "type": "text",
+      "text": "Toni: Klasse. Du bist gekommen und du lernst. Ich bin stolz auf dich.\n\n🎉 Урок 1 завершен. Ты уже умеешь представиться по немецки. Это огромный шаг.",
+      "is_lesson_end": true
+    }
+  ]
+}
