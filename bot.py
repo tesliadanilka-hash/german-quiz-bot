@@ -418,6 +418,7 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     QUIZ_CACHE[rule_id] = clean_questions
     return clean_questions
+
 # ==========================
 # ТЕМЫ ДЛЯ СЛОВ
 # ==========================
@@ -605,7 +606,6 @@ LETTER_TASKS: Dict[str, Dict[str, Dict[str, str]]] = {
         },
     },
 }
-
 # ==========================
 # СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
 # ==========================
@@ -633,7 +633,7 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
             "checked": 0
         },
         # Путь интеграции
-        "integration_progress": 0,
+        "integration_progress": 0,   # индекс открытой темы
     }
 )
 
@@ -750,13 +750,157 @@ async def send_integration_path(message: Message, uid: int, edit: bool = False) 
             await message.answer(text, reply_markup=kb)
     else:
         await message.answer(text, reply_markup=kb)
+
 # ==========================
-# ПАМЯТЬ УРОКА 1 (A1.1 Урок 1)
+# JSON-УРОКИ (A1_1_L1 И ДРУГИЕ)
 # ==========================
 
-# Эти словари используются в игровом уроке /lesson1
-USER_L1_NAME: Dict[int, str] = {}
-USER_L1_WAIT_NAME: Dict[int, bool] = {}
+# Кеш уроков: lesson_code -> dict
+LESSONS_CACHE: Dict[str, Dict[str, Any]] = {}
+# Состояние уроков по пользователям
+LESSON_USER_CODE: Dict[int, str] = {}      # user_id -> lesson_code
+LESSON_USER_STEP: Dict[int, int] = {}      # user_id -> step_index
+LESSON_USER_WAIT_INPUT: Dict[int, bool] = {}  # ждем ли текстовый ответ
+LESSON_USER_DATA: Dict[int, Dict[str, Any]] = {}  # произвольные данные урока
+
+
+def load_lesson(lesson_code: str) -> Dict[str, Any]:
+    """Читает JSON урока из папки lessons и кеширует."""
+    if lesson_code in LESSONS_CACHE:
+        return LESSONS_CACHE[lesson_code]
+
+    path = Path("lessons") / f"{lesson_code}.json"
+    if not path.exists():
+        raise FileNotFoundError(f"Lesson file not found: {path}")
+
+    with path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    LESSONS_CACHE[lesson_code] = data
+    return data
+
+
+def get_lesson_step(lesson_code: str, step_index: int) -> Optional[Dict[str, Any]]:
+    """Возвращает один шаг урока по индексу."""
+    lesson = load_lesson(lesson_code)
+    for step in lesson.get("steps", []):
+        if step.get("step_index") == step_index:
+            return step
+    return None
+
+
+def set_user_lesson(uid: int, lesson_code: str, start_step: int = 1) -> None:
+    LESSON_USER_CODE[uid] = lesson_code
+    LESSON_USER_STEP[uid] = start_step
+    LESSON_USER_WAIT_INPUT[uid] = False
+    if uid not in LESSON_USER_DATA:
+        LESSON_USER_DATA[uid] = {}
+
+
+async def lesson_show_step(message: Message) -> None:
+    """Показать текущий шаг JSON-урока пользователю."""
+    uid = message.from_user.id
+    lesson_code = LESSON_USER_CODE.get(uid)
+    step_index = LESSON_USER_STEP.get(uid)
+
+    if not lesson_code or not step_index:
+        await message.answer("Ошибка: урок не найден.")
+        return
+
+    step = get_lesson_step(lesson_code, step_index)
+    if not step:
+        await message.answer("Ошибка: шаг не найден.")
+        return
+
+    step_type = step.get("type")
+    LESSON_USER_WAIT_INPUT[uid] = False
+
+    # 1) Простой текст
+    if step_type == "text":
+        await message.answer(step["text"])
+
+        if step.get("is_lesson_end"):
+            # Здесь можно привязать прохождение к Пути интеграции,
+            # если это конкретный урок из Пути
+            if lesson_code == "A1_1_L1":
+                complete_integration_topic(uid, "a1_1_intro")
+                await message.answer(
+                    "🎉 Ты прошел первый урок A1.1.\n"
+                    "Тема 'A1.1 Знакомство' в Пути интеграции отмечена как пройденная."
+                )
+            # дальше можно вернуть пользователя в Путь интеграции
+            kb = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="🛣 Вернуться к Пути интеграции",
+                            callback_data="integration_path_back",
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text="⬅ Главное меню",
+                            callback_data="back_main",
+                        )
+                    ],
+                ]
+            )
+            await message.answer("Выбери, что делать дальше.", reply_markup=kb)
+            return
+
+        next_step = step.get("next_step")
+        if next_step:
+            LESSON_USER_STEP[uid] = next_step
+        return
+
+    # 2) Выбор варианта (choice / quiz_mcq)
+    if step_type in ("choice", "quiz_mcq"):
+        kb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text=choice["text"],
+                        callback_data=f"lesson_ans|{choice['id']}",
+                    )
+                ]
+                for choice in step.get("choices", [])
+            ]
+        )
+        await message.answer(step["text"], reply_markup=kb)
+        return
+
+    # 3) Ввод текста
+    if step_type == "input_text" or step.get("answer_type") == "input_text":
+        await message.answer(step["text"])
+        LESSON_USER_WAIT_INPUT[uid] = True
+        return
+
+    # 4) Gap fill – пока принимаем текстом
+    if step_type == "gap_fill":
+        await message.answer(
+            step["text"]
+            + "\n\nНапиши ответ одним сообщением. Не переживай, если будет не идеально."
+        )
+        LESSON_USER_WAIT_INPUT[uid] = True
+        return
+
+    # 5) Задание в реальную жизнь
+    if step_type == "real_life_task":
+        btn_text = step.get("button_text", "Готово")
+        kb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text=btn_text,
+                        callback_data="lesson_task_done",
+                    )
+                ]
+            ]
+        )
+        await message.answer(step["text"], reply_markup=kb)
+        return
+
+    await message.answer("Этот тип шага пока не поддержан в боте.")
 
 # ==========================
 # ДОСТУП
@@ -788,8 +932,6 @@ def save_allowed_users() -> None:
         for uid in sorted(allowed_users):
             f.write(str(uid) + "\n")
     print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
-
-
 # ==========================
 # СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ: ЗАГРУЗКА/СОХРАНЕНИЕ
 # ==========================
@@ -826,7 +968,6 @@ def save_user_state() -> None:
         print(f"Состояние пользователей сохранено. Всего пользователей: {len(raw)}")
     except Exception as e:
         print("Ошибка при сохранении состояний пользователей:", e)
-
 
 # ==========================
 # ЗАГРУЗКА СЛОВ
@@ -938,7 +1079,6 @@ def load_words(path: str = "words.json") -> None:
         SUBTOPIC_ID_BY_KEY[key] = sid
         SUBTOPIC_KEY_BY_ID[sid] = key
 
-
 # ==========================
 # ВСПОМОГАТЕЛЬНЫЕ ДЛЯ ТЕМ
 # ==========================
@@ -977,7 +1117,6 @@ def pretty_topic_name(topic_key: str) -> str:
         level, topic = parts
         return f"Уровень {level}: {topic}"
     return topic_key
-
 
 # ==========================
 # ФУНКЦИИ ДЛЯ СЛОВ
@@ -1082,6 +1221,7 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
 
     kb = build_options(word_pool, word_id, mode)
     await bot.send_message(chat_id, text, reply_markup=kb)
+
 # ==========================
 # КЛАВИАТУРЫ МЕНЮ
 # ==========================
@@ -1261,8 +1401,6 @@ def build_full_format_keyboard(current_mode: str, current_answer: str) -> Inline
     rows.extend(build_answer_mode_keyboard(current_answer))
     rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
 # ==========================
 # КЛАВИАТУРЫ ДЛЯ ПИСЕМ
 # ==========================
@@ -1342,7 +1480,6 @@ def build_letter_tasks_keyboard(level: str) -> InlineKeyboardMarkup:
     )
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-
 # ==========================
 # СТАТИСТИКА
 # ==========================
@@ -1379,7 +1516,13 @@ def update_topic_stats(uid: int, topic: str, correct: int, wrong: int) -> None:
     save_user_state()
 
 
-def update_grammar_stats(uid: int, rule_id: str, correct_delta: int = 0, wrong_delta: int = 0, finished_quiz: bool = False) -> None:
+def update_grammar_stats(
+    uid: int,
+    rule_id: str,
+    correct_delta: int = 0,
+    wrong_delta: int = 0,
+    finished_quiz: bool = False,
+) -> None:
     state = user_state[uid]
 
     gstats = state.get("grammar_stats")
@@ -1390,11 +1533,14 @@ def update_grammar_stats(uid: int, rule_id: str, correct_delta: int = 0, wrong_d
     if not isinstance(per_rule, dict):
         per_rule = {}
 
-    rule_stats = per_rule.get(rule_id, {
-        "correct": 0,
-        "wrong": 0,
-        "runs": 0,
-    })
+    rule_stats = per_rule.get(
+        rule_id,
+        {
+            "correct": 0,
+            "wrong": 0,
+            "runs": 0,
+        },
+    )
 
     if correct_delta > 0:
         rule_stats["correct"] += correct_delta
@@ -1478,7 +1624,6 @@ def build_user_stats_text(uid: int) -> str:
 
     return "\n".join(lines)
 
-
 # ==========================
 # ПРОВЕРКА ПРЕДЛОЖЕНИЙ И ПИСЕМ
 # ==========================
@@ -1535,6 +1680,77 @@ async def check_letter_with_ai(text: str) -> str:
     except Exception as e:
         print("Ошибка при проверке письма:", e)
         return "Произошла ошибка при проверке письма. Попробуй еще раз позже."
+
+# ==========================
+# ОБРАБОТКА ТЕКСТА ВНУТРИ JSON-УРОКА
+# ==========================
+
+
+async def lesson_handle_text_answer(message: Message) -> None:
+    """Обработка текстового ответа в шаге урока (input_text / gap_fill)."""
+    uid = message.from_user.id
+    lesson_code = LESSON_USER_CODE.get(uid)
+    step_index = LESSON_USER_STEP.get(uid)
+
+    if not lesson_code or not step_index:
+        return
+
+    try:
+        step = get_lesson_step(lesson_code, step_index)
+    except Exception:
+        step = None
+
+    if not step:
+        await message.answer("Что-то пошло не так с уроком. Попробуй начать его снова позже.")
+        LESSON_USER_WAIT_INPUT[uid] = False
+        return
+
+    # Сохраняем ответ (если нужно)
+    user_data = LESSON_USER_DATA.setdefault(uid, {})
+    store_key = (
+        step.get("store_key")
+        or step.get("store_as")
+        or step.get("id")
+        or f"step_{step_index}_input"
+    )
+    user_data[store_key] = message.text.strip()
+    LESSON_USER_DATA[uid] = user_data
+
+    # Можно при желании дать короткую реакцию
+    if step.get("give_feedback", True):
+        await message.answer("👍 Спасибо, идем дальше.")
+
+    LESSON_USER_WAIT_INPUT[uid] = False
+
+    next_step = step.get("next_step")
+    if next_step:
+        LESSON_USER_STEP[uid] = next_step
+        await lesson_show_step(message)
+    else:
+        # Если нет next_step, считаем урок завершенным
+        if lesson_code == "A1_1_L1":
+            complete_integration_topic(uid, "a1_1_intro")
+            await message.answer(
+                "🎉 Ты прошел первый урок A1.1.\n"
+                "Тема 'A1.1 Знакомство' в Пути интеграции отмечена как пройденная."
+            )
+        kb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="🛣 Вернуться к Пути интеграции",
+                        callback_data="integration_path_back",
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="⬅ Главное меню",
+                        callback_data="back_main",
+                    )
+                ],
+            ]
+        )
+        await message.answer("Урок завершен. Отличная работа!", reply_markup=kb)
 # ==========================
 # КОМАНДЫ
 # ==========================
@@ -1558,7 +1774,7 @@ async def cmd_start(message: Message) -> None:
 
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
-            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику, письма и проверку предложений.\n\n"
+            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику, письма, Путь интеграции и проверку предложений.\n\n"
             "Доступ ограничен. Нажми кнопку ниже, чтобы отправить запрос администратору."
         )
         await message.answer(text, reply_markup=kb)
@@ -1572,10 +1788,10 @@ async def cmd_start(message: Message) -> None:
         "🎓 Willkommen. Добро пожаловать в бота по немецкому языку.\n\n"
         "Здесь ты можешь:\n"
         "• Тренировать слова по уровням, темам и подтемам\n"
-        "• Разбирать грамматику\n"
+        "• Разбирать грамматику с упражнениями\n"
         "• Учиться писать письма (A1-A2-B1)\n"
         "• Проверять свои предложения\n"
-        "• Проходить Путь интеграции от A1 до B1\n"
+        "• Проходить Путь интеграции от A1 до B1 с игровыми уроками\n"
         "• Смотреть статистику по темам\n\n"
         f"Сейчас в базе {total_words} слов.\n"
         f"Тем: {total_topics}, подтем: {total_subtopics}.\n\n"
@@ -1726,37 +1942,6 @@ async def cmd_stats(message: Message) -> None:
     text = build_user_stats_text(uid)
     await message.answer(text)
 
-
-# ====== НОВЫЙ УРОК 1: /lesson1 ======
-
-
-@dp.message(F.text == "/lesson1")
-@dp.message(F.text == "/a1_1_l1")
-async def start_lesson1(message: Message):
-    """
-    Блок 1. Запуск урока 1.
-    """
-    uid = message.from_user.id
-
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await message.answer("Нет доступа.")
-        return
-
-    USER_L1_WAIT_NAME[uid] = False
-
-    text = (
-        "🇩🇪 A1.1 Урок 1\n"
-        "Ankommen - Первое знакомство\n\n"
-        "Сегодня ты:\n"
-        "• Познакомишься с персонажем Toni\n"
-        "• Научишься говорить, как тебя зовут\n"
-        "• Увидишь в действии фразы \"Ich bin...\" и \"Du bist...\"\n\n"
-        "Нажми кнопку, чтобы начать."
-    )
-
-    await message.answer(text, reply_markup=kb_l1_start())
-
-
 # ==========================
 # ОБРАБОТЧИК ТЕКСТА
 # ==========================
@@ -1773,38 +1958,14 @@ async def handle_plain_text(message: Message) -> None:
     if not text:
         return
 
-    # 0) УРОК 1: ВВОД ИМЕНИ (новый сценарий)
-    if USER_L1_WAIT_NAME.get(uid):
-        user_name_raw = text.strip()
-        if not user_name_raw:
-            await message.answer("Попробуй еще раз, просто напиши свое имя.")
-            return
-
-        USER_L1_NAME[uid] = user_name_raw
-        USER_L1_WAIT_NAME[uid] = False
-
-        name = user_name_raw
-
-        toni_reply = f'Toni:\n\n"Aha! Du bist {name}. Schön, {name}."'
-        await message.answer(toni_reply)
-
-        explain = (
-            "✅ Супер. У тебя уже есть два немецких предложения.\n\n"
-            "Ich bin Toni. - Я Тони.\n"
-            f"Du bist {name}. - Ты {name}.\n\n"
-            "Слова:\n"
-            "• Ich - я\n"
-            "• Du - ты\n"
-            "• bin - есть (для \"ich\")\n"
-            "• bist - есть (для \"du\")"
-        )
-
-        await message.answer(explain, reply_markup=kb_l1_continue_block4())
-        return
-
     state = user_state[uid]
 
-    # 1) РЕЖИМ ПИСЕМ
+    # 1) Если сейчас урок ждет текстовый ответ – обрабатываем в первую очередь
+    if LESSON_USER_WAIT_INPUT.get(uid):
+        await lesson_handle_text_answer(message)
+        return
+
+    # 2) Сначала проверяем, не в режиме ли писем
     if state.get("letter_mode", False):
         waiting_msg = await message.answer("⌛ Проверяю письмо...")
         result = await check_letter_with_ai(text)
@@ -1818,14 +1979,14 @@ async def handle_plain_text(message: Message) -> None:
         await waiting_msg.edit_text(result)
         return
 
-    # 2) РЕЖИМ ПРОВЕРКИ ОТДЕЛЬНЫХ ПРЕДЛОЖЕНИЙ
+    # 3) Проверка отдельных предложений
     if state.get("check_mode", False):
         waiting_msg = await message.answer("⌛ Проверяю предложение...")
         result = await check_text_with_ai(text)
         await waiting_msg.edit_text(result)
         return
 
-    # 3) РЕЖИМ ВВОДА СЛОВА ВРУЧНУЮ (ТРЕНИРОВКА СЛОВ)
+    # 4) Режим ввода слова вручную (тренировка слов)
     if state.get("answer_mode") == "typing" and state.get("waiting_text_answer"):
         word_id = state.get("current_word_id")
         if word_id is None or word_id < 0 or word_id >= len(WORDS):
@@ -1867,6 +2028,11 @@ async def handle_plain_text(message: Message) -> None:
         await send_new_word(uid, message.chat.id)
         return
 
+    # Если не попало ни в один из режимов – можно позже добавить доп. логика
+    await message.answer(
+        "Я не понял, что ты хочешь сделать этим текстом.\n\n"
+        "Используй команды или кнопки меню: тренировка слов, грамматика, письма или Путь интеграции."
+    )
 
 # ==========================
 # CALLBACK: ДОСТУП
@@ -1933,8 +2099,7 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
             "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
-            "Выбирай тренировки слов, грамматику, письма, проверку предложений, "
-            "Путь интеграции, формат ответа или статистику с помощью кнопок."
+            "Выбирай тренировки слов, грамматику, письма, проверку предложений, Путь интеграции, формат ответа или статистику с помощью кнопок."
         )
         await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
     except Exception:
@@ -1961,6 +2126,7 @@ async def cb_back_main(callback: CallbackQuery) -> None:
 @dp.callback_query(F.data == "main_menu")
 async def cb_main_menu(callback: CallbackQuery) -> None:
     await cb_back_main(callback)
+
 # ==========================
 # CALLBACK: СЛОВА
 # ==========================
@@ -2088,8 +2254,6 @@ async def cb_level(callback: CallbackQuery) -> None:
         await callback.message.edit_text(text, reply_markup=kb)
     except Exception:
         await callback.message.answer(text, reply_markup=kb)
-
-
 @dp.callback_query(F.data.startswith("topic_select|"))
 async def cb_topic_select(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
@@ -2276,8 +2440,7 @@ async def cb_answer(callback: CallbackQuery) -> None:
                 "\n\nТы прошел все слова в этой подборке.\n"
                 f"✅ Правильных ответов: {state['correct']}\n"
                 f"❌ Неправильных ответов: {state['wrong']}\n\n"
-                "Можно выбрать другую подтему в Тренировке слов "
-                "или начать новую тренировку."
+                "Можно выбрать другую подтему в Тренировке слов или начать новую тренировку."
             )
 
         try:
@@ -2296,7 +2459,6 @@ async def cb_answer(callback: CallbackQuery) -> None:
         except Exception:
             await callback.message.answer("❌ Неправильно. Сейчас повторим это слово.")
         await resend_same_word(callback.message.chat.id, word_id, mode, uid)
-
 
 # ==========================
 # CALLBACK: ГРАММАТИКА
@@ -2532,8 +2694,6 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
             await callback.message.edit_text(text, reply_markup=kb, parse_mode=None)
         except Exception:
             await callback.message.answer(text, reply_markup=kb, parse_mode=None)
-
-
 async def send_quiz_result(message: Message, user_id: int):
     state = USER_QUIZ_STATE.get(user_id)
     if not state:
@@ -2541,7 +2701,10 @@ async def send_quiz_result(message: Message, user_id: int):
     total = len(state["questions"])
     correct = state["correct"]
     wrong = state["wrong"]
-    percent = round(correct / total * 100)
+    if total > 0:
+        percent = round(correct / total * 100)
+    else:
+        percent = 0
 
     if percent == 100:
         comment = "Отлично. Ты владеешь этой темой на очень высоком уровне."
@@ -2564,6 +2727,7 @@ async def send_quiz_result(message: Message, user_id: int):
     )
 
     await message.edit_text(text, reply_markup=kb_after_quiz(rule_id), parse_mode=None)
+
 # ==========================
 # CALLBACK: ПИСЬМА
 # ==========================
@@ -2722,9 +2886,8 @@ async def cb_letter_progress(callback: CallbackQuery) -> None:
 
     await callback.message.answer(text, reply_markup=build_letter_main_keyboard())
 
-
 # ==========================
-# CALLBACK: ПУТЬ ИНТЕГРАЦИИ
+# CALLBACK: ПУТЬ ИНТЕГРАЦИИ + JSON-УРОК
 # ==========================
 
 
@@ -2783,14 +2946,14 @@ async def cb_integration_topic_open(callback: CallbackQuery) -> None:
     text = (
         f"🔹 {topic['title']}\n\n"
         f"Игровая цель:\n{topic['goal']}\n\n"
-        "Когда будешь готов, нажми кнопку ниже, чтобы начать."
+        "Когда будешь готов, нажми кнопку ниже чтобы начать мини задание или урок по этой теме."
     )
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🚀 Начать мини задание",
+                    text="🚀 Начать",
                     callback_data=f"integration_start:{topic_id}",
                 )
             ],
@@ -2809,6 +2972,27 @@ async def cb_integration_topic_open(callback: CallbackQuery) -> None:
         await callback.message.answer(text, reply_markup=kb)
 
 
+async def start_json_lesson_for_integration(message: Message, uid: int, lesson_code: str) -> None:
+    """Запуск JSON-урока из Пути интеграции."""
+    if lesson_code not in LESSONS:
+        await message.answer(
+            "Урок пока не найден на сервере. Сообщи администратору, что нет файла для этого урока."
+        )
+        return
+
+    LESSON_USER_CODE[uid] = lesson_code
+    LESSON_USER_STEP[uid] = "start"
+    LESSON_USER_WAIT_INPUT[uid] = False
+    LESSON_USER_DATA[uid] = {}
+
+    await message.answer(
+        "🎮 Начинаем игровой урок по теме A1.1.\n"
+        "Следуй инструкциям на экране, отвечай на вопросы и читай реплики."
+    )
+
+    await lesson_show_step(message)
+
+
 @dp.callback_query(F.data.startswith("integration_start:"))
 async def cb_integration_start(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
@@ -2824,11 +3008,17 @@ async def cb_integration_start(callback: CallbackQuery) -> None:
 
     await callback.answer()
 
+    # Для первой темы A1.1 Знакомство запускаем полный JSON-урок
+    if topic_id == "a1_1_intro":
+        await start_json_lesson_for_integration(callback.message, uid, "A1_1_L1")
+        return
+
+    # Для остальных тем пока оставляем простое текстовое мини-задание
     text = (
         f"🎮 {topic['title']}\n\n"
         "Сейчас это небольшое мини задание по этой теме.\n"
-        "Подумай и проговори вслух фразы по теме, выпиши 3-5 предложений.\n\n"
-        "Когда сделаешь это, нажми кнопку ниже, чтобы отметить тему как пройденную."
+        "Проработай тему вслух или на бумаге, а потом нажми кнопку ниже.\n\n"
+        "Позже сюда можно добавить полноценный сценарий с диалогами и проверкой."
     )
 
     kb = InlineKeyboardMarkup(
@@ -2856,7 +3046,6 @@ async def cb_integration_start(callback: CallbackQuery) -> None:
 
 @dp.callback_query(F.data.startswith("integration_done:"))
 async def cb_integration_done(callback: CallbackQuery) -> None:
-    """Общий обработчик для простых тем Пути интеграции."""
     uid = callback.from_user.id
     if uid != ADMIN_ID and uid not in allowed_users:
         await callback.answer("Нет доступа.", show_alert=True)
@@ -2883,7 +3072,7 @@ async def cb_integration_done(callback: CallbackQuery) -> None:
             "Можешь выбрать ее в Пути интеграции."
         )
     else:
-        extra = "Ты прошел все текущие темы Пути интеграции для этого блока."
+        extra = "Ты прошел все текущие темы Пути интеграции A1.1. Дальше можно добавить новые уровни."
 
     text = (
         f"✅ Тема {topic['title']} отмечена как пройденная.\n\n"
@@ -2914,6 +3103,53 @@ async def cb_integration_done(callback: CallbackQuery) -> None:
     except Exception:
         await callback.message.answer(text, reply_markup=kb)
 
+# ==========================
+# CALLBACK: ШАГИ JSON-УРОКА (кнопки внутри урока)
+# ==========================
+
+
+@dp.callback_query(F.data.startswith("lesson_goto|"))
+async def cb_lesson_goto(callback: CallbackQuery) -> None:
+    """Переход к следующему шагу урока по кнопке."""
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, lesson_code, step_id = callback.data.split("|", maxsplit=2)
+
+    if lesson_code not in LESSONS:
+        await callback.answer("Урок не найден.", show_alert=True)
+        return
+
+    LESSON_USER_CODE[uid] = lesson_code
+    LESSON_USER_STEP[uid] = step_id
+    LESSON_USER_WAIT_INPUT[uid] = False
+
+    await callback.answer()
+    await lesson_show_step(callback.message)
+
+
+@dp.callback_query(F.data.startswith("lesson_task_done|"))
+async def cb_lesson_task_done(callback: CallbackQuery) -> None:
+    """Кнопка 'Я сделал задание' внутри шага урока."""
+    uid = callback.from_user.id
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, lesson_code, next_step = callback.data.split("|", maxsplit=2)
+
+    if lesson_code not in LESSONS:
+        await callback.answer("Урок не найден.", show_alert=True)
+        return
+
+    LESSON_USER_CODE[uid] = lesson_code
+    LESSON_USER_STEP[uid] = next_step
+    LESSON_USER_WAIT_INPUT[uid] = False
+
+    await callback.answer("Отлично, идем дальше.")
+    await lesson_show_step(callback.message)
 
 # ==========================
 # ЗАПУСК
@@ -2926,10 +3162,12 @@ async def main() -> None:
     load_user_state()
     if GRAMMAR_FILE.exists():
         load_grammar_rules()
-    # Если ты используешь отдельный Router для урока 1,
-    # не забудь включить его здесь, например:
-    # from lesson1_router import router as lesson1_router
-    # dp.include_router(lesson1_router)
+    # Загрузка JSON-уроков (урок 1 A1.1 хранится в lessons/A1_1_L1.json)
+    try:
+        load_lessons()
+    except Exception as e:
+        print("Ошибка при загрузке уроков:", e)
+
     await dp.start_polling(bot)
 
 
