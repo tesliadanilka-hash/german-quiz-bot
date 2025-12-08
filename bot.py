@@ -75,7 +75,7 @@ AI_SYSTEM_PROMPT = (
 Word = Dict[str, Any]
 
 # ==========================
-# ГРАММАТИКА: КНОПКИ, ПРАВИЛА, ВИКТОРИНЫ
+# ГРАММАТИКА - КНОПКИ, ПРАВИЛА, ВИКТОРИНЫ
 # ==========================
 
 GRAMMAR_FILE = Path("grammar.json")
@@ -89,7 +89,7 @@ QUIZ_CACHE: Dict[str, List[Dict[str, Any]]] = {}
 
 
 def strip_html_tags(text: str) -> str:
-    """Убираем простые HTML-теги, чтобы не мешали в Markdown."""
+    """Убираем простые HTML теги, чтобы не мешали в Markdown."""
     if not isinstance(text, str):
         return str(text)
     for tag in ("<b>", "</b>", "<i>", "</i>", "<u>", "</u>"):
@@ -281,9 +281,6 @@ def kb_after_quiz(rule_id: str) -> InlineKeyboardMarkup:
 
 
 def get_quiz_instruction_ru() -> str:
-    """
-    Объяснение задания только на русском.
-    """
     return (
         "📝 Задание: выбери один правильный вариант ответа, "
         "который грамматически подходит к этому предложению по текущему правилу."
@@ -414,15 +411,54 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     return clean_questions
 
 # ==========================
+# ТЕМЫ ДЛЯ СЛОВ
+# ==========================
+
+TOPIC_ALL = "ALL"
+
+user_state: Dict[int, Dict[str, Any]] = defaultdict(
+    lambda: {
+        "mode": "de_ru",
+        "topic": TOPIC_ALL,
+        "correct": 0,
+        "wrong": 0,
+        "remaining": None,
+        "check_mode": False,
+        "topic_stats": {},
+        "answer_mode": "choice",
+        "waiting_text_answer": False,
+        "current_word_id": None,
+        "grammar_stats": {
+            "total_correct": 0,
+            "total_wrong": 0,
+            "per_rule": {}
+        },
+    }
+)
+
+allowed_users: set[int] = set()
+
+WORDS: List[Dict[str, Any]] = []
+WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
+LEVEL_COUNTS: Dict[str, int] = defaultdict(int)
+TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)
+SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int)
+
+TOPIC_ID_BY_KEY: Dict[Tuple[str, str], str] = {}
+TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
+SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
+SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
+
+# ==========================
 # ПУТЬ ИНТЕГРАЦИИ A1.1
 # ==========================
 
 INTEGRATION_LESSONS_FILENAME = "project_rootlessonsA1_1_L1.json"
 
 INTEGRATION_LESSONS_FILES = [
-    Path(INTEGRATION_LESSONS_FILENAME),                              # рядом с bot.py
-    Path("github") / INTEGRATION_LESSONS_FILENAME,                   # в папке github/...
-    Path("project_root") / "lessonsA1_1_L1.json",                    # пример другого варианта
+    Path(INTEGRATION_LESSONS_FILENAME),                    # рядом с bot.py
+    Path("github") / INTEGRATION_LESSONS_FILENAME,         # вариант, если все лежит в папке github
+    Path("project_root") / "lessonsA1_1_L1.json",          # запасной пример пути
 ]
 
 INTEGRATION_LESSONS: List[Dict[str, Any]] = []
@@ -491,109 +527,6 @@ def load_integration_lessons() -> None:
     for lesson in lessons:
         lid = lesson.get("id") or lesson.get("code") or lesson.get("lesson_id")
         if lid is None:
-            lid = f"lesson_{len(INTEGRATION_LESSON_BY_ID) + 1}"
-            lesson["id"] = lid
-        lid_str = str(lid)
-        INTEGRATION_LESSON_BY_ID[lid_str] = lesson
-
-    print(
-        f"Загружено уроков пути интеграции: {len(INTEGRATION_LESSONS)} "
-        f"из файла: {used_path if used_path else 'неизвестно'}"
-    )
-
-    
-
-# ==========================
-# ТЕМЫ ДЛЯ СЛОВ
-# ==========================
-
-TOPIC_ALL = "ALL"
-
-user_state: Dict[int, Dict[str, Any]] = defaultdict(
-    lambda: {
-        "mode": "de_ru",
-        "topic": TOPIC_ALL,
-        "correct": 0,
-        "wrong": 0,
-        "remaining": None,
-        "check_mode": False,
-        "topic_stats": {},
-        "answer_mode": "choice",
-        "waiting_text_answer": False,
-        "current_word_id": None,
-        "grammar_stats": {
-            "total_correct": 0,
-            "total_wrong": 0,
-            "per_rule": {}
-        },
-    }
-)
-
-allowed_users: set[int] = set()
-
-WORDS: List[Dict[str, Any]] = []
-WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
-LEVEL_COUNTS: Dict[str, int] = defaultdict(int)
-TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)
-SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int)
-
-TOPIC_ID_BY_KEY: Dict[Tuple[str, str], str] = {}
-TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
-SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
-SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
-
-# ==========================
-# ПУТЬ ИНТЕГРАЦИИ A1.1
-# ==========================
-
-INTEGRATION_LESSONS_FILES = [
-    Path("project_rootlessonsA1_1_L1.json"),
-    Path("lessonsA1_1_L1.json"),
-    Path("project_root/lessonsA1_1_L1.json"),
-]
-
-INTEGRATION_LESSONS: List[Dict[str, Any]] = []
-INTEGRATION_LESSON_BY_ID: Dict[str, Dict[str, Any]] = {}
-
-
-def load_integration_lessons() -> None:
-    """Загрузка уроков пути интеграции из json."""
-    global INTEGRATION_LESSONS, INTEGRATION_LESSON_BY_ID
-
-    data = None
-    used_path: Optional[Path] = None
-
-    for p in INTEGRATION_LESSONS_FILES:
-        if p.exists():
-            used_path = p
-            try:
-                with p.open("r", encoding="utf-8") as f:
-                    data = json.load(f)
-            except Exception as e:
-                print(f"Ошибка чтения файла с уроками интеграции {p}: {e}")
-                data = None
-            break
-
-    if data is None:
-        print("Файл с уроками пути интеграции не найден.")
-        INTEGRATION_LESSONS = []
-        INTEGRATION_LESSON_BY_ID = {}
-        return
-
-    if isinstance(data, list):
-        lessons = data
-    elif isinstance(data, dict) and isinstance(data.get("lessons"), list):
-        lessons = data["lessons"]
-    else:
-        lessons = [data]
-
-    INTEGRATION_LESSONS = lessons
-    INTEGRATION_LESSON_BY_ID = {}
-
-    for lesson in lessons:
-        lid = lesson.get("id") or lesson.get("code") or lesson.get("lesson_id")
-        if lid is None:
-            # генерируем простой id если его нет
             lid = f"lesson_{len(INTEGRATION_LESSON_BY_ID) + 1}"
             lesson["id"] = lid
         lid_str = str(lid)
@@ -981,6 +914,17 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
 # КЛАВИАТУРЫ МЕНЮ
 # ==========================
 
+def build_back_to_main_row() -> List[List[InlineKeyboardButton]]:
+    return [
+        [
+            InlineKeyboardButton(
+                text="⬅️ Главное меню",
+                callback_data="back_main",
+            )
+        ]
+    ]
+
+
 def build_main_menu_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
@@ -1022,17 +966,6 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
             ],
         ]
     )
-
-
-def build_back_to_main_row() -> List[List[InlineKeyboardButton]]:
-    return [
-        [
-            InlineKeyboardButton(
-                text="⬅️ Главное меню",
-                callback_data="back_main",
-            )
-        ]
-    ]
 
 
 def build_themes_keyboard() -> InlineKeyboardMarkup:
@@ -1186,9 +1119,6 @@ def update_topic_stats(uid: int, topic: str, correct: int, wrong: int) -> None:
 
 
 def update_grammar_stats(uid: int, rule_id: str, correct_delta: int = 0, wrong_delta: int = 0, finished_quiz: bool = False) -> None:
-    """
-    Обновляет статистику по грамматическим упражнениям.
-    """
     state = user_state[uid]
 
     gstats = state.get("grammar_stats")
@@ -1333,7 +1263,7 @@ async def cmd_start(message: Message) -> None:
 
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
-            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику, путь интеграции и проверку предложений.\n\n"
+            "Этот бот помогает улучшать немецкий язык через слова, темы, путь интеграции, грамматику и проверку предложений.\n\n"
             "Доступ ограничен. Нажми кнопку ниже, чтобы отправить запрос администратору."
         )
         await message.answer(text, reply_markup=kb)
@@ -1342,7 +1272,6 @@ async def cmd_start(message: Message) -> None:
     total_words = len(WORDS)
     total_topics = len(TOPIC_COUNTS)
     total_subtopics = len(SUBTOPIC_COUNTS)
-
     integration_count = len(INTEGRATION_LESSONS)
 
     text = (
@@ -1699,6 +1628,8 @@ async def cb_integration_lesson(callback: CallbackQuery) -> None:
     lesson = INTEGRATION_LESSON_BY_ID.get(lid)
 
     if not lesson:
+        print("Урок не найден. ID из кнопки:", lid)
+        print("Доступные ID:", list(INTEGRATION_LESSON_BY_ID.keys()))
         await callback.answer("Урок не найден.", show_alert=True)
         return
 
@@ -1745,9 +1676,14 @@ async def cb_integration_lesson(callback: CallbackQuery) -> None:
     kb = build_integration_lesson_keyboard()
 
     try:
-        await callback.message.edit_text(text, reply_markup=kb)
-    except Exception:
-        await callback.message.answer(text, reply_markup=kb)
+        # parse_mode=None, чтобы не ломал Markdown, если в тексте есть спецсимволы
+        await callback.message.edit_text(text, reply_markup=kb, parse_mode=None)
+    except Exception as e:
+        print("Ошибка показа урока:", e)
+        try:
+            await callback.message.answer(text, reply_markup=kb, parse_mode=None)
+        except Exception as e2:
+            print("Ошибка при отправке урока отдельным сообщением:", e2)
 
 # ==========================
 # CALLBACK: СЛОВА
@@ -2260,7 +2196,6 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
     total_questions = len(questions)
     number = q_index + 1
 
-    # Правильный ответ
     if opt_index == correct:
         state["correct"] += 1
         update_grammar_stats(uid, rule_id, correct_delta=1)
@@ -2291,7 +2226,6 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
             await callback.message.answer(text, reply_markup=kb, parse_mode=None)
 
     else:
-        # Неправильный ответ
         state["wrong"] += 1
         update_grammar_stats(uid, rule_id, wrong_delta=1)
 
@@ -2365,5 +2299,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
