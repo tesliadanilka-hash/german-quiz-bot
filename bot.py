@@ -42,6 +42,7 @@ if not TOKEN:
         "и в ней записан токен от BotFather."
     )
 
+# Включаем Markdown как основной формат
 bot = Bot(
     token=TOKEN,
     default=DefaultBotProperties(parse_mode="Markdown")
@@ -71,28 +72,6 @@ AI_SYSTEM_PROMPT = (
     "Ошибок не найдено. Предложение грамматически корректно."
 )
 
-LETTER_SYSTEM_PROMPT = (
-    "Ты опытный преподаватель немецкого языка и экзаменатор уровня A1-B1.\n"
-    "Твоя задача - проверять письма на немецком языке и давать подробную обратную связь.\n\n"
-    "Всегда отвечай строго в такой структуре на русском языке:\n\n"
-    "Исправленный вариант письма:\n"
-    "{сюда вставь исправленный вариант письма целиком на немецком}\n\n"
-    "Ошибки:\n"
-    "1) {первая ошибка: коротко объясни по-русски, приведи неправильный фрагмент и правильный вариант}\n"
-    "2) {вторая ошибка и так далее, если есть}\n"
-    "Если ошибок нет, напиши: Ошибок не найдено. Письмо грамматически корректно.\n\n"
-    "Рекомендации:\n"
-    "{2-4 конкретных совета по улучшению письма, например, больше союзов, разнообразить лексику и так далее}\n\n"
-    "Примерный уровень письма:\n"
-    "{укажи один уровень: A1, A2 или B1 и коротко объясни, почему}\n\n"
-    "Оценка по критериям (0-5 баллов):\n"
-    "Inhalt: X/5 - {краткий комментарий}\n"
-    "Struktur: X/5 - {краткий комментарий}\n"
-    "Grammatik: X/5 - {краткий комментарий}\n"
-    "Wortschatz: X/5 - {краткий комментарий}\n\n"
-    "Всегда соблюдай эту структуру. Не добавляй ничего лишнего вне этих блоков."
-)
-
 Word = Dict[str, Any]
 
 # ==========================
@@ -110,6 +89,7 @@ QUIZ_CACHE: Dict[str, List[Dict[str, Any]]] = {}
 
 
 def strip_html_tags(text: str) -> str:
+    """Убираем простые HTML-теги, чтобы не мешали в Markdown."""
     if not isinstance(text, str):
         return str(text)
     for tag in ("<b>", "</b>", "<i>", "</i>", "<u>", "</u>"):
@@ -185,7 +165,7 @@ def kb_grammar_levels() -> InlineKeyboardMarkup:
     kb = [
         [
             InlineKeyboardButton(text="Правила уровня A1", callback_data="grammar_level:A1"),
-            InlineKeyboardButton(text="Правила уровня А2", callback_data="grammar_level:A2"),
+            InlineKeyboardButton(text="Правила уровня A2", callback_data="grammar_level:A2"),
         ],
         [InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")],
     ]
@@ -301,6 +281,9 @@ def kb_after_quiz(rule_id: str) -> InlineKeyboardMarkup:
 
 
 def get_quiz_instruction_ru() -> str:
+    """
+    Объяснение задания только на русском.
+    """
     return (
         "📝 Задание: выбери один правильный вариант ответа, "
         "который грамматически подходит к этому предложению по текущему правилу."
@@ -308,6 +291,16 @@ def get_quiz_instruction_ru() -> str:
 
 
 async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Генерируем вопросы по конкретному правилу через OpenAI.
+
+    Важно:
+    - Упражнения строго по текущему правилу.
+    - Только немецкий язык внутри упражнений.
+    - В question только предложение или задание на немецком, без инструкций.
+    - Всегда 4 варианта, 1 правильный.
+    """
+
     if client is None:
         print("Нет OPENAI_API_KEY, викторина по грамматике недоступна.")
         return []
@@ -417,6 +410,7 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     clean_questions = clean_questions[:5]
 
     QUIZ_CACHE[rule_id] = clean_questions
+
     return clean_questions
 
 # ==========================
@@ -424,191 +418,6 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 # ==========================
 
 TOPIC_ALL = "ALL"
-
-# ==========================
-# ПИСЬМА: ЗАДАНИЯ
-# ==========================
-
-LETTER_TASKS: Dict[str, Dict[str, Dict[str, str]]] = {
-    "A1": {
-        "einladung": {
-            "title": "💌 Приглашение (Einladung)",
-            "instruction": (
-                "Напиши короткое письмо-приглашение на немецком.\n"
-                "3-5 предложений. Укажи:\n"
-                "• кого ты приглашаешь\n"
-                "• куда\n"
-                "• когда\n"
-                "• что вы будете делать\n"
-                "\n"
-                "Пиши в неформальном стиле, как другу."
-            ),
-        },
-        "vorstellen": {
-            "title": "😊 Поздороваться и представиться",
-            "instruction": (
-                "Напиши письмо, в котором ты здороваешься и представляешься.\n"
-                "3-5 предложений. Укажи:\n"
-                "• как тебя зовут\n"
-                "• откуда ты\n"
-                "• сколько тебе лет\n"
-                "• что ты делаешь (учишься или работаешь)\n"
-                "\n"
-                "Стиль может быть нейтральный или дружелюбный."
-            ),
-        },
-        "freund_nachricht": {
-            "title": "📅 Короткое сообщение другу",
-            "instruction": (
-                "Напиши короткое письмо другу.\n"
-                "3-5 предложений. Например:\n"
-                "• рассказать, что ты делаешь сегодня\n"
-                "• предложить встретиться\n"
-                "• спросить, как дела\n"
-            ),
-        },
-        "frage_lehrer": {
-            "title": "❓ Вопрос учителю или однокурснику",
-            "instruction": (
-                "Напиши короткое письмо учителю или однокурснику.\n"
-                "3-5 предложений. Укажи:\n"
-                "• приветствие\n"
-                "• кто ты\n"
-                "• твой вопрос (о домашнем задании, экзамене и так далее)\n"
-                "• благодарность\n"
-            ),
-        },
-        "termin_absage": {
-            "title": "🔄 Отмена или перенос встречи",
-            "instruction": (
-                "Напиши письмо, в котором ты отменяешь или переносишь встречу.\n"
-                "3-5 предложений. Укажи:\n"
-                "• на какой день была встреча\n"
-                "• почему ты не можешь\n"
-                "• новое предложение по времени или просьбу перенести\n"
-                "• извинение\n"
-            ),
-        },
-    },
-    "A2": {
-        "formal_allgemein": {
-            "title": "📬 Формальное письмо",
-            "instruction": (
-                "Напиши формальное письмо в организацию.\n"
-                "5-8 предложений. Используй приветствие типа "
-                "\"Sehr geehrte Damen und Herren\".\n"
-                "Можешь, например, запросить информацию о курсе, услуге или товаре."
-            ),
-        },
-        "arzt_kasse": {
-            "title": "🏥 Письмо врачу или в Krankenkasse",
-            "instruction": (
-                "Напиши письмо врачу или в медицинскую страховую (Krankenkasse).\n"
-                "5-8 предложений. Объясни:\n"
-                "• кто ты\n"
-                "• какая у тебя проблема или вопрос\n"
-                "• с какого времени у тебя проблема\n"
-                "• что ты хочешь (Termin, Beratung, Information)\n"
-            ),
-        },
-        "beschwerde": {
-            "title": "🛠 Жалоба на услугу или товар",
-            "instruction": (
-                "Напиши письмо-жалобу.\n"
-                "5-8 предложений. Опиши:\n"
-                "• что ты купил или заказал\n"
-                "• в чем проблема\n"
-                "• чего ты ожидаешь (Geld zurück, Reparatur, Austausch)\n"
-            ),
-        },
-        "hausmeister_vermieter": {
-            "title": "🔧 Письмо Hausmeister или Vermieter",
-            "instruction": (
-                "Напиши письмо по поводу квартиры (Hausmeister или Vermieter).\n"
-                "5-8 предложений. Объясни:\n"
-                "• какая проблема в квартире\n"
-                "• с какого времени\n"
-                "• что ты просишь сделать\n"
-            ),
-        },
-        "verkehrsbetrieb": {
-            "title": "🚌 Письмо в транспортную компанию",
-            "instruction": (
-                "Напиши письмо в транспортную компанию (например, о проблеме с билетом "
-                "или опозданием поезда).\n"
-                "5-8 предложений. Опиши ситуацию и чего ты ожидаешь."
-            ),
-        },
-        "termin_verschieben": {
-            "title": "⏰ Перенос термина",
-            "instruction": (
-                "Напиши формальное письмо с просьбой перенести термин.\n"
-                "5-8 предложений. Укажи старую дату, причину и желательное новое время."
-            ),
-        },
-        "anfrage_info": {
-            "title": "📝 Запрос информации (Anfrage)",
-            "instruction": (
-                "Напиши письмо-запрос информации.\n"
-                "5-8 предложений. Объясни кратко, кто ты, и какие именно "
-                "детали тебя интересуют."
-            ),
-        },
-    },
-    "B1": {
-        "erlebnis": {
-            "title": "🧾 Письмо-рассказ (опыт или ситуация)",
-            "instruction": (
-                "Напиши письмо, где ты рассказываешь о какой-то ситуации или опыте.\n"
-                "8-12 предложений. Опиши:\n"
-                "• где и когда это было\n"
-                "• что произошло\n"
-                "• как ты себя чувствовал\n"
-                "• чем все закончилось\n"
-            ),
-        },
-        "beschwerde_argumente": {
-            "title": "🛒 Жалоба с аргументами",
-            "instruction": (
-                "Напиши подробную жалобу.\n"
-                "8-12 предложений. Используй несколько аргументов, приведи примеры, "
-                "вежливо, но четко объясни, чего ты ожидаешь."
-            ),
-        },
-        "firma_bewerbung_light": {
-            "title": "🏢 Письмо в фирму или Bewerbung light",
-            "instruction": (
-                "Напиши письмо в фирму (запрос работы, Praktikum или Information).\n"
-                "8-12 предложений. Кратко расскажи о себе и объясни, что ты ищешь."
-            ),
-        },
-        "detail_anfrage": {
-            "title": "🧐 Запрос подробной информации",
-            "instruction": (
-                "Напиши письмо, в котором ты подробно спрашиваешь информацию.\n"
-                "8-12 предложений. Задай несколько конкретных вопросов."
-            ),
-        },
-        "bewertung_meinung": {
-            "title": "💬 Отзыв или мнение (Bewertung)",
-            "instruction": (
-                "Напиши письмо-отзыв. Например, о курсе, отеле или товаре.\n"
-                "8-12 предложений. Укажи плюсы, минусы и свое мнение."
-            ),
-        },
-        "konflikt_situation": {
-            "title": "📍 Сложная ситуация (опоздание, конфликт, ошибка)",
-            "instruction": (
-                "Напиши письмо-объяснение сложной ситуации.\n"
-                "8-12 предложений. Опиши, что случилось, почему так вышло "
-                "и что ты предлагаешь сделать."
-            ),
-        },
-    },
-}
-# ==========================
-# СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
-# ==========================
 
 user_state: Dict[int, Dict[str, Any]] = defaultdict(
     lambda: {
@@ -627,13 +436,6 @@ user_state: Dict[int, Dict[str, Any]] = defaultdict(
             "total_wrong": 0,
             "per_rule": {}
         },
-        "letter_mode": False,
-        "letter_task": None,
-        "letter_stats": {
-            "checked": 0
-        },
-        # Путь интеграции
-        "integration_progress": 0,   # индекс открытой темы
     }
 )
 
@@ -651,261 +453,8 @@ SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
 
 # ==========================
-# ПУТЬ ИНТЕГРАЦИИ: ТЕМЫ
-# ==========================
-
-INTEGRATION_TOPICS: List[Dict[str, str]] = [
-    {
-        "id": "a1_1_intro",
-        "title": "A1.1 Знакомство",
-        "goal": "Познакомиться с людьми на интеграционном курсе.",
-    },
-    {
-        "id": "a1_1_greetings",
-        "title": "A1.1 Приветствия и вежливость",
-        "goal": "Научиться здороваться и прощаться в разных ситуациях.",
-    },
-    {
-        "id": "a1_1_numbers_time",
-        "title": "A1.1 Числа и время",
-        "goal": "Понимать время и договариваться о встречах.",
-    },
-    # Потом добавишь сюда остальные темы по плану.
-]
-
-
-def get_integration_progress(uid: int) -> int:
-    state = user_state[uid]
-    try:
-        return int(state.get("integration_progress", 0))
-    except Exception:
-        return 0
-
-
-def set_integration_progress(uid: int, index: int) -> None:
-    state = user_state[uid]
-    state["integration_progress"] = max(0, index)
-    user_state[uid] = state
-    save_user_state()
-
-
-def complete_integration_topic(uid: int, topic_id: str) -> None:
-    """
-    Отмечаем тему как пройденную и открываем следующую.
-    """
-    current_index = get_integration_progress(uid)
-    index = None
-    for i, t in enumerate(INTEGRATION_TOPICS):
-        if t["id"] == topic_id:
-            index = i
-            break
-    if index is None:
-        return
-    if index >= current_index:
-        set_integration_progress(uid, index + 1)
-
-
-def build_integration_topics_keyboard(uid: int) -> InlineKeyboardMarkup:
-    progress_index = get_integration_progress(uid)
-
-    buttons: List[List[InlineKeyboardButton]] = []
-    for index, topic in enumerate(INTEGRATION_TOPICS):
-        is_open = index <= progress_index
-        status_emoji = "🔓" if is_open else "🔒"
-        text = f"{status_emoji} {topic['title']}"
-        if is_open:
-            cb = f"integration_topic_open:{topic['id']}"
-        else:
-            cb = "integration_locked"
-        buttons.append(
-            [InlineKeyboardButton(text=text, callback_data=cb)]
-        )
-
-    buttons.append(
-        [InlineKeyboardButton(text="⬅ Главное меню", callback_data="back_main")]
-    )
-
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-
-async def send_integration_path(message: Message, uid: int, edit: bool = False) -> None:
-    # Если пользователь еще не начинал, пусть будет открыта первая тема
-    if "integration_progress" not in user_state[uid]:
-        set_integration_progress(uid, 0)
-
-    text = (
-        "📍 Путь интеграции\n\n"
-        "Каждая тема открывается только после прохождения предыдущей.\n"
-        "Каждая тема имеет свою мини цель.\n"
-        "Ты проходишь путь так же как в реальной жизни:\n"
-        "от знакомства до работы, писем, врачей и официальных дел.\n\n"
-        "Выбери доступную тему ниже."
-    )
-    kb = build_integration_topics_keyboard(uid)
-
-    if edit:
-        try:
-            await message.edit_text(text, reply_markup=kb)
-        except Exception:
-            await message.answer(text, reply_markup=kb)
-    else:
-        await message.answer(text, reply_markup=kb)
-
-# ==========================
-# JSON-УРОКИ (A1_1_L1 И ДРУГИЕ)
-# ==========================
-
-# Кеш уроков: lesson_code -> dict
-LESSONS_CACHE: Dict[str, Dict[str, Any]] = {}
-# Состояние уроков по пользователям
-LESSON_USER_CODE: Dict[int, str] = {}      # user_id -> lesson_code
-LESSON_USER_STEP: Dict[int, int] = {}      # user_id -> step_index
-LESSON_USER_WAIT_INPUT: Dict[int, bool] = {}  # ждем ли текстовый ответ
-LESSON_USER_DATA: Dict[int, Dict[str, Any]] = {}  # произвольные данные урока
-
-
-def load_lesson(lesson_code: str) -> Dict[str, Any]:
-    """Читает JSON урока из папки lessons и кеширует."""
-    if lesson_code in LESSONS_CACHE:
-        return LESSONS_CACHE[lesson_code]
-
-    path = Path("lessons") / f"{lesson_code}.json"
-    if not path.exists():
-        raise FileNotFoundError(f"Lesson file not found: {path}")
-
-    with path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    LESSONS_CACHE[lesson_code] = data
-    return data
-
-
-def get_lesson_step(lesson_code: str, step_index: int) -> Optional[Dict[str, Any]]:
-    """Возвращает один шаг урока по индексу."""
-    lesson = load_lesson(lesson_code)
-    for step in lesson.get("steps", []):
-        if step.get("step_index") == step_index:
-            return step
-    return None
-
-
-def set_user_lesson(uid: int, lesson_code: str, start_step: int = 1) -> None:
-    LESSON_USER_CODE[uid] = lesson_code
-    LESSON_USER_STEP[uid] = start_step
-    LESSON_USER_WAIT_INPUT[uid] = False
-    if uid not in LESSON_USER_DATA:
-        LESSON_USER_DATA[uid] = {}
-
-
-async def lesson_show_step(message: Message) -> None:
-    """Показать текущий шаг JSON-урока пользователю."""
-    uid = message.from_user.id
-    lesson_code = LESSON_USER_CODE.get(uid)
-    step_index = LESSON_USER_STEP.get(uid)
-
-    if not lesson_code or not step_index:
-        await message.answer("Ошибка: урок не найден.")
-        return
-
-    step = get_lesson_step(lesson_code, step_index)
-    if not step:
-        await message.answer("Ошибка: шаг не найден.")
-        return
-
-    step_type = step.get("type")
-    LESSON_USER_WAIT_INPUT[uid] = False
-
-    # 1) Простой текст
-    if step_type == "text":
-        await message.answer(step["text"])
-
-        if step.get("is_lesson_end"):
-            # Здесь можно привязать прохождение к Пути интеграции,
-            # если это конкретный урок из Пути
-            if lesson_code == "A1_1_L1":
-                complete_integration_topic(uid, "a1_1_intro")
-                await message.answer(
-                    "🎉 Ты прошел первый урок A1.1.\n"
-                    "Тема 'A1.1 Знакомство' в Пути интеграции отмечена как пройденная."
-                )
-            # дальше можно вернуть пользователя в Путь интеграции
-            kb = InlineKeyboardMarkup(
-                inline_keyboard=[
-                    [
-                        InlineKeyboardButton(
-                            text="🛣 Вернуться к Пути интеграции",
-                            callback_data="integration_path_back",
-                        )
-                    ],
-                    [
-                        InlineKeyboardButton(
-                            text="⬅ Главное меню",
-                            callback_data="back_main",
-                        )
-                    ],
-                ]
-            )
-            await message.answer("Выбери, что делать дальше.", reply_markup=kb)
-            return
-
-        next_step = step.get("next_step")
-        if next_step:
-            LESSON_USER_STEP[uid] = next_step
-        return
-
-    # 2) Выбор варианта (choice / quiz_mcq)
-    if step_type in ("choice", "quiz_mcq"):
-        kb = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text=choice["text"],
-                        callback_data=f"lesson_ans|{choice['id']}",
-                    )
-                ]
-                for choice in step.get("choices", [])
-            ]
-        )
-        await message.answer(step["text"], reply_markup=kb)
-        return
-
-    # 3) Ввод текста
-    if step_type == "input_text" or step.get("answer_type") == "input_text":
-        await message.answer(step["text"])
-        LESSON_USER_WAIT_INPUT[uid] = True
-        return
-
-    # 4) Gap fill – пока принимаем текстом
-    if step_type == "gap_fill":
-        await message.answer(
-            step["text"]
-            + "\n\nНапиши ответ одним сообщением. Не переживай, если будет не идеально."
-        )
-        LESSON_USER_WAIT_INPUT[uid] = True
-        return
-
-    # 5) Задание в реальную жизнь
-    if step_type == "real_life_task":
-        btn_text = step.get("button_text", "Готово")
-        kb = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text=btn_text,
-                        callback_data="lesson_task_done",
-                    )
-                ]
-            ]
-        )
-        await message.answer(step["text"], reply_markup=kb)
-        return
-
-    await message.answer("Этот тип шага пока не поддержан в боте.")
-
-# ==========================
 # ДОСТУП
 # ==========================
-
 
 def load_allowed_users() -> None:
     global allowed_users
@@ -932,10 +481,10 @@ def save_allowed_users() -> None:
         for uid in sorted(allowed_users):
             f.write(str(uid) + "\n")
     print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
-# ==========================
-# СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ: ЗАГРУЗКА/СОХРАНЕНИЕ
-# ==========================
 
+# ==========================
+# СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЕЙ
+# ==========================
 
 def load_user_state() -> None:
     try:
@@ -973,7 +522,6 @@ def save_user_state() -> None:
 # ЗАГРУЗКА СЛОВ
 # ==========================
 
-
 def load_words(path: str = "words.json") -> None:
     global WORDS, WORDS_BY_TOPIC, LEVEL_COUNTS, TOPIC_COUNTS, SUBTOPIC_COUNTS
     global TOPIC_ID_BY_KEY, TOPIC_KEY_BY_ID, SUBTOPIC_ID_BY_KEY, SUBTOPIC_KEY_BY_ID
@@ -990,7 +538,7 @@ def load_words(path: str = "words.json") -> None:
 
     file_path = Path(path)
     if not file_path.exists():
-        print(f"Файл {path} не найден. Положи words.json рядом с main.py")
+        print(f"Файл {path} не найден. Положи words.json рядом с bot.py")
         return
 
     with file_path.open("r", encoding="utf-8") as f:
@@ -1083,7 +631,6 @@ def load_words(path: str = "words.json") -> None:
 # ВСПОМОГАТЕЛЬНЫЕ ДЛЯ ТЕМ
 # ==========================
 
-
 def get_levels() -> List[str]:
     return sorted(LEVEL_COUNTS.keys())
 
@@ -1121,7 +668,6 @@ def pretty_topic_name(topic_key: str) -> str:
 # ==========================
 # ФУНКЦИИ ДЛЯ СЛОВ
 # ==========================
-
 
 def get_user_words(uid: int) -> List[int]:
     state = user_state[uid]
@@ -1226,16 +772,9 @@ async def resend_same_word(chat_id: int, word_id: int, mode: str, uid: int) -> N
 # КЛАВИАТУРЫ МЕНЮ
 # ==========================
 
-
 def build_main_menu_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="🛣 Путь интеграции",
-                    callback_data="menu_integration",
-                )
-            ],
             [
                 InlineKeyboardButton(
                     text="🧠 Тренировать слова",
@@ -1246,12 +785,6 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
                 InlineKeyboardButton(
                     text="📘 Грамматика",
                     callback_data="grammar_menu",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📬 Учимся писать письма",
-                    callback_data="menu_letters",
                 )
             ],
             [
@@ -1322,7 +855,7 @@ def build_topics_keyboard_for_level(level: str) -> InlineKeyboardMarkup:
         topic_id = TOPIC_ID_BY_KEY.get(key)
         if not topic_id:
             continue
-        count = TOPIC_COUNTS.get((level, topic), 0)
+        count = TOPIC_COUNTS.get(key, 0)
         rows.append(
             [
                 InlineKeyboardButton(
@@ -1401,89 +934,10 @@ def build_full_format_keyboard(current_mode: str, current_answer: str) -> Inline
     rows.extend(build_answer_mode_keyboard(current_answer))
     rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
-# ==========================
-# КЛАВИАТУРЫ ДЛЯ ПИСЕМ
-# ==========================
-
-
-def build_letter_main_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="✏ A1 - Простые письма",
-                    callback_data="letter_level|A1",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="✉ A2 - Бытовые и формальные письма",
-                    callback_data="letter_level|A2",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📝 B1 - Экзаменационные письма",
-                    callback_data="letter_level|B1",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📚 Шаблоны писем",
-                    callback_data="letter_templates",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="🧪 Практика: проверить мое письмо",
-                    callback_data="letter_practice",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📊 Мой прогресс по письмам",
-                    callback_data="letter_progress",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="⬅ Главное меню",
-                    callback_data="back_main",
-                )
-            ],
-        ]
-    )
-
-
-def build_letter_tasks_keyboard(level: str) -> InlineKeyboardMarkup:
-    tasks = LETTER_TASKS.get(level, {})
-    rows: List[List[InlineKeyboardButton]] = []
-
-    for task_key, task_data in tasks.items():
-        title = task_data.get("title", task_key)
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text=title,
-                    callback_data=f"letter_task|{level}|{task_key}",
-                )
-            ]
-        )
-
-    rows.append(
-        [
-            InlineKeyboardButton(
-                text="⬅ Назад к письмам",
-                callback_data="menu_letters",
-            )
-        ]
-    )
-    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 # ==========================
 # СТАТИСТИКА
 # ==========================
-
 
 def update_topic_stats(uid: int, topic: str, correct: int, wrong: int) -> None:
     total = correct + wrong
@@ -1516,13 +970,10 @@ def update_topic_stats(uid: int, topic: str, correct: int, wrong: int) -> None:
     save_user_state()
 
 
-def update_grammar_stats(
-    uid: int,
-    rule_id: str,
-    correct_delta: int = 0,
-    wrong_delta: int = 0,
-    finished_quiz: bool = False,
-) -> None:
+def update_grammar_stats(uid: int, rule_id: str, correct_delta: int = 0, wrong_delta: int = 0, finished_quiz: bool = False) -> None:
+    """
+    Обновляет статистику по грамматическим упражнениям.
+    """
     state = user_state[uid]
 
     gstats = state.get("grammar_stats")
@@ -1533,14 +984,11 @@ def update_grammar_stats(
     if not isinstance(per_rule, dict):
         per_rule = {}
 
-    rule_stats = per_rule.get(
-        rule_id,
-        {
-            "correct": 0,
-            "wrong": 0,
-            "runs": 0,
-        },
-    )
+    rule_stats = per_rule.get(rule_id, {
+        "correct": 0,
+        "wrong": 0,
+        "runs": 0,
+    })
 
     if correct_delta > 0:
         rule_stats["correct"] += correct_delta
@@ -1605,7 +1053,6 @@ def build_user_stats_text(uid: int) -> str:
     lines.append("")
 
     topic_stats = state.get("topic_stats", {})
-
     if topic_stats:
         lines.append("📚 Результаты по темам, которые ты уже проходил:\n")
         for topic, stats in topic_stats.items():
@@ -1625,9 +1072,8 @@ def build_user_stats_text(uid: int) -> str:
     return "\n".join(lines)
 
 # ==========================
-# ПРОВЕРКА ПРЕДЛОЖЕНИЙ И ПИСЕМ
+# ПРОВЕРКА ПРЕДЛОЖЕНИЙ
 # ==========================
-
 
 async def check_text_with_ai(text: str) -> str:
     if client is None:
@@ -1650,111 +1096,9 @@ async def check_text_with_ai(text: str) -> str:
         print("Ошибка при проверке предложения:", e)
         return "Произошла ошибка при проверке. Попробуй еще раз позже."
 
-
-async def check_letter_with_ai(text: str) -> str:
-    if client is None:
-        return (
-            "Проверка писем сейчас недоступна.\n"
-            "Обратись к администратору."
-        )
-
-    prompt_user = (
-        "Ниже текст письма на немецком языке. Это письмо ученика уровня от A1 до B1.\n"
-        "Проверь письмо по инструкции.\n\n"
-        "Текст письма:\n"
-        f"{text}"
-    )
-
-    try:
-        completion = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[
-                {"role": "system", "content": LETTER_SYSTEM_PROMPT},
-                {"role": "user", "content": prompt_user},
-            ],
-            temperature=0.2,
-            max_tokens=900,
-        )
-        answer = completion.choices[0].message.content.strip()
-        return answer
-    except Exception as e:
-        print("Ошибка при проверке письма:", e)
-        return "Произошла ошибка при проверке письма. Попробуй еще раз позже."
-
-# ==========================
-# ОБРАБОТКА ТЕКСТА ВНУТРИ JSON-УРОКА
-# ==========================
-
-
-async def lesson_handle_text_answer(message: Message) -> None:
-    """Обработка текстового ответа в шаге урока (input_text / gap_fill)."""
-    uid = message.from_user.id
-    lesson_code = LESSON_USER_CODE.get(uid)
-    step_index = LESSON_USER_STEP.get(uid)
-
-    if not lesson_code or not step_index:
-        return
-
-    try:
-        step = get_lesson_step(lesson_code, step_index)
-    except Exception:
-        step = None
-
-    if not step:
-        await message.answer("Что-то пошло не так с уроком. Попробуй начать его снова позже.")
-        LESSON_USER_WAIT_INPUT[uid] = False
-        return
-
-    # Сохраняем ответ (если нужно)
-    user_data = LESSON_USER_DATA.setdefault(uid, {})
-    store_key = (
-        step.get("store_key")
-        or step.get("store_as")
-        or step.get("id")
-        or f"step_{step_index}_input"
-    )
-    user_data[store_key] = message.text.strip()
-    LESSON_USER_DATA[uid] = user_data
-
-    # Можно при желании дать короткую реакцию
-    if step.get("give_feedback", True):
-        await message.answer("👍 Спасибо, идем дальше.")
-
-    LESSON_USER_WAIT_INPUT[uid] = False
-
-    next_step = step.get("next_step")
-    if next_step:
-        LESSON_USER_STEP[uid] = next_step
-        await lesson_show_step(message)
-    else:
-        # Если нет next_step, считаем урок завершенным
-        if lesson_code == "A1_1_L1":
-            complete_integration_topic(uid, "a1_1_intro")
-            await message.answer(
-                "🎉 Ты прошел первый урок A1.1.\n"
-                "Тема 'A1.1 Знакомство' в Пути интеграции отмечена как пройденная."
-            )
-        kb = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text="🛣 Вернуться к Пути интеграции",
-                        callback_data="integration_path_back",
-                    )
-                ],
-                [
-                    InlineKeyboardButton(
-                        text="⬅ Главное меню",
-                        callback_data="back_main",
-                    )
-                ],
-            ]
-        )
-        await message.answer("Урок завершен. Отличная работа!", reply_markup=kb)
 # ==========================
 # КОМАНДЫ
 # ==========================
-
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message) -> None:
@@ -1774,7 +1118,7 @@ async def cmd_start(message: Message) -> None:
 
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
-            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику, письма, Путь интеграции и проверку предложений.\n\n"
+            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику и проверку предложений.\n\n"
             "Доступ ограничен. Нажми кнопку ниже, чтобы отправить запрос администратору."
         )
         await message.answer(text, reply_markup=kb)
@@ -1788,10 +1132,8 @@ async def cmd_start(message: Message) -> None:
         "🎓 Willkommen. Добро пожаловать в бота по немецкому языку.\n\n"
         "Здесь ты можешь:\n"
         "• Тренировать слова по уровням, темам и подтемам\n"
-        "• Разбирать грамматику с упражнениями\n"
-        "• Учиться писать письма (A1-A2-B1)\n"
+        "• Разбирать грамматику\n"
         "• Проверять свои предложения\n"
-        "• Проходить Путь интеграции от A1 до B1 с игровыми уроками\n"
         "• Смотреть статистику по темам\n\n"
         f"Сейчас в базе {total_words} слов.\n"
         f"Тем: {total_topics}, подтем: {total_subtopics}.\n\n"
@@ -1801,10 +1143,7 @@ async def cmd_start(message: Message) -> None:
     kb = build_main_menu_keyboard()
     await message.answer(text, reply_markup=kb)
 
-    state = user_state[uid]
-    state["check_mode"] = False
-    state["letter_mode"] = False
-    user_state[uid] = state
+    user_state[uid]["check_mode"] = False
     save_user_state()
 
 
@@ -1906,9 +1245,7 @@ async def cmd_check_on(message: Message) -> None:
         await message.answer("Нет доступа.")
         return
 
-    state = user_state[uid]
-    state["check_mode"] = True
-    state["letter_mode"] = False
+    user_state[uid]["check_mode"] = True
     save_user_state()
     await message.answer(
         "✏️ Режим проверки предложений включен.\n\n"
@@ -1946,7 +1283,6 @@ async def cmd_stats(message: Message) -> None:
 # ОБРАБОТЧИК ТЕКСТА
 # ==========================
 
-
 @dp.message(F.text & ~F.text.startswith("/"))
 async def handle_plain_text(message: Message) -> None:
     uid = message.from_user.id
@@ -1960,33 +1296,12 @@ async def handle_plain_text(message: Message) -> None:
 
     state = user_state[uid]
 
-    # 1) Если сейчас урок ждет текстовый ответ – обрабатываем в первую очередь
-    if LESSON_USER_WAIT_INPUT.get(uid):
-        await lesson_handle_text_answer(message)
-        return
-
-    # 2) Сначала проверяем, не в режиме ли писем
-    if state.get("letter_mode", False):
-        waiting_msg = await message.answer("⌛ Проверяю письмо...")
-        result = await check_letter_with_ai(text)
-
-        stats = state.get("letter_stats", {"checked": 0})
-        stats["checked"] = stats.get("checked", 0) + 1
-        state["letter_stats"] = stats
-        user_state[uid] = state
-        save_user_state()
-
-        await waiting_msg.edit_text(result)
-        return
-
-    # 3) Проверка отдельных предложений
     if state.get("check_mode", False):
         waiting_msg = await message.answer("⌛ Проверяю предложение...")
         result = await check_text_with_ai(text)
         await waiting_msg.edit_text(result)
         return
 
-    # 4) Режим ввода слова вручную (тренировка слов)
     if state.get("answer_mode") == "typing" and state.get("waiting_text_answer"):
         word_id = state.get("current_word_id")
         if word_id is None or word_id < 0 or word_id >= len(WORDS):
@@ -2028,16 +1343,9 @@ async def handle_plain_text(message: Message) -> None:
         await send_new_word(uid, message.chat.id)
         return
 
-    # Если не попало ни в один из режимов – можно позже добавить доп. логика
-    await message.answer(
-        "Я не понял, что ты хочешь сделать этим текстом.\n\n"
-        "Используй команды или кнопки меню: тренировка слов, грамматика, письма или Путь интеграции."
-    )
-
 # ==========================
 # CALLBACK: ДОСТУП
 # ==========================
-
 
 @dp.callback_query(F.data == "req_access")
 async def cb_req_access(callback: CallbackQuery) -> None:
@@ -2099,7 +1407,7 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
             "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
-            "Выбирай тренировки слов, грамматику, письма, проверку предложений, Путь интеграции, формат ответа или статистику с помощью кнопок."
+            "Выбирай тренировки слов, грамматику, проверку предложений, формат ответа или статистику с помощью кнопок."
         )
         await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
     except Exception:
@@ -2130,7 +1438,6 @@ async def cb_main_menu(callback: CallbackQuery) -> None:
 # ==========================
 # CALLBACK: СЛОВА
 # ==========================
-
 
 @dp.callback_query(F.data == "menu_words")
 async def cb_menu_words(callback: CallbackQuery) -> None:
@@ -2182,9 +1489,7 @@ async def cb_menu_check(callback: CallbackQuery) -> None:
 
     await callback.answer()
 
-    state = user_state[uid]
-    state["check_mode"] = True
-    state["letter_mode"] = False
+    user_state[uid]["check_mode"] = True
     save_user_state()
 
     await callback.message.answer(
@@ -2254,6 +1559,8 @@ async def cb_level(callback: CallbackQuery) -> None:
         await callback.message.edit_text(text, reply_markup=kb)
     except Exception:
         await callback.message.answer(text, reply_markup=kb)
+
+
 @dp.callback_query(F.data.startswith("topic_select|"))
 async def cb_topic_select(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
@@ -2389,7 +1696,7 @@ async def cb_answer_mode(callback: CallbackQuery) -> None:
     else:
         text = (
             "Теперь формат ответа: ввод слова вручную.\n\n"
-            "Я показываю русское слово, а ты пишешь его по немецики."
+            "Я показываю русское слово, а ты пишешь его по немецки."
         )
 
     try:
@@ -2463,7 +1770,6 @@ async def cb_answer(callback: CallbackQuery) -> None:
 # ==========================
 # CALLBACK: ГРАММАТИКА
 # ==========================
-
 
 @dp.callback_query(F.data == "grammar_menu")
 async def cb_grammar_menu(callback: CallbackQuery) -> None:
@@ -2640,6 +1946,7 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
     total_questions = len(questions)
     number = q_index + 1
 
+    # Правильный ответ
     if opt_index == correct:
         state["correct"] += 1
         update_grammar_stats(uid, rule_id, correct_delta=1)
@@ -2655,7 +1962,7 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
         instr_ru = get_quiz_instruction_ru()
 
         text = (
-            "✅ Ответ правильный.\n\n"
+            "✅ Ответ правильный!\n\n"
             "📘 Грамматика: следующее упражнение\n\n"
             f"Вопрос {state['index'] + 1} из {total_questions}\n\n"
             f"{instr_ru}\n\n"
@@ -2670,6 +1977,7 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
             await callback.message.answer(text, reply_markup=kb, parse_mode=None)
 
     else:
+        # Неправильный ответ
         state["wrong"] += 1
         update_grammar_stats(uid, rule_id, wrong_delta=1)
 
@@ -2694,6 +2002,8 @@ async def cb_quiz_answer(callback: CallbackQuery) -> None:
             await callback.message.edit_text(text, reply_markup=kb, parse_mode=None)
         except Exception:
             await callback.message.answer(text, reply_markup=kb, parse_mode=None)
+
+
 async def send_quiz_result(message: Message, user_id: int):
     state = USER_QUIZ_STATE.get(user_id)
     if not state:
@@ -2701,15 +2011,12 @@ async def send_quiz_result(message: Message, user_id: int):
     total = len(state["questions"])
     correct = state["correct"]
     wrong = state["wrong"]
-    if total > 0:
-        percent = round(correct / total * 100)
-    else:
-        percent = 0
+    percent = round(correct / total * 100)
 
     if percent == 100:
-        comment = "Отлично. Ты владеешь этой темой на очень высоком уровне."
+        comment = "Отлично! Ты владеешь этой темой на очень высоком уровне."
     elif percent >= 80:
-        comment = "Очень хорошо. Есть пара мелочей, которые можно повторить."
+        comment = "Очень хорошо! Есть пара мелочей, которые можно повторить."
     elif percent >= 50:
         comment = "Неплохо, но стоит еще потренироваться."
     else:
@@ -2729,432 +2036,8 @@ async def send_quiz_result(message: Message, user_id: int):
     await message.edit_text(text, reply_markup=kb_after_quiz(rule_id), parse_mode=None)
 
 # ==========================
-# CALLBACK: ПИСЬМА
-# ==========================
-
-
-@dp.callback_query(F.data == "menu_letters")
-async def cb_menu_letters(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    text = (
-        "📬 Учимся писать письма.\n\n"
-        "Выбери уровень или тип письма:\n"
-        "• A1 - простые короткие письма\n"
-        "• A2 - бытовые и формальные письма\n"
-        "• B1 - экзаменационные письма\n"
-        "• Шаблоны писем\n"
-        "• Практика: проверить свое письмо\n"
-        "• Мой прогресс\n"
-    )
-    await callback.message.answer(text, reply_markup=build_letter_main_keyboard())
-
-
-@dp.callback_query(F.data.startswith("letter_level|"))
-async def cb_letter_level(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, level = callback.data.split("|", maxsplit=1)
-    if level not in LETTER_TASKS:
-        await callback.answer("Для этого уровня пока нет заданий.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    text = (
-        f"Уровень писем {level}.\n\n"
-        "Выбери тип письма, который хочешь потренировать."
-    )
-    kb = build_letter_tasks_keyboard(level)
-    await callback.message.answer(text, reply_markup=kb)
-
-
-@dp.callback_query(F.data.startswith("letter_task|"))
-async def cb_letter_task(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, level, task_key = callback.data.split("|", maxsplit=2)
-    task = LETTER_TASKS.get(level, {}).get(task_key)
-    if not task:
-        await callback.answer("Задание не найдено.", show_alert=True)
-        return
-
-    state = user_state[uid]
-    state["letter_mode"] = True
-    state["letter_task"] = f"{level}:{task_key}"
-    state["check_mode"] = False
-    save_user_state()
-
-    await callback.answer()
-
-    text = (
-        f"{task['title']}\n\n"
-        f"{task['instruction']}\n\n"
-        "Когда будешь готов, просто отправь сюда свое письмо на немецком. "
-        "Я сразу его проверю и дам обратную связь."
-    )
-
-    await callback.message.answer(text)
-
-
-@dp.callback_query(F.data == "letter_templates")
-async def cb_letter_templates(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    text = (
-        "📚 Шаблоны писем:\n\n"
-        "• 💼 Формальный шаблон (Sehr geehrte Damen und Herren ...)\n"
-        "• 😊 Неформальный шаблон (Hallo ..., Liebe ...)\n"
-        "• 📝 Шаблон жалобы\n"
-        "• ℹ️ Шаблон запроса информации\n"
-        "• 📆 Шаблон изменения термина\n"
-        "• 🏠 Шаблон письма арендодателю\n"
-        "• 🩺 Шаблон письма врачу\n\n"
-        "На этом этапе я просто показываю список. Дальше можно сделать "
-        "отдельные кнопки и примеры для каждого шаблона."
-    )
-
-    await callback.message.answer(text, reply_markup=build_letter_main_keyboard())
-
-
-@dp.callback_query(F.data == "letter_practice")
-async def cb_letter_practice(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    state = user_state[uid]
-    state["letter_mode"] = True
-    state["letter_task"] = None
-    state["check_mode"] = False
-    save_user_state()
-
-    text = (
-        "🧪 Практика: проверить мое письмо.\n\n"
-        "Просто отправь сюда любое письмо на немецком языке.\n"
-        "Я исправлю текст, объясню ошибки и оценю примерный уровень (A1-A2-B1)."
-    )
-
-    await callback.message.answer(text)
-
-
-@dp.callback_query(F.data == "letter_progress")
-async def cb_letter_progress(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    state = user_state[uid]
-    stats = state.get("letter_stats", {})
-    checked = stats.get("checked", 0)
-
-    if checked == 0:
-        text = (
-            "📊 Прогресс по письмам.\n\n"
-            "Ты пока не отправлял письма на проверку.\n"
-            "Начни с любого задания A1-A2-B1 или отправь письмо в режиме практики."
-        )
-    else:
-        text = (
-            "📊 Прогресс по письмам.\n\n"
-            f"Писем проверено: {checked}\n\n"
-            "Каждая проверка помогает тебе улучшать структуру, лексику и грамматику.\n"
-            "Продолжай писать письма регулярно, как минимум 2-3 раза в неделю."
-        )
-
-    await callback.message.answer(text, reply_markup=build_letter_main_keyboard())
-
-# ==========================
-# CALLBACK: ПУТЬ ИНТЕГРАЦИИ + JSON-УРОК
-# ==========================
-
-
-@dp.callback_query(F.data == "menu_integration")
-async def cb_menu_integration(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer()
-    await send_integration_path(callback.message, uid, edit=False)
-
-
-@dp.callback_query(F.data == "integration_locked")
-async def cb_integration_locked(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer("Эта тема пока закрыта. Сначала пройди предыдущую.", show_alert=True)
-    await callback.message.answer(
-        "Эта тема пока закрыта.\n\n"
-        "Сначала нужно пройти предыдущую тему в Пути интеграции.\n"
-        "После выполнения текущей темы вернись сюда."
-    )
-
-
-@dp.callback_query(F.data == "integration_path_back")
-async def cb_integration_path_back(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer()
-    await send_integration_path(callback.message, uid, edit=True)
-
-
-@dp.callback_query(F.data.startswith("integration_topic_open:"))
-async def cb_integration_topic_open(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, topic_id = callback.data.split(":", maxsplit=1)
-    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
-    if not topic:
-        await callback.answer("Тема не найдена.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    text = (
-        f"🔹 {topic['title']}\n\n"
-        f"Игровая цель:\n{topic['goal']}\n\n"
-        "Когда будешь готов, нажми кнопку ниже чтобы начать мини задание или урок по этой теме."
-    )
-
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="🚀 Начать",
-                    callback_data=f"integration_start:{topic_id}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="⬅ Назад к Пути интеграции",
-                    callback_data="integration_path_back",
-                )
-            ],
-        ]
-    )
-
-    try:
-        await callback.message.edit_text(text, reply_markup=kb)
-    except Exception:
-        await callback.message.answer(text, reply_markup=kb)
-
-
-async def start_json_lesson_for_integration(message: Message, uid: int, lesson_code: str) -> None:
-    """Запуск JSON-урока из Пути интеграции."""
-    if lesson_code not in LESSONS:
-        await message.answer(
-            "Урок пока не найден на сервере. Сообщи администратору, что нет файла для этого урока."
-        )
-        return
-
-    LESSON_USER_CODE[uid] = lesson_code
-    LESSON_USER_STEP[uid] = "start"
-    LESSON_USER_WAIT_INPUT[uid] = False
-    LESSON_USER_DATA[uid] = {}
-
-    await message.answer(
-        "🎮 Начинаем игровой урок по теме A1.1.\n"
-        "Следуй инструкциям на экране, отвечай на вопросы и читай реплики."
-    )
-
-    await lesson_show_step(message)
-
-
-@dp.callback_query(F.data.startswith("integration_start:"))
-async def cb_integration_start(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, topic_id = callback.data.split(":", maxsplit=1)
-    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
-    if not topic:
-        await callback.answer("Тема не найдена.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    # Для первой темы A1.1 Знакомство запускаем полный JSON-урок
-    if topic_id == "a1_1_intro":
-        await start_json_lesson_for_integration(callback.message, uid, "A1_1_L1")
-        return
-
-    # Для остальных тем пока оставляем простое текстовое мини-задание
-    text = (
-        f"🎮 {topic['title']}\n\n"
-        "Сейчас это небольшое мини задание по этой теме.\n"
-        "Проработай тему вслух или на бумаге, а потом нажми кнопку ниже.\n\n"
-        "Позже сюда можно добавить полноценный сценарий с диалогами и проверкой."
-    )
-
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="✅ Я сделал это задание",
-                    callback_data=f"integration_done:{topic_id}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="⬅ Назад к Пути интеграции",
-                    callback_data="integration_path_back",
-                )
-            ],
-        ]
-    )
-
-    try:
-        await callback.message.edit_text(text, reply_markup=kb)
-    except Exception:
-        await callback.message.answer(text, reply_markup=kb)
-
-
-@dp.callback_query(F.data.startswith("integration_done:"))
-async def cb_integration_done(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, topic_id = callback.data.split(":", maxsplit=1)
-    topic = next((t for t in INTEGRATION_TOPICS if t["id"] == topic_id), None)
-    if not topic:
-        await callback.answer("Тема не найдена.", show_alert=True)
-        return
-
-    complete_integration_topic(uid, topic_id)
-
-    idx = None
-    for i, t in enumerate(INTEGRATION_TOPICS):
-        if t["id"] == topic_id:
-            idx = i
-            break
-
-    if idx is not None and idx + 1 < len(INTEGRATION_TOPICS):
-        next_topic = INTEGRATION_TOPICS[idx + 1]
-        extra = (
-            f"Следующая тема теперь открыта: {next_topic['title']}.\n"
-            "Можешь выбрать ее в Пути интеграции."
-        )
-    else:
-        extra = "Ты прошел все текущие темы Пути интеграции A1.1. Дальше можно добавить новые уровни."
-
-    text = (
-        f"✅ Тема {topic['title']} отмечена как пройденная.\n\n"
-        "Отлично, ты сделал еще один шаг в интеграции.\n\n"
-        f"{extra}"
-    )
-
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="🛣 Вернуться к Пути интеграции",
-                    callback_data="integration_path_back",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="⬅ Главное меню",
-                    callback_data="back_main",
-                )
-            ],
-        ]
-    )
-
-    await callback.answer("Тема отмечена как пройденная.")
-    try:
-        await callback.message.edit_text(text, reply_markup=kb)
-    except Exception:
-        await callback.message.answer(text, reply_markup=kb)
-
-# ==========================
-# CALLBACK: ШАГИ JSON-УРОКА (кнопки внутри урока)
-# ==========================
-
-
-@dp.callback_query(F.data.startswith("lesson_goto|"))
-async def cb_lesson_goto(callback: CallbackQuery) -> None:
-    """Переход к следующему шагу урока по кнопке."""
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, lesson_code, step_id = callback.data.split("|", maxsplit=2)
-
-    if lesson_code not in LESSONS:
-        await callback.answer("Урок не найден.", show_alert=True)
-        return
-
-    LESSON_USER_CODE[uid] = lesson_code
-    LESSON_USER_STEP[uid] = step_id
-    LESSON_USER_WAIT_INPUT[uid] = False
-
-    await callback.answer()
-    await lesson_show_step(callback.message)
-
-
-@dp.callback_query(F.data.startswith("lesson_task_done|"))
-async def cb_lesson_task_done(callback: CallbackQuery) -> None:
-    """Кнопка 'Я сделал задание' внутри шага урока."""
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, lesson_code, next_step = callback.data.split("|", maxsplit=2)
-
-    if lesson_code not in LESSONS:
-        await callback.answer("Урок не найден.", show_alert=True)
-        return
-
-    LESSON_USER_CODE[uid] = lesson_code
-    LESSON_USER_STEP[uid] = next_step
-    LESSON_USER_WAIT_INPUT[uid] = False
-
-    await callback.answer("Отлично, идем дальше.")
-    await lesson_show_step(callback.message)
-
-# ==========================
 # ЗАПУСК
 # ==========================
-
 
 async def main() -> None:
     load_allowed_users()
@@ -3162,14 +2045,9 @@ async def main() -> None:
     load_user_state()
     if GRAMMAR_FILE.exists():
         load_grammar_rules()
-    # Загрузка JSON-уроков (урок 1 A1.1 хранится в lessons/A1_1_L1.json)
-    try:
-        load_lessons()
-    except Exception as e:
-        print("Ошибка при загрузке уроков:", e)
-
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
