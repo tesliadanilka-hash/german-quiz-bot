@@ -453,6 +453,125 @@ SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
 
 # ==========================
+# ПУТЬ ИНТЕГРАЦИИ A1.1
+# ==========================
+
+INTEGRATION_LESSONS_FILES = [
+    Path("project_rootlessonsA1_1_L1.json"),
+    Path("lessonsA1_1_L1.json"),
+    Path("project_root/lessonsA1_1_L1.json"),
+]
+
+INTEGRATION_LESSONS: List[Dict[str, Any]] = []
+INTEGRATION_LESSON_BY_ID: Dict[str, Dict[str, Any]] = {}
+
+
+def load_integration_lessons() -> None:
+    """Загрузка уроков пути интеграции из json."""
+    global INTEGRATION_LESSONS, INTEGRATION_LESSON_BY_ID
+
+    data = None
+    used_path: Optional[Path] = None
+
+    for p in INTEGRATION_LESSONS_FILES:
+        if p.exists():
+            used_path = p
+            try:
+                with p.open("r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception as e:
+                print(f"Ошибка чтения файла с уроками интеграции {p}: {e}")
+                data = None
+            break
+
+    if data is None:
+        print("Файл с уроками пути интеграции не найден.")
+        INTEGRATION_LESSONS = []
+        INTEGRATION_LESSON_BY_ID = {}
+        return
+
+    if isinstance(data, list):
+        lessons = data
+    elif isinstance(data, dict) and isinstance(data.get("lessons"), list):
+        lessons = data["lessons"]
+    else:
+        lessons = [data]
+
+    INTEGRATION_LESSONS = lessons
+    INTEGRATION_LESSON_BY_ID = {}
+
+    for lesson in lessons:
+        lid = lesson.get("id") or lesson.get("code") or lesson.get("lesson_id")
+        if lid is None:
+            # генерируем простой id если его нет
+            lid = f"lesson_{len(INTEGRATION_LESSON_BY_ID) + 1}"
+            lesson["id"] = lid
+        lid_str = str(lid)
+        INTEGRATION_LESSON_BY_ID[lid_str] = lesson
+
+    print(
+        f"Загружено уроков пути интеграции: {len(INTEGRATION_LESSONS)} "
+        f"из файла: {used_path if used_path else 'неизвестно'}"
+    )
+
+
+def build_integration_menu_keyboard() -> InlineKeyboardMarkup:
+    """Список уроков пути интеграции."""
+    rows: List[List[InlineKeyboardButton]] = []
+
+    if not INTEGRATION_LESSONS:
+        rows.extend(build_back_to_main_row())
+        return InlineKeyboardMarkup(inline_keyboard=rows)
+
+    for lesson in INTEGRATION_LESSONS:
+        lid = str(lesson.get("id") or lesson.get("code") or lesson.get("lesson_id") or "")
+        if not lid:
+            continue
+
+        title = (
+            lesson.get("title")
+            or lesson.get("name")
+            or lesson.get("lesson_title")
+            or "Урок"
+        )
+        number = lesson.get("number")
+        prefix = ""
+        if isinstance(number, int):
+            prefix = f"Урок {number}. "
+
+        button_text = f"{prefix}{title}"
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=button_text,
+                    callback_data=f"integration_lesson|{lid}",
+                )
+            ]
+        )
+
+    rows.extend(build_back_to_main_row())
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def build_integration_lesson_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="⬅ Список уроков",
+                    callback_data="menu_integration",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅ Главное меню",
+                    callback_data="back_main",
+                )
+            ],
+        ]
+    )
+
+# ==========================
 # ДОСТУП
 # ==========================
 
@@ -779,6 +898,12 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
                 InlineKeyboardButton(
                     text="🧠 Тренировать слова",
                     callback_data="menu_words",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🧭 Путь интеграции A1.1",
+                    callback_data="menu_integration",
                 )
             ],
             [
@@ -1118,7 +1243,7 @@ async def cmd_start(message: Message) -> None:
 
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
-            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику и проверку предложений.\n\n"
+            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику, путь интеграции и проверку предложений.\n\n"
             "Доступ ограничен. Нажми кнопку ниже, чтобы отправить запрос администратору."
         )
         await message.answer(text, reply_markup=kb)
@@ -1128,15 +1253,19 @@ async def cmd_start(message: Message) -> None:
     total_topics = len(TOPIC_COUNTS)
     total_subtopics = len(SUBTOPIC_COUNTS)
 
+    integration_count = len(INTEGRATION_LESSONS)
+
     text = (
         "🎓 Willkommen. Добро пожаловать в бота по немецкому языку.\n\n"
         "Здесь ты можешь:\n"
         "• Тренировать слова по уровням, темам и подтемам\n"
+        "• Проходить путь интеграции по урокам A1.1\n"
         "• Разбирать грамматику\n"
         "• Проверять свои предложения\n"
         "• Смотреть статистику по темам\n\n"
         f"Сейчас в базе {total_words} слов.\n"
-        f"Тем: {total_topics}, подтем: {total_subtopics}.\n\n"
+        f"Тем: {total_topics}, подтем: {total_subtopics}.\n"
+        f"Уроков пути интеграции A1.1: {integration_count}.\n\n"
         "Используй главное меню ниже, чтобы выбрать режим."
     )
 
@@ -1407,7 +1536,7 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
             "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
-            "Выбирай тренировки слов, грамматику, проверку предложений, формат ответа или статистику с помощью кнопок."
+            "Выбирай тренировки слов, путь интеграции, грамматику, проверку предложений, формат ответа или статистику с помощью кнопок."
         )
         await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
     except Exception:
@@ -1434,6 +1563,101 @@ async def cb_back_main(callback: CallbackQuery) -> None:
 @dp.callback_query(F.data == "main_menu")
 async def cb_main_menu(callback: CallbackQuery) -> None:
     await cb_back_main(callback)
+
+# ==========================
+# CALLBACK: ПУТЬ ИНТЕГРАЦИИ
+# ==========================
+
+@dp.callback_query(F.data == "menu_integration")
+async def cb_menu_integration(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    if not INTEGRATION_LESSONS:
+        await callback.message.answer(
+            "Файл с уроками пути интеграции пока не найден или в нем нет уроков.",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=build_back_to_main_row()),
+        )
+        return
+
+    kb = build_integration_menu_keyboard()
+    text = (
+        "🧭 Путь интеграции A1.1\n\n"
+        "Выбери урок, чтобы посмотреть его название и темы."
+    )
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
+
+
+@dp.callback_query(F.data.startswith("integration_lesson|"))
+async def cb_integration_lesson(callback: CallbackQuery) -> None:
+    uid = callback.from_user.id
+
+    if uid != ADMIN_ID and uid not in allowed_users:
+        await callback.answer("Нет доступа.", show_alert=True)
+        return
+
+    _, lid = callback.data.split("|", maxsplit=1)
+    lesson = INTEGRATION_LESSON_BY_ID.get(lid)
+
+    if not lesson:
+        await callback.answer("Урок не найден.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    title = (
+        lesson.get("title")
+        or lesson.get("name")
+        or lesson.get("lesson_title")
+        or "Урок без названия"
+    )
+    code = lesson.get("code") or lesson.get("id") or lid
+    goal = lesson.get("goal") or lesson.get("ziel") or lesson.get("target")
+
+    themes = (
+        lesson.get("themes")
+        or lesson.get("topics")
+        or lesson.get("blocks")
+        or lesson.get("sections")
+    )
+
+    lines: List[str] = []
+    lines.append("🧭 Путь интеграции A1.1")
+    lines.append("")
+    lines.append(f"Код урока: {code}")
+    lines.append(f"Название: {title}")
+
+    if goal:
+        lines.append("")
+        lines.append(f"Цель урока: {goal}")
+
+    if isinstance(themes, list) and themes:
+        lines.append("")
+        lines.append("Темы урока:")
+        for t in themes:
+            if isinstance(t, str):
+                lines.append(f"• {t}")
+            elif isinstance(t, dict):
+                t_title = t.get("title") or t.get("name") or t.get("id")
+                if t_title:
+                    lines.append(f"• {t_title}")
+
+    text = "\n".join(lines)
+    kb = build_integration_lesson_keyboard()
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb)
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb)
 
 # ==========================
 # CALLBACK: СЛОВА
@@ -2045,9 +2269,9 @@ async def main() -> None:
     load_user_state()
     if GRAMMAR_FILE.exists():
         load_grammar_rules()
+    load_integration_lessons()
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-
