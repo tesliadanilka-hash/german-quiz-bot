@@ -459,7 +459,7 @@ def load_integration_lessons() -> None:
                 data = None
             break
 
-    # 2. Если не нашли — ищем рекурсивно по имени файла
+    # 2. Если не нашли - ищем рекурсивно по имени файла
     if data is None:
         found = _find_integration_file_recursively()
         if found and found.exists():
@@ -500,6 +500,7 @@ def load_integration_lessons() -> None:
         f"Загружено уроков пути интеграции: {len(INTEGRATION_LESSONS)} "
         f"из файла: {used_path if used_path else 'неизвестно'}"
     )
+
     
 
 # ==========================
@@ -2364,4 +2365,5 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
