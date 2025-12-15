@@ -42,6 +42,7 @@ if not TOKEN:
         "и в ней записан токен от BotFather."
     )
 
+# Включаем Markdown как основной формат
 bot = Bot(
     token=TOKEN,
     default=DefaultBotProperties(parse_mode="Markdown")
@@ -74,224 +75,21 @@ AI_SYSTEM_PROMPT = (
 Word = Dict[str, Any]
 
 # ==========================
-# АУДИРОВАНИЕ: СТРУКТУРА, ТЕМЫ A1-B2, ХРАНЕНИЕ
-# ==========================
-
-LISTENING_FILE = Path("listenings.json")
-LISTENING_AUDIO_DIR = Path("listenings_audio")  # сюда кладешь .ogg/.mp3
-
-# ВАЖНО: Слова отдельным пунктом "Тренировать слова".
-# В "Аудирование" мы НЕ кладем одиночные слова, только фразы/диалоги/сцены.
-
-LISTENING_TOPICS: Dict[str, List[Dict[str, str]]] = {
-    "A1": [
-        {"id": "a1_intro", "title": "Знакомство и приветствия"},
-        {"id": "a1_station", "title": "Вокзал и транспорт"},
-        {"id": "a1_city", "title": "Город и ориентация"},
-        {"id": "a1_shop", "title": "Покупки и цены"},
-        {"id": "a1_food", "title": "Еда и кафе"},
-        {"id": "a1_home", "title": "Дом и быт"},
-        {"id": "a1_time", "title": "Время и расписание"},
-        {"id": "a1_health", "title": "Здоровье и аптека"},
-        {"id": "a1_jobcenter", "title": "Соцслужбы: Jobcenter и базовые запросы"},
-        {"id": "a1_smalltalk", "title": "Короткие разговоры и планы"},
-    ],
-    "A2": [
-        {"id": "a2_daily", "title": "Повседневные ситуации"},
-        {"id": "a2_work", "title": "Работа и общение на работе"},
-        {"id": "a2_rent", "title": "Аренда жилья и проблемы дома"},
-        {"id": "a2_doctor", "title": "Врач и запись на прием"},
-        {"id": "a2_services", "title": "Сервисы и услуги (ремонт, доставка)"},
-        {"id": "a2_travel", "title": "Поездки и планы на выходные"},
-        {"id": "a2_phone", "title": "Звонки, сообщения, почта"},
-        {"id": "a2_school", "title": "Курсы и учеба"},
-        {"id": "a2_bureau", "title": "Учреждения и документы"},
-        {"id": "a2_conflicts", "title": "Проблемы и жалобы (мягко)"},
-    ],
-    "B1": [
-        {"id": "b1_news", "title": "Новости и обсуждение событий"},
-        {"id": "b1_work", "title": "Работа: собеседование, договор, задачи"},
-        {"id": "b1_health", "title": "Здоровье: симптомы, лечение, рекомендации"},
-        {"id": "b1_housing", "title": "Жилье: договор, письма, вопросы к хозяину"},
-        {"id": "b1_official", "title": "Официальные разговоры и звонки"},
-        {"id": "b1_travel", "title": "Путешествия и ситуации в пути"},
-        {"id": "b1_conflict", "title": "Споры, недовольство, аргументы"},
-        {"id": "b1_finance", "title": "Финансы: счета, покупки, возвраты"},
-        {"id": "b1_education", "title": "Учеба, планы, цели"},
-        {"id": "b1_society", "title": "Общество, культура, правила"},
-    ],
-    "B2": [
-        {"id": "b2_debate", "title": "Дискуссии и аргументация"},
-        {"id": "b2_work", "title": "Профессиональные встречи и переговоры"},
-        {"id": "b2_present", "title": "Презентации и объяснения процессов"},
-        {"id": "b2_media", "title": "Медиа: интервью, подкасты, обзоры"},
-        {"id": "b2_science", "title": "Наука и технологии (общие темы)"},
-        {"id": "b2_law", "title": "Право и бюрократия (без узких деталей)"},
-        {"id": "b2_economy", "title": "Экономика и бизнес (база)"},
-        {"id": "b2_social", "title": "Социальные темы и мнения"},
-        {"id": "b2_emails", "title": "Деловые письма и формальные разговоры"},
-        {"id": "b2_long", "title": "Длинные диалоги и истории (1-2 минуты)"},
-    ],
-}
-
-# Структура элемента listenings.json:
-# [
-#   {
-#     "id": "A1_station_001",
-#     "level": "A1",
-#     "topic_id": "a1_station",
-#     "title": "Am Bahnhof: Toni begruesst dich",
-#     "audio_file": "A1_station_001.ogg",
-#     "transcript_de": "Hallo! Ich bin Toni. Willkommen am Bahnhof. Wie heißt du?",
-#     "questions": [
-#        {"question": "Wo sind sie?", "options": ["Am Bahnhof","Im Restaurant","In der Schule","Im Park"], "correct_index": 0},
-#        ...
-#     ]
-#   }
-# ]
-
-LISTENINGS: List[Dict[str, Any]] = []
-LISTENING_BY_ID: Dict[str, Dict[str, Any]] = {}
-LISTENINGS_BY_LEVEL_TOPIC: Dict[Tuple[str, str], List[str]] = defaultdict(list)
-
-# user_id -> state for current listening quiz
-LISTENING_QUIZ_STATE: Dict[int, Dict[str, Any]] = {}
-
-
-def ensure_default_listenings_file() -> None:
-    if LISTENING_FILE.exists():
-        return
-
-    LISTENING_AUDIO_DIR.mkdir(parents=True, exist_ok=True)
-
-    sample = [
-        {
-            "id": "A1_station_001",
-            "level": "A1",
-            "topic_id": "a1_station",
-            "title": "Am Bahnhof: Toni begruesst dich",
-            "audio_file": "A1_station_001.ogg",
-            "transcript_de": "Hallo! Ich bin Toni. Willkommen am Bahnhof. Wie heißt du?",
-            "questions": [
-                {
-                    "question": "Wo sind sie?",
-                    "options": ["Am Bahnhof", "Im Restaurant", "In der Schule", "Im Park"],
-                    "correct_index": 0
-                },
-                {
-                    "question": "Wie heißt er?",
-                    "options": ["Toni", "Ahmet", "Max", "Paul"],
-                    "correct_index": 0
-                }
-            ]
-        }
-    ]
-
-    with LISTENING_FILE.open("w", encoding="utf-8") as f:
-        json.dump(sample, f, ensure_ascii=False, indent=2)
-
-    print("Создан listenings.json с примером. Добавь аудио файл в папку listenings_audio.")
-
-
-def load_listenings() -> None:
-    global LISTENINGS, LISTENING_BY_ID, LISTENINGS_BY_LEVEL_TOPIC
-
-    LISTENINGS = []
-    LISTENING_BY_ID = {}
-    LISTENINGS_BY_LEVEL_TOPIC = defaultdict(list)
-
-    ensure_default_listenings_file()
-
-    try:
-        with LISTENING_FILE.open("r", encoding="utf-8") as f:
-            data = json.load(f)
-    except Exception as e:
-        print("Ошибка чтения listenings.json:", e)
-        return
-
-    if not isinstance(data, list):
-        print("listenings.json должен быть списком объектов.")
-        return
-
-    for item in data:
-        if not isinstance(item, dict):
-            continue
-        lid = str(item.get("id", "")).strip()
-        level = str(item.get("level", "")).strip()
-        topic_id = str(item.get("topic_id", "")).strip()
-        title = str(item.get("title", "")).strip()
-        audio_file = str(item.get("audio_file", "")).strip()
-        questions = item.get("questions", [])
-
-        if not lid or not level or not topic_id or not title or not audio_file:
-            continue
-        if not isinstance(questions, list) or not questions:
-            continue
-
-        ok_questions = []
-        for q in questions:
-            if not isinstance(q, dict):
-                continue
-            qq = str(q.get("question", "")).strip()
-            opts = q.get("options", [])
-            ci = q.get("correct_index", None)
-            if not qq or not isinstance(opts, list) or len(opts) != 4:
-                continue
-            if not isinstance(ci, int) or ci < 0 or ci > 3:
-                continue
-            ok_questions.append(
-                {"question": qq, "options": [str(x) for x in opts], "correct_index": ci}
-            )
-        if not ok_questions:
-            continue
-
-        clean = dict(item)
-        clean["questions"] = ok_questions
-
-        LISTENINGS.append(clean)
-        LISTENING_BY_ID[lid] = clean
-        LISTENINGS_BY_LEVEL_TOPIC[(level, topic_id)].append(lid)
-
-    print(f"Загружено аудирований: {len(LISTENINGS)}")
-
-
-def listening_prompt_template() -> str:
-    # Это промт для генерации одного блока аудирования (текст+вопросы) под твою базу.
-    return (
-        "Ты методист DaF (немецкий как иностранный). Сгенерируй ОДИН блок аудирования.\n"
-        "Требования:\n"
-        "1) Уровень: {LEVEL}\n"
-        "2) Тема: {TOPIC_TITLE}\n"
-        "3) Длина аудио: {SECONDS} секунд (коротко).\n"
-        "4) Язык аудио: ТОЛЬКО немецкий.\n"
-        "5) Дай transcript_de без сложных конструкций, строго по уровню.\n"
-        "6) Сделай 4 вопроса на понимание смысла. У каждого вопроса ровно 4 варианта ответа.\n"
-        "7) Один вариант правильный, correct_index 0-3.\n"
-        "8) Варианты должны быть правдоподобными.\n"
-        "9) Не используй кавычки-елочки. Не используй длинные тире.\n\n"
-        "Формат ответа: только JSON:\n"
-        "{\n"
-        "  \"title\": \"...\",\n"
-        "  \"transcript_de\": \"...\",\n"
-        "  \"questions\": [\n"
-        "    {\"question\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"correct_index\":0}\n"
-        "  ]\n"
-        "}\n"
-    )
-
-
-# ==========================
 # ГРАММАТИКА - КНОПКИ, ПРАВИЛА, ВИКТОРИНЫ
 # ==========================
 
 GRAMMAR_FILE = Path("grammar.json")
 GRAMMAR_RULES: List[Dict[str, Any]] = []
 
+# user_id -> { "rule_id": str, "questions": [...], "index": int, "correct": int, "wrong": int }
 USER_QUIZ_STATE: Dict[int, Dict[str, Any]] = {}
+
+# rule_id -> список вопросов, чтобы не генерировать каждый раз заново
 QUIZ_CACHE: Dict[str, List[Dict[str, Any]]] = {}
 
 
 def strip_html_tags(text: str) -> str:
+    """Убираем простые HTML теги, чтобы не мешали в Markdown."""
     if not isinstance(text, str):
         return str(text)
     for tag in ("<b>", "</b>", "<i>", "</i>", "<u>", "</u>"):
@@ -326,6 +124,8 @@ def load_grammar_rules() -> None:
 
 
 def get_sublevel_from_topic(topic: str) -> str:
+    if "—" in topic:
+        return topic.split("—", 1)[0].strip()
     if "-" in topic:
         return topic.split("-", 1)[0].strip()
     return topic.strip()
@@ -488,6 +288,16 @@ def get_quiz_instruction_ru() -> str:
 
 
 async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Генерируем вопросы по конкретному правилу через OpenAI.
+
+    Важно:
+    - Упражнения строго по текущему правилу.
+    - Только немецкий язык внутри упражнений.
+    - В question только предложение или задание на немецком, без инструкций.
+    - Всегда 4 варианта, 1 правильный.
+    """
+
     if client is None:
         print("Нет OPENAI_API_KEY, викторина по грамматике недоступна.")
         return []
@@ -597,6 +407,7 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     clean_questions = clean_questions[:5]
 
     QUIZ_CACHE[rule_id] = clean_questions
+
     return clean_questions
 
 # ==========================
@@ -635,7 +446,7 @@ SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int)
 
 TOPIC_ID_BY_KEY: Dict[Tuple[str, str], str] = {}
 TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
-SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str]] = {}
+SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
 
 # ==========================
@@ -711,7 +522,6 @@ def save_user_state() -> None:
 def load_words(path: str = "words.json") -> None:
     global WORDS, WORDS_BY_TOPIC, LEVEL_COUNTS, TOPIC_COUNTS, SUBTOPIC_COUNTS
     global TOPIC_ID_BY_KEY, TOPIC_KEY_BY_ID, SUBTOPIC_ID_BY_KEY, SUBTOPIC_KEY_BY_ID
-    global SUBTOPIC_KEY_BY_ID
 
     WORDS = []
     WORDS_BY_TOPIC = defaultdict(list)
@@ -973,12 +783,36 @@ def build_back_to_main_row() -> List[List[InlineKeyboardButton]]:
 def build_main_menu_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="🧠 Тренировать слова", callback_data="menu_words")],
-            [InlineKeyboardButton(text="🎧 Аудирование", callback_data="menu_listening")],
-            [InlineKeyboardButton(text="📘 Грамматика", callback_data="grammar_menu")],
-            [InlineKeyboardButton(text="✏️ Проверка предложений", callback_data="menu_check")],
-            [InlineKeyboardButton(text="⚙️ Формат ответа", callback_data="menu_answer_mode")],
-            [InlineKeyboardButton(text="📊 Моя статистика", callback_data="menu_stats")],
+            [
+                InlineKeyboardButton(
+                    text="🧠 Тренировать слова",
+                    callback_data="menu_words",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📘 Грамматика",
+                    callback_data="grammar_menu",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="✏️ Проверка предложений",
+                    callback_data="menu_check",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⚙️ Формат ответа",
+                    callback_data="menu_answer_mode",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📊 Моя статистика",
+                    callback_data="menu_stats",
+                )
+            ],
         ]
     )
 
@@ -987,11 +821,25 @@ def build_themes_keyboard() -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
 
     total_words = len(WORDS)
-    rows.append([InlineKeyboardButton(text=f"Все слова ({total_words})", callback_data="topic_all")])
+    rows.append(
+        [
+            InlineKeyboardButton(
+                text=f"Все слова ({total_words})",
+                callback_data="topic_all",
+            )
+        ]
+    )
 
     for level in get_levels():
         count = LEVEL_COUNTS.get(level, 0)
-        rows.append([InlineKeyboardButton(text=f"Уровень {level} ({count})", callback_data=f"level|{level}")])
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"Уровень {level} ({count})",
+                    callback_data=f"level|{level}",
+                )
+            ]
+        )
 
     rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -1005,7 +853,14 @@ def build_topics_keyboard_for_level(level: str) -> InlineKeyboardMarkup:
         if not topic_id:
             continue
         count = TOPIC_COUNTS.get(key, 0)
-        rows.append([InlineKeyboardButton(text=f"{topic} ({count})", callback_data=f"topic_select|{topic_id}")])
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{topic} ({count})",
+                    callback_data=f"topic_select|{topic_id}",
+                )
+            ]
+        )
 
     rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -1019,7 +874,14 @@ def build_subtopics_keyboard(level: str, topic: str) -> InlineKeyboardMarkup:
         if not sub_id:
             continue
         count = SUBTOPIC_COUNTS.get(key, 0)
-        rows.append([InlineKeyboardButton(text=f"{subtopic} ({count})", callback_data=f"subtopic|{sub_id}")])
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{subtopic} ({count})",
+                    callback_data=f"subtopic|{sub_id}",
+                )
+            ]
+        )
 
     rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
@@ -1029,8 +891,18 @@ def build_mode_keyboard_for_settings(current_mode: str) -> List[List[InlineKeybo
     de_selected = "✅ " if current_mode == "de_ru" else ""
     ru_selected = "✅ " if current_mode == "ru_de" else ""
     return [
-        [InlineKeyboardButton(text=f"{de_selected}🇩🇪 -> 🇷🇺 Немецкое слово", callback_data="mode|de_ru")],
-        [InlineKeyboardButton(text=f"{ru_selected}🇷🇺 -> 🇩🇪 Русское слово", callback_data="mode|ru_de")],
+        [
+            InlineKeyboardButton(
+                text=f"{de_selected}🇩🇪 -> 🇷🇺 Немецкое слово",
+                callback_data="mode|de_ru",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text=f"{ru_selected}🇷🇺 -> 🇩🇪 Русское слово",
+                callback_data="mode|ru_de",
+            )
+        ],
     ]
 
 
@@ -1038,8 +910,18 @@ def build_answer_mode_keyboard(current_answer: str) -> List[List[InlineKeyboardB
     choice_mark = "✅ " if current_answer == "choice" else ""
     typing_mark = "✅ " if current_answer == "typing" else ""
     return [
-        [InlineKeyboardButton(text=f"{choice_mark}Варианты ответа (4)", callback_data="answer_mode|choice")],
-        [InlineKeyboardButton(text=f"{typing_mark}Ввод слова вручную", callback_data="answer_mode|typing")],
+        [
+            InlineKeyboardButton(
+                text=f"{choice_mark}Варианты ответа (4)",
+                callback_data="answer_mode|choice",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text=f"{typing_mark}Ввод слова вручную",
+                callback_data="answer_mode|typing",
+            )
+        ],
     ]
 
 
@@ -1049,128 +931,6 @@ def build_full_format_keyboard(current_mode: str, current_answer: str) -> Inline
     rows.extend(build_answer_mode_keyboard(current_answer))
     rows.extend(build_back_to_main_row())
     return InlineKeyboardMarkup(inline_keyboard=rows)
-
-# ==========================
-# АУДИРОВАНИЕ: КНОПКИ И ЛОГИКА
-# ==========================
-
-def kb_listening_levels() -> InlineKeyboardMarkup:
-    rows = []
-    for lvl in ["A1", "A2", "B1", "B2"]:
-        rows.append([InlineKeyboardButton(text=f"Уровень {lvl}", callback_data=f"listen_level:{lvl}")])
-    rows.append([InlineKeyboardButton(text="⬅️ Главное меню", callback_data="back_main")])
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def kb_listening_topics(level: str) -> InlineKeyboardMarkup:
-    topics = LISTENING_TOPICS.get(level, [])
-    rows: List[List[InlineKeyboardButton]] = []
-    for t in topics:
-        rows.append([InlineKeyboardButton(text=t["title"], callback_data=f"listen_topic:{level}:{t['id']}")])
-    rows.append([InlineKeyboardButton(text="⬅ Назад", callback_data="menu_listening")])
-    rows.append([InlineKeyboardButton(text="⬅️ Главное меню", callback_data="back_main")])
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def kb_listening_items(level: str, topic_id: str) -> InlineKeyboardMarkup:
-    ids = LISTENINGS_BY_LEVEL_TOPIC.get((level, topic_id), [])
-    rows: List[List[InlineKeyboardButton]] = []
-    if not ids:
-        rows.append([InlineKeyboardButton(text="Пока пусто", callback_data="noop")])
-    else:
-        for lid in ids[:30]:
-            item = LISTENING_BY_ID.get(lid)
-            if not item:
-                continue
-            rows.append([InlineKeyboardButton(text=item.get("title", lid), callback_data=f"listen_item:{lid}")])
-
-    rows.append([InlineKeyboardButton(text="⬅ Назад", callback_data=f"listen_level:{level}")])
-    rows.append([InlineKeyboardButton(text="⬅️ Главное меню", callback_data="back_main")])
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def kb_listening_start(listen_id: str) -> InlineKeyboardMarkup:
-    rows = [
-        [InlineKeyboardButton(text="▶ Слушать", callback_data=f"listen_start:{listen_id}")],
-        [InlineKeyboardButton(text="⬅ Назад", callback_data=f"listen_back_from_item:{listen_id}")],
-        [InlineKeyboardButton(text="⬅️ Главное меню", callback_data="back_main")],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def kb_listening_answers(listen_id: str, q_index: int, options: List[str]) -> InlineKeyboardMarkup:
-    rows: List[List[InlineKeyboardButton]] = []
-    for i, opt in enumerate(options):
-        rows.append([InlineKeyboardButton(text=opt, callback_data=f"listen_ans:{listen_id}:{q_index}:{i}")])
-    rows.append([InlineKeyboardButton(text="🔁 Слушать еще раз", callback_data=f"listen_repeat:{listen_id}")])
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def kb_listening_finish(listen_id: str) -> InlineKeyboardMarkup:
-    rows = [
-        [InlineKeyboardButton(text="🔁 Пройти еще раз", callback_data=f"listen_start:{listen_id}")],
-        [InlineKeyboardButton(text="⬅ К темам", callback_data="menu_listening")],
-        [InlineKeyboardButton(text="⬅️ Главное меню", callback_data="back_main")],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def find_topic_for_listen(listen_id: str) -> Tuple[str, str]:
-    item = LISTENING_BY_ID.get(listen_id)
-    if not item:
-        return ("A1", "a1_intro")
-    return (str(item.get("level", "A1")), str(item.get("topic_id", "a1_intro")))
-
-
-async def send_listening_audio(chat_id: int, item: Dict[str, Any]) -> bool:
-    audio_file = str(item.get("audio_file", "")).strip()
-    if not audio_file:
-        return False
-
-    path = LISTENING_AUDIO_DIR / audio_file
-    if not path.exists():
-        await bot.send_message(
-            chat_id,
-            "Аудио файл не найден.\n"
-            f"Нужно положить файл: {path.as_posix()}"
-        )
-        return False
-
-    try:
-        # Для аудирования удобнее voice, но можно и audio.
-        await bot.send_voice(chat_id, voice=open(path, "rb"))
-        return True
-    except Exception as e:
-        print("Ошибка отправки аудио:", e)
-        return False
-
-
-async def send_listening_question(chat_id: int, listen_id: str, q_index: int) -> None:
-    item = LISTENING_BY_ID.get(listen_id)
-    if not item:
-        await bot.send_message(chat_id, "Аудирование не найдено.")
-        return
-
-    questions = item.get("questions", [])
-    if q_index >= len(questions):
-        state = LISTENING_QUIZ_STATE.get(chat_id, {})
-        score = state.get("score", 0)
-        total = len(questions)
-        await bot.send_message(
-            chat_id,
-            f"✅ Готово.\n\nРезультат: {score}/{total}",
-            reply_markup=kb_listening_finish(listen_id)
-        )
-        return
-
-    q = questions[q_index]
-    text = (
-        f"🎧 Аудирование: *{item.get('title','')}*\n\n"
-        f"❓ Вопрос {q_index + 1}/{len(questions)}\n"
-        f"{q['question']}"
-    )
-    await bot.send_message(chat_id, text, reply_markup=kb_listening_answers(listen_id, q_index, q["options"]))
-
 
 # ==========================
 # СТАТИСТИКА
@@ -1341,13 +1101,18 @@ async def cmd_start(message: Message) -> None:
     if uid != ADMIN_ID and uid not in allowed_users:
         kb = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="🔓 Запросить доступ", callback_data="req_access")]
+                [
+                    InlineKeyboardButton(
+                        text="🔓 Запросить доступ",
+                        callback_data="req_access",
+                    )
+                ]
             ]
         )
 
         text = (
             "🎓 Willkommen. Добро пожаловать в закрытого бота по немецкому языку.\n\n"
-            "Этот бот помогает улучшать немецкий язык через слова, грамматику, аудирование и проверку предложений.\n\n"
+            "Этот бот помогает улучшать немецкий язык через слова, темы, грамматику и проверку предложений.\n\n"
             "Доступ ограничен. Нажми кнопку ниже, чтобы отправить запрос администратору."
         )
         await message.answer(text, reply_markup=kb)
@@ -1362,12 +1127,10 @@ async def cmd_start(message: Message) -> None:
         "Здесь ты можешь:\n"
         "• Тренировать слова по уровням, темам и подтемам\n"
         "• Разбирать грамматику\n"
-        "• Тренировать аудирование\n"
         "• Проверять свои предложения\n"
         "• Смотреть статистику по темам\n\n"
         f"Сейчас в базе {total_words} слов.\n"
-        f"Тем: {total_topics}, подтем: {total_subtopics}.\n"
-        f"Аудирований: {len(LISTENINGS)}.\n\n"
+        f"Тем: {total_topics}, подтем: {total_subtopics}.\n\n"
         "Используй главное меню ниже, чтобы выбрать режим."
     )
 
@@ -1383,12 +1146,19 @@ async def cmd_access(message: Message) -> None:
     uid = message.from_user.id
 
     if uid == ADMIN_ID or uid in allowed_users:
-        await message.answer("У тебя уже есть доступ к боту. Пользуйся главным меню ниже.")
+        await message.answer(
+            "У тебя уже есть доступ к боту. Пользуйся главным меню ниже."
+        )
         return
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="✅ Разрешить доступ", callback_data=f"allow|{uid}")]
+            [
+                InlineKeyboardButton(
+                    text="✅ Разрешить доступ",
+                    callback_data=f"allow|{uid}",
+                )
+            ]
         ]
     )
 
@@ -1399,10 +1169,19 @@ async def cmd_access(message: Message) -> None:
     )
 
     try:
-        await bot.send_message(ADMIN_ID, txt, reply_markup=kb)
-        await message.answer("Запрос на доступ отправлен администратору.\nПосле одобрения ты получишь сообщение.")
+        await bot.send_message(
+            ADMIN_ID,
+            txt,
+            reply_markup=kb,
+        )
+        await message.answer(
+            "Запрос на доступ отправлен администратору.\n"
+            "После одобрения ты получишь сообщение."
+        )
     except Exception:
-        await message.answer("Не получилось отправить запрос администратору. Попробуй позже.")
+        await message.answer(
+            "Не получилось отправить запрос администратору. Попробуй позже."
+        )
 
 
 @dp.message(Command("next"))
@@ -1431,7 +1210,10 @@ async def cmd_mode(message: Message) -> None:
     current_mode = user_state[uid].get("mode", "de_ru")
     current_answer = user_state[uid].get("answer_mode", "choice")
     kb = build_full_format_keyboard(current_mode, current_answer)
-    await message.answer("Здесь ты можешь настроить направление перевода и формат ответа.", reply_markup=kb)
+    await message.answer(
+        "Здесь ты можешь настроить направление перевода и формат ответа.",
+        reply_markup=kb,
+    )
 
 
 @dp.message(Command("grammar"))
@@ -1475,7 +1257,9 @@ async def cmd_check_off(message: Message) -> None:
 
     user_state[uid]["check_mode"] = False
     save_user_state()
-    await message.answer("Режим проверки предложений выключен. Можно вернуться к тренировке слов или грамматики.")
+    await message.answer(
+        "Режим проверки предложений выключен. Можно вернуться к тренировке слов или грамматики."
+    )
 
 
 @dp.message(Command("stats"))
@@ -1531,7 +1315,10 @@ async def handle_plain_text(message: Message) -> None:
             state["current_word_id"] = None
             save_user_state()
 
-            reply = "✅ Правильно.\n\n" f'{w["de"]} ({w["tr"]}) - {w["ru"]}'
+            reply = (
+                "✅ Правильно.\n\n"
+                f'{w["de"]} ({w["tr"]}) - {w["ru"]}'
+            )
             await message.answer(reply)
         else:
             state["wrong"] += 1
@@ -1541,7 +1328,7 @@ async def handle_plain_text(message: Message) -> None:
 
             reply = (
                 "❌ Неправильно.\n\n"
-                "Правильный ответ:\n"
+                f"Правильный ответ:\n"
                 f'{w["de"]} ({w["tr"]}) - {w["ru"]}\n\n'
                 "Пиши только немецкое слово, без транскрипции."
             )
@@ -1564,7 +1351,12 @@ async def cb_req_access(callback: CallbackQuery) -> None:
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="✅ Разрешить доступ", callback_data=f"allow|{uid}")]
+            [
+                InlineKeyboardButton(
+                    text="✅ Разрешить доступ",
+                    callback_data=f"allow|{uid}",
+                )
+            ]
         ]
     )
 
@@ -1575,9 +1367,15 @@ async def cb_req_access(callback: CallbackQuery) -> None:
     )
 
     try:
-        await bot.send_message(ADMIN_ID, txt, reply_markup=kb)
+        await bot.send_message(
+            ADMIN_ID,
+            txt,
+            reply_markup=kb,
+        )
         await callback.answer("Запрос отправлен администратору.")
-        await callback.message.answer("Запрос на доступ отправлен. Ожидай решение администратора.")
+        await callback.message.answer(
+            "Запрос на доступ отправлен. Ожидай решение администратора."
+        )
     except Exception:
         await callback.answer("Ошибка отправки запроса.", show_alert=True)
 
@@ -1595,13 +1393,15 @@ async def cb_allow_user(callback: CallbackQuery) -> None:
     save_allowed_users()
 
     await callback.answer("Доступ разрешен.")
-    await callback.message.edit_text(f"✅ Доступ пользователю {user_id} разрешен.")
+    await callback.message.edit_text(
+        f"✅ Доступ пользователю {user_id} разрешен."
+    )
 
     try:
         text = (
             "✅ Доступ к боту одобрен.\n\n"
             "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
-            "Выбирай слова, аудирование, грамматику, проверку предложений, формат ответа или статистику."
+            "Выбирай тренировки слов, грамматику, проверку предложений, формат ответа или статистику с помощью кнопок."
         )
         await bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
     except Exception:
@@ -1628,217 +1428,6 @@ async def cb_back_main(callback: CallbackQuery) -> None:
 @dp.callback_query(F.data == "main_menu")
 async def cb_main_menu(callback: CallbackQuery) -> None:
     await cb_back_main(callback)
-
-# ==========================
-# CALLBACK: АУДИРОВАНИЕ
-# ==========================
-
-@dp.callback_query(F.data == "menu_listening")
-async def cb_menu_listening(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    await callback.answer()
-    text = (
-        "🎧 Аудирование\n\n"
-        "Сначала ты слушаешь аудио, потом отвечаешь на вопросы.\n"
-        "Выбери уровень:"
-    )
-    await callback.message.answer(text, reply_markup=kb_listening_levels())
-
-
-@dp.callback_query(F.data.startswith("listen_level:"))
-async def cb_listen_level(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    level = callback.data.split(":", 1)[1].strip()
-    await callback.answer()
-    text = f"🎧 Аудирование\n\nУровень: {level}\n\nВыбери тему:"
-    await callback.message.answer(text, reply_markup=kb_listening_topics(level))
-
-
-@dp.callback_query(F.data.startswith("listen_topic:"))
-async def cb_listen_topic(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _, level, topic_id = callback.data.split(":", 2)
-    await callback.answer()
-
-    topic_title = topic_id
-    for t in LISTENING_TOPICS.get(level, []):
-        if t["id"] == topic_id:
-            topic_title = t["title"]
-
-    text = (
-        "🎧 Аудирование\n\n"
-        f"Уровень: {level}\n"
-        f"Тема: {topic_title}\n\n"
-        "Выбери аудио:"
-    )
-    await callback.message.answer(text, reply_markup=kb_listening_items(level, topic_id))
-
-
-@dp.callback_query(F.data.startswith("listen_item:"))
-async def cb_listen_item(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    listen_id = callback.data.split(":", 1)[1].strip()
-    item = LISTENING_BY_ID.get(listen_id)
-    if not item:
-        await callback.answer("Аудирование не найдено.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    text = (
-        "🎧 Аудирование\n\n"
-        f"*{item.get('title','')}*\n\n"
-        "Нажми ▶ Слушать, потом ответь на вопросы."
-    )
-    await callback.message.answer(text, reply_markup=kb_listening_start(listen_id))
-
-
-@dp.callback_query(F.data.startswith("listen_back_from_item:"))
-async def cb_listen_back_from_item(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    listen_id = callback.data.split(":", 1)[1].strip()
-    level, topic_id = find_topic_for_listen(listen_id)
-    await callback.answer()
-    await callback.message.answer("Выбери аудио:", reply_markup=kb_listening_items(level, topic_id))
-
-
-@dp.callback_query(F.data.startswith("listen_start:"))
-async def cb_listen_start(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    listen_id = callback.data.split(":", 1)[1].strip()
-    item = LISTENING_BY_ID.get(listen_id)
-    if not item:
-        await callback.answer("Аудирование не найдено.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    LISTENING_QUIZ_STATE[uid] = {
-        "listen_id": listen_id,
-        "index": 0,
-        "score": 0,
-        "audio_sent": False
-    }
-
-    ok = await send_listening_audio(callback.message.chat.id, item)
-    if not ok:
-        await callback.message.answer("Не удалось отправить аудио. Проверь файл.")
-        return
-
-    LISTENING_QUIZ_STATE[uid]["audio_sent"] = True
-    await callback.message.answer("❓ Теперь ответь на вопросы.")
-    await send_listening_question(callback.message.chat.id, listen_id, 0)
-
-
-@dp.callback_query(F.data.startswith("listen_repeat:"))
-async def cb_listen_repeat(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    listen_id = callback.data.split(":", 1)[1].strip()
-    item = LISTENING_BY_ID.get(listen_id)
-    if not item:
-        await callback.answer("Аудирование не найдено.", show_alert=True)
-        return
-
-    await callback.answer()
-
-    state = LISTENING_QUIZ_STATE.get(uid)
-    if not state or state.get("listen_id") != listen_id:
-        LISTENING_QUIZ_STATE[uid] = {"listen_id": listen_id, "index": 0, "score": 0, "audio_sent": False}
-    else:
-        state["audio_sent"] = False
-
-    ok = await send_listening_audio(callback.message.chat.id, item)
-    if ok:
-        LISTENING_QUIZ_STATE[uid]["audio_sent"] = True
-        await callback.message.answer("❓ Продолжаем вопросы.")
-
-
-@dp.callback_query(F.data.startswith("listen_ans:"))
-async def cb_listen_answer(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if uid != ADMIN_ID and uid not in allowed_users:
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    parts = callback.data.split(":")
-    if len(parts) != 4:
-        await callback.answer()
-        return
-
-    _, listen_id, q_index_str, opt_index_str = parts
-    q_index = int(q_index_str)
-    opt_index = int(opt_index_str)
-
-    state = LISTENING_QUIZ_STATE.get(uid)
-    if not state or state.get("listen_id") != listen_id:
-        await callback.answer("Состояние потеряно. Запусти аудирование заново.", show_alert=True)
-        return
-
-    if not state.get("audio_sent", False):
-        await callback.answer("Сначала нажми ▶ Слушать.", show_alert=True)
-        return
-
-    if q_index != int(state.get("index", 0)):
-        await callback.answer()
-        return
-
-    item = LISTENING_BY_ID.get(listen_id)
-    if not item:
-        await callback.answer("Аудирование не найдено.", show_alert=True)
-        return
-
-    questions = item.get("questions", [])
-    if q_index >= len(questions):
-        await callback.answer()
-        return
-
-    correct_index = int(questions[q_index].get("correct_index", 0))
-    if opt_index == correct_index:
-        state["score"] = int(state.get("score", 0)) + 1
-        await callback.answer("Правильно ✅")
-    else:
-        await callback.answer("Неправильно ❌")
-
-    state["index"] = q_index + 1
-
-    if state["index"] >= len(questions):
-        total = len(questions)
-        score = int(state.get("score", 0))
-        await callback.message.answer(
-            f"✅ Готово.\n\nРезультат: {score}/{total}",
-            reply_markup=kb_listening_finish(listen_id)
-        )
-        return
-
-    await send_listening_question(callback.message.chat.id, listen_id, state["index"])
 
 # ==========================
 # CALLBACK: СЛОВА
@@ -2094,9 +1683,15 @@ async def cb_answer_mode(callback: CallbackQuery) -> None:
     kb = build_full_format_keyboard(current_mode, current_answer)
 
     if mode == "choice":
-        text = "Теперь формат ответа: варианты.\n\nПо каждому слову будет 4 варианта ответа на кнопках."
+        text = (
+            "Теперь формат ответа: варианты.\n\n"
+            "По каждому слову будет 4 варианта ответа на кнопках."
+        )
     else:
-        text = "Теперь формат ответа: ввод слова вручную.\n\nЯ показываю русское слово, а ты пишешь его по немецки."
+        text = (
+            "Теперь формат ответа: ввод слова вручную.\n\n"
+            "Я показываю русское слово, а ты пишешь его по немецки."
+        )
 
     try:
         await callback.message.edit_text(text, reply_markup=kb)
@@ -2125,9 +1720,15 @@ async def cb_answer(callback: CallbackQuery) -> None:
         save_user_state()
 
         if mode == "de_ru":
-            text = "✅ Правильно.\n\n" f'{w["de"]} ({w["tr"]}) - {w["ru"]}'
+            text = (
+                "✅ Правильно.\n\n"
+                f'{w["de"]} ({w["tr"]}) - {w["ru"]}'
+            )
         else:
-            text = "✅ Правильно.\n\n" f'{w["ru"]} - {w["de"]} ({w["tr"]})'
+            text = (
+                "✅ Правильно.\n\n"
+                f'{w["ru"]} - {w["de"]} ({w["tr"]})'
+            )
 
         finished_now = not state["remaining"]
         if finished_now:
@@ -2259,7 +1860,9 @@ async def cb_quiz_start(callback: CallbackQuery) -> None:
 
     await callback.answer()
 
-    wait_msg = await callback.message.answer("⌛ Генерирую упражнения по этой теме, подожди немного...")
+    wait_msg = await callback.message.answer(
+        "⌛ Генерирую упражнения по этой теме, подожди немного..."
+    )
 
     questions = await generate_quiz_for_rule(rule)
     if not questions:
@@ -2434,9 +2037,9 @@ async def main() -> None:
     load_user_state()
     if GRAMMAR_FILE.exists():
         load_grammar_rules()
-    load_listenings()
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
