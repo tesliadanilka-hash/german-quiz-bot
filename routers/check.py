@@ -9,6 +9,21 @@ from services.ai_client import check_text_with_ai
 
 router = Router()
 
+
+def _enable_check_mode(uid: int) -> None:
+    st = user_state[uid]
+    st["check_mode"] = True
+    user_state[uid] = st
+    save_user_state()
+
+
+def _disable_check_mode(uid: int) -> None:
+    st = user_state[uid]
+    st["check_mode"] = False
+    user_state[uid] = st
+    save_user_state()
+
+
 @router.message(Command("check"))
 async def cmd_check_on(message: Message) -> None:
     uid = message.from_user.id
@@ -16,12 +31,12 @@ async def cmd_check_on(message: Message) -> None:
         await message.answer("Нет доступа.")
         return
 
-    user_state[uid]["check_mode"] = True
-    save_user_state()
+    _enable_check_mode(uid)
     await message.answer(
-        "✏️ Режим проверки предложений включен.\n\n"
+        "Режим проверки предложений включен.\n\n"
         "Напиши предложение на немецком, и я предложу исправленный вариант и отмечу ошибки."
     )
+
 
 @router.message(Command("checkoff"))
 async def cmd_check_off(message: Message) -> None:
@@ -30,9 +45,9 @@ async def cmd_check_off(message: Message) -> None:
         await message.answer("Нет доступа.")
         return
 
-    user_state[uid]["check_mode"] = False
-    save_user_state()
-    await message.answer("Режим проверки предложений выключен. Можно вернуться к тренировке слов или грамматики.")
+    _disable_check_mode(uid)
+    await message.answer("Режим проверки предложений выключен.")
+
 
 @router.callback_query(F.data == "menu_check")
 async def cb_menu_check(callback: CallbackQuery) -> None:
@@ -41,27 +56,33 @@ async def cb_menu_check(callback: CallbackQuery) -> None:
         await callback.answer("Нет доступа.", show_alert=True)
         return
 
-    user_state[uid]["check_mode"] = True
-    save_user_state()
+    _enable_check_mode(uid)
     await callback.answer()
     await callback.message.answer(
-        "✏️ Режим проверки предложений включен.\n\n"
-        "Напиши предложение на немецком, и я предложу исправленный вариант и отмечу ошибки."
+        "Режим проверки предложений включен.\n\n"
+        "Напиши предложение на немецком, и я предложу исправленный вариант и отмечу ошибки.\n\n"
+        "Чтобы выключить: /checkoff"
     )
 
+
 @router.message(F.text & ~F.text.startswith("/"))
-async def handle_check_text(message: Message) -> None:
+async def handle_text_in_check_mode(message: Message) -> None:
     uid = message.from_user.id
     if not has_access(uid, ADMIN_ID):
         return
 
-    if not user_state[uid].get("check_mode", False):
+    st = user_state[uid]
+    if not st.get("check_mode", False):
         return
 
     text = (message.text or "").strip()
     if not text:
         return
 
-    waiting_msg = await message.answer("⌛ Проверяю предложение...")
+    waiting = await message.answer("Проверяю...")
     result = await check_text_with_ai(text)
-    await waiting_msg.edit_text(result)
+
+    try:
+        await waiting.edit_text(result, parse_mode=None)
+    except Exception:
+        await message.answer(result, parse_mode=None)
