@@ -1,36 +1,45 @@
-# bot.py
-import sys
-import os
-import asyncio
+# services/access.py
+from __future__ import annotations
 
-# ВАЖНО: добавляем папку проекта в sys.path ДО импортов routers/services/keyboards
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, BASE_DIR)
+from pathlib import Path
+from typing import Set
 
-from loader import create_bot, create_dispatcher
-from routers import setup_routers
+from config import ADMIN_ID, ALLOWED_USERS_FILE
 
-from services.access import load_allowed_users
-from services.words_repo import load_words
-from services.state import load_user_state
-from services.grammar_repo import load_grammar_rules
+allowed_users: Set[int] = set()
 
 
-async def main() -> None:
-    bot = create_bot()
-    dp = create_dispatcher()
+def load_allowed_users() -> None:
+    global allowed_users
+    path = Path(ALLOWED_USERS_FILE)
 
-    # Подключаем routers
-    dp.include_router(setup_routers())
+    if not path.exists():
+        allowed_users = set()
+        print("allowed_users.txt не найден, начинаем с пустого списка.")
+        return
 
-    # Загружаем данные
-    load_allowed_users()
-    load_words()          # внутри words_repo пусть по умолчанию читает data/words.json
-    load_user_state()     # внутри state.py пусть по умолчанию читает data/user_state.json
-    load_grammar_rules()  # внутри grammar_repo пусть по умолчанию читает data/grammar.json
+    ids: list[int] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            ids.append(int(line))
+        except ValueError:
+            continue
 
-    await dp.start_polling(bot)
+    allowed_users = set(ids)
+    print(f"Загружено разрешенных пользователей: {len(allowed_users)}")
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+def save_allowed_users() -> None:
+    path = Path(ALLOWED_USERS_FILE)
+    path.write_text(
+        "\n".join(str(uid) for uid in sorted(allowed_users)) + ("\n" if allowed_users else ""),
+        encoding="utf-8",
+    )
+    print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
+
+
+def has_access(user_id: int) -> bool:
+    return user_id == ADMIN_ID or user_id in allowed_users
