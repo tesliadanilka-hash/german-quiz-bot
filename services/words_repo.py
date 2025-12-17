@@ -1,26 +1,26 @@
 import json
-from pathlib import Path
 from collections import defaultdict
-from typing import Dict, List, Any, Tuple
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
 from config import WORDS_FILE
-from services.state import TOPIC_ALL
 
-Word = Dict[str, Any]
-
-WORDS: List[Word] = []
+WORDS: List[Dict[str, Any]] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 
 LEVEL_COUNTS: Dict[str, int] = defaultdict(int)
 TOPIC_COUNTS: Dict[Tuple[str, str], int] = defaultdict(int)
 SUBTOPIC_COUNTS: Dict[Tuple[str, str, str], int] = defaultdict(int)
 
+TOPIC_ALL = "ALL"
+
 TOPIC_ID_BY_KEY: Dict[Tuple[str, str], str] = {}
 TOPIC_KEY_BY_ID: Dict[str, Tuple[str, str]] = {}
 SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
 
-def load_words(path: Path = WORDS_FILE) -> None:
+
+def load_words(path: Path | None = None) -> None:
     global WORDS, WORDS_BY_TOPIC, LEVEL_COUNTS, TOPIC_COUNTS, SUBTOPIC_COUNTS
     global TOPIC_ID_BY_KEY, TOPIC_KEY_BY_ID, SUBTOPIC_ID_BY_KEY, SUBTOPIC_KEY_BY_ID
 
@@ -34,18 +34,32 @@ def load_words(path: Path = WORDS_FILE) -> None:
     SUBTOPIC_ID_BY_KEY = {}
     SUBTOPIC_KEY_BY_ID = {}
 
-    if not path.exists():
-        print(f"Файл {path} не найден.")
+    file_path = Path(path) if path else Path(WORDS_FILE)
+
+    print(f"[words_repo] WORDS_FILE = {file_path}")
+    print(f"[words_repo] exists = {file_path.exists()}")
+
+    if not file_path.exists():
+        print("[words_repo] words.json not found. 0 words loaded.")
         return
 
-    with path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+    try:
+        size = file_path.stat().st_size
+        print(f"[words_repo] size = {size} bytes")
+    except Exception:
+        pass
+
+    try:
+        with file_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print("[words_repo] JSON load error:", e)
+        return
 
     def add_word(raw: Dict[str, Any], level_raw: str, topic_raw: str, subtopic_raw: str) -> None:
         de = raw.get("de")
         tr = raw.get("tr")
         ru = raw.get("ru")
-
         if not de or not tr or not ru:
             return
 
@@ -54,16 +68,17 @@ def load_words(path: Path = WORDS_FILE) -> None:
         subtopic = (subtopic_raw or "").strip() or "Общее"
 
         idx = len(WORDS)
-        word: Word = {
-            "id": idx,
-            "de": de,
-            "tr": tr,
-            "ru": ru,
-            "level": level,
-            "topic": topic,
-            "subtopic": subtopic,
-        }
-        WORDS.append(word)
+        WORDS.append(
+            {
+                "id": idx,
+                "de": de,
+                "tr": tr,
+                "ru": ru,
+                "level": level,
+                "topic": topic,
+                "subtopic": subtopic,
+            }
+        )
 
         key_all = TOPIC_ALL
         key_topic = f"{level}|{topic}"
@@ -77,30 +92,36 @@ def load_words(path: Path = WORDS_FILE) -> None:
         TOPIC_COUNTS[(level, topic)] += 1
         SUBTOPIC_COUNTS[(level, topic, subtopic)] += 1
 
-    if isinstance(data, dict) and "topics" in data:
+    # Твой формат: список блоков [{level, topic, subtopic, words:[{de,tr,ru}]}]
+    if isinstance(data, list):
+        for block in data:
+            if not isinstance(block, dict):
+                continue
+            level_raw = block.get("level") or ""
+            topic_raw = block.get("topic") or ""
+            subtopic_raw = block.get("subtopic") or ""
+            words = block.get("words", [])
+            if isinstance(words, list):
+                for raw in words:
+                    if isinstance(raw, dict):
+                        add_word(raw, level_raw, topic_raw, subtopic_raw)
+
+    # Альтернативный формат: {"topics":[...]}
+    elif isinstance(data, dict) and "topics" in data and isinstance(data["topics"], list):
         for block in data["topics"]:
+            if not isinstance(block, dict):
+                continue
             level_raw = block.get("level") or ""
             topic_raw = block.get("topic") or ""
             subtopic_raw = block.get("subtopic") or ""
             for raw in block.get("words", []):
-                add_word(raw, level_raw, topic_raw, subtopic_raw)
-    elif isinstance(data, list) and data and isinstance(data[0], dict):
-        for block in data:
-            if "words" in block:
-                level_raw = block.get("level") or ""
-                topic_raw = block.get("topic") or ""
-                subtopic_raw = block.get("subtopic") or ""
-                for raw in block.get("words", []):
+                if isinstance(raw, dict):
                     add_word(raw, level_raw, topic_raw, subtopic_raw)
-            else:
-                level_raw = block.get("level") or ""
-                topic_raw = block.get("topic") or ""
-                subtopic_raw = block.get("subtopic") or ""
-                add_word(block, level_raw, topic_raw, subtopic_raw)
     else:
-        print("Неизвестный формат words.json")
+        print("[words_repo] Unknown words.json format.")
         return
 
+    # id маппинги
     for i, key in enumerate(sorted(TOPIC_COUNTS.keys())):
         tid = f"t{i}"
         TOPIC_ID_BY_KEY[key] = tid
@@ -111,27 +132,5 @@ def load_words(path: Path = WORDS_FILE) -> None:
         SUBTOPIC_ID_BY_KEY[key] = sid
         SUBTOPIC_KEY_BY_ID[sid] = key
 
-    print(f"Загружено слов: {len(WORDS)}")
-
-def get_levels() -> List[str]:
-    return sorted(LEVEL_COUNTS.keys())
-
-def get_topics_for_level(level: str) -> List[str]:
-    topics = [topic for (lvl, topic), count in TOPIC_COUNTS.items() if lvl == level and count > 0]
-    return sorted(set(topics))
-
-def get_subtopics_for_level_topic(level: str, topic: str) -> List[str]:
-    subs = [sub for (lvl, top, sub), count in SUBTOPIC_COUNTS.items() if lvl == level and top == topic and count > 0]
-    return sorted(set(subs))
-
-def pretty_topic_name(topic_key: str) -> str:
-    if not topic_key or topic_key == TOPIC_ALL:
-        return "Все слова"
-    parts = topic_key.split("|")
-    if len(parts) == 3:
-        level, topic, subtopic = parts
-        return f"Уровень {level}: {topic} -> {subtopic}"
-    if len(parts) == 2:
-        level, topic = parts
-        return f"Уровень {level}: {topic}"
-    return topic_key
+    print(f"[words_repo] Loaded words: {len(WORDS)}")
+    print(f"[words_repo] Topics: {len(TOPIC_COUNTS)} | Subtopics: {len(SUBTOPIC_COUNTS)}")
