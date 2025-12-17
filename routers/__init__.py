@@ -11,20 +11,11 @@ from .stats import router as stats_router
 
 def setup_routers() -> Router:
     root = Router()
-
-    # Общие кнопки (главное меню, назад)
     root.include_router(common_router)
-
-    # Старт и доступ
     root.include_router(start_router)
     root.include_router(access_router)
-
-    # Основная логика
     root.include_router(words_router)
     root.include_router(grammar_router)
     root.include_router(check_router)
     root.include_router(stats_router)
-
     return root
-# services/__init__.py
-
