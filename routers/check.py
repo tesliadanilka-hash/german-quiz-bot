@@ -1,14 +1,35 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.enums import ChatAction
 
-# Импорт, который работает и когда ai_client.py в src, и когда он на уровень выше.
-try:
-    from ai_client import check_text_with_ai
-except ModuleNotFoundError:
-    from src.ai_client import check_text_with_ai
 
+# -------------------------
+# Надежный импорт ai_client.py
+# -------------------------
+def _import_check_text_with_ai():
+    current_file = Path(__file__).resolve()
+    src_dir = current_file.parent.parent          # .../src
+    repo_root = src_dir.parent                    # .../project
+
+    # добавим пути в sys.path, чтобы "import ai_client" заработал
+    if str(src_dir) not in sys.path:
+        sys.path.insert(0, str(src_dir))
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+
+    from ai_client import check_text_with_ai  # type: ignore
+    return check_text_with_ai
+
+
+check_text_with_ai = _import_check_text_with_ai()
+
+# -------------------------
 
 router = Router()
 
