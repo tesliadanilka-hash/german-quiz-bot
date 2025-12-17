@@ -1,70 +1,44 @@
 import json
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from config import GRAMMAR_FILE
 
 GRAMMAR_RULES: List[Dict[str, Any]] = []
 
-def strip_html_tags(text: str) -> str:
-    if not isinstance(text, str):
-        return str(text)
-    for tag in ("<b>", "</b>", "<i>", "</i>", "<u>", "</u>"):
-        text = text.replace(tag, "")
-    return text
-
-def load_grammar_rules(path: Path = GRAMMAR_FILE) -> None:
+def load_grammar_rules(path: Optional[Path] = None) -> None:
     global GRAMMAR_RULES
-    if not path.exists():
-        print("grammar.json не найден.")
+    file_path = Path(path) if path else Path(GRAMMAR_FILE)
+
+    print(f"[grammar_repo] GRAMMAR_FILE = {file_path}")
+    print(f"[grammar_repo] exists = {file_path.exists()}")
+
+    if not file_path.exists():
         GRAMMAR_RULES = []
+        print("[grammar_repo] grammar.json not found. 0 rules loaded.")
         return
 
-    with path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+    try:
+        print(f"[grammar_repo] size = {file_path.stat().st_size} bytes")
+    except Exception:
+        pass
+
+    try:
+        with file_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        GRAMMAR_RULES = []
+        print("[grammar_repo] JSON load error:", e)
+        return
 
     if isinstance(data, list):
         GRAMMAR_RULES = data
-    elif isinstance(data, dict) and "rules" in data:
+    elif isinstance(data, dict) and "rules" in data and isinstance(data["rules"], list):
         GRAMMAR_RULES = data["rules"]
-    elif isinstance(data, dict):
-        rules: List[Dict[str, Any]] = []
-        for v in data.values():
-            if isinstance(v, list):
-                rules.extend(v)
-        GRAMMAR_RULES = rules
     else:
         GRAMMAR_RULES = []
 
-    print(f"Загружено грамматических правил: {len(GRAMMAR_RULES)}")
-
-def get_sublevel_from_topic(topic: str) -> str:
-    # Поддержка и длинного тире и дефиса
-    if "—" in topic:
-        return topic.split("—", 1)[0].strip()
-    if "-" in topic:
-        return topic.split("-", 1)[0].strip()
-    return topic.strip()
-
-def get_rules_by_level(level: str) -> List[Dict[str, Any]]:
-    return [r for r in GRAMMAR_RULES if r.get("level") == level]
-
-def get_sublevels_for_level(level: str) -> List[str]:
-    sublevels = set()
-    for rule in get_rules_by_level(level):
-        topic = rule.get("topic", "")
-        sub = get_sublevel_from_topic(topic)
-        if sub.startswith(level):
-            sublevels.add(sub)
-    return sorted(sublevels)
-
-def get_rules_by_sublevel(sublevel: str) -> List[Dict[str, Any]]:
-    result: List[Dict[str, Any]] = []
-    for r in GRAMMAR_RULES:
-        topic = r.get("topic", "")
-        if get_sublevel_from_topic(topic) == sublevel:
-            result.append(r)
-    return result
+    print(f"[grammar_repo] Loaded rules: {len(GRAMMAR_RULES)}")
 
 def get_rule_by_id(rule_id: str) -> Optional[Dict[str, Any]]:
     for r in GRAMMAR_RULES:
