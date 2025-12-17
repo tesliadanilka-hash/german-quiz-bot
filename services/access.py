@@ -1,66 +1,68 @@
-from aiogram import Router, F
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from __future__ import annotations
 
-from config import ADMIN_ID
-from services.access import add_allowed_user, has_access
+from typing import Set
+from pathlib import Path
 
-router = Router()
+from config import ALLOWED_USERS_FILE
+
+_allowed_users: Set[int] = set()
 
 
-@router.callback_query(F.data == "req_access")
-async def cb_req_access(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
+def load_allowed_users() -> Set[int]:
+    """Загружает allowed_users.txt в память."""
+    global _allowed_users
+    _allowed_users = set()
 
-    if has_access(uid, ADMIN_ID):
-        await callback.answer("Доступ уже есть.")
-        return
-
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="✅ Разрешить доступ",
-                    callback_data=f"allow|{uid}",
-                )
-            ]
-        ]
-    )
-
-    txt = (
-        "🆕 Новый запрос на доступ.\n"
-        f"Пользователь: {callback.from_user.full_name}\n"
-        f"ID: {uid}"
-    )
+    path = Path(ALLOWED_USERS_FILE)
+    if not path.exists():
+        print("Allowed users file not found, starting empty.")
+        return _allowed_users
 
     try:
-        await callback.bot.send_message(ADMIN_ID, txt, reply_markup=kb)
-        await callback.answer("Запрос отправлен администратору.")
-        await callback.message.answer("Запрос на доступ отправлен. Ожидай решение администратора.")
-    except Exception:
-        await callback.answer("Ошибка отправки запроса.", show_alert=True)
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                _allowed_users.add(int(line))
+            except ValueError:
+                continue
+        print(f"Allowed users loaded: {len(_allowed_users)}")
+    except Exception as e:
+        print("Failed to load allowed users:", e)
+
+    return _allowed_users
 
 
-@router.callback_query(F.data.startswith("allow|"))
-async def cb_allow(callback: CallbackQuery) -> None:
-    if callback.from_user.id != ADMIN_ID:
-        await callback.answer("Нет прав.", show_alert=True)
-        return
-
-    _, user_id_str = callback.data.split("|", maxsplit=1)
-    user_id = int(user_id_str)
-
-    add_allowed_user(user_id)
-
-    await callback.answer("Доступ разрешен.")
+def save_allowed_users() -> None:
+    """Сохраняет текущий set в allowed_users.txt."""
+    path = Path(ALLOWED_USERS_FILE)
     try:
-        await callback.message.edit_text(f"✅ Доступ пользователю {user_id} разрешен.")
-    except Exception:
-        pass
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("\n".join(str(x) for x in sorted(_allowed_users)) + ("\n" if _allowed_users else ""), encoding="utf-8")
+    except Exception as e:
+        print("Failed to save allowed users:", e)
 
-    try:
-        await callback.bot.send_message(
-            user_id,
-            "✅ Доступ к боту одобрен. Напиши /start",
-        )
-    except Exception:
-        pass
+
+def has_access(user_id: int, admin_id: int) -> bool:
+    """True если это админ или пользователь в списке."""
+    if user_id == admin_id:
+        return True
+    return user_id in _allowed_users
+
+
+def add_allowed_user(user_id: int) -> None:
+    """Добавляет пользователя и сохраняет файл."""
+    _allowed_users.add(int(user_id))
+    save_allowed_users()
+
+
+def remove_allowed_user(user_id: int) -> None:
+    """Удаляет пользователя и сохраняет файл."""
+    _allowed_users.discard(int(user_id))
+    save_allowed_users()
+
+
+def get_allowed_users() -> Set[int]:
+    """Возвращает текущий set (без чтения файла)."""
+    return set(_allowed_users)
