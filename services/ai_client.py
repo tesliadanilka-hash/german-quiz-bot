@@ -33,11 +33,16 @@ def get_client() -> Optional[OpenAI]:
         return _client
 
     api_key = os.getenv("OPENAI_API_KEY")
+    print(f"OPENAI_API_KEY set: {bool(api_key)}")  # <-- добавь это
+    if api_key:
+        print(f"OPENAI_API_KEY starts with: {api_key[:7]}")  # sk-xxxx
+
     if not api_key:
         return None
 
     _client = OpenAI(api_key=api_key)
     return _client
+
 
 
 def strip_html_tags(text: str) -> str:
@@ -174,3 +179,4 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     QUIZ_CACHE[rule_id] = clean
     return clean
+
