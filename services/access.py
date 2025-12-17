@@ -1,67 +1,50 @@
-from typing import List
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pathlib import Path
+from typing import Set
 
-from services.grammar_repo import (
-    get_sublevels_for_level,
-    get_rules_by_sublevel,
-)
+from config import ADMIN_ID, ALLOWED_USERS_FILE
 
-def kb_grammar_levels() -> InlineKeyboardMarkup:
-    kb = [
-        [
-            InlineKeyboardButton(text="Правила уровня A1", callback_data="grammar_level:A1"),
-            InlineKeyboardButton(text="Правила уровня A2", callback_data="grammar_level:A2"),
-        ],
-        [InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=kb)
+allowed_users: Set[int] = set()
 
-def kb_grammar_sublevels(level: str) -> InlineKeyboardMarkup:
-    sublevels = get_sublevels_for_level(level)
-    rows: List[List[InlineKeyboardButton]] = []
-    row: List[InlineKeyboardButton] = []
 
-    for sub in sublevels:
-        row.append(InlineKeyboardButton(text=sub, callback_data=f"grammar_sub:{sub}"))
-        if len(row) == 2:
-            rows.append(row)
-            row = []
-    if row:
-        rows.append(row)
+def load_allowed_users() -> None:
+    global allowed_users
 
-    rows.append([InlineKeyboardButton(text="⬅ Выбор уровня", callback_data="grammar_menu")])
-    rows.append([InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")])
-    return InlineKeyboardMarkup(inline_keyboard=rows)
+    path = Path(ALLOWED_USERS_FILE)
+    if not path.exists():
+        allowed_users = set()
+        print("allowed_users.txt not found, starting empty.")
+        return
 
-def kb_grammar_rules_list(sublevel: str) -> InlineKeyboardMarkup:
-    rules = get_rules_by_sublevel(sublevel)
-    rows: List[List[InlineKeyboardButton]] = []
+    ids: list[int] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            ids.append(int(line))
+        except ValueError:
+            continue
 
-    for r in rules:
-        rows.append([InlineKeyboardButton(text=r.get("title", "Правило"), callback_data=f"grammar_rule:{r['id']}")])
+    allowed_users = set(ids)
+    print(f"Allowed users loaded: {len(allowed_users)}")
 
-    rows.append([InlineKeyboardButton(text="⬅ Подуровни", callback_data=f"grammar_level:{sublevel.split('.')[0]}")])
-    rows.append([InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")])
-    return InlineKeyboardMarkup(inline_keyboard=rows)
 
-def kb_rule_after_explanation(rule_id: str) -> InlineKeyboardMarkup:
-    kb = [
-        [InlineKeyboardButton(text="🧠 Практиковать упражнение по этой теме", callback_data=f"grammar_quiz_start:{rule_id}")],
-        [InlineKeyboardButton(text="⬅ К списку правил", callback_data="grammar_back_rules")],
-        [InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=kb)
+def save_allowed_users() -> None:
+    path = Path(ALLOWED_USERS_FILE)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-def kb_quiz_answers(rule_id: str, q_index: int, options: List[str]) -> InlineKeyboardMarkup:
-    rows: List[List[InlineKeyboardButton]] = []
-    for i, opt in enumerate(options):
-        rows.append([InlineKeyboardButton(text=opt, callback_data=f"grammar_quiz_ans:{rule_id}:{q_index}:{i}")])
-    return InlineKeyboardMarkup(inline_keyboard=rows)
+    text = "\n".join(str(uid) for uid in sorted(allowed_users))
+    if text:
+        text += "\n"
+    path.write_text(text, encoding="utf-8")
 
-def kb_after_quiz(rule_id: str) -> InlineKeyboardMarkup:
-    kb = [
-        [InlineKeyboardButton(text="🔁 Практиковать еще раз", callback_data=f"grammar_quiz_start:{rule_id}")],
-        [InlineKeyboardButton(text="📚 К выбору правил", callback_data="grammar_menu")],
-        [InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu")],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+def add_allowed_user(user_id: int) -> None:
+    allowed_users.add(int(user_id))
+    save_allowed_users()
+
+
+def has_access(user_id: int, admin_id: int | None = None) -> bool:
+    uid = int(user_id)
+    adm = int(admin_id) if admin_id is not None else int(ADMIN_ID)
+    return uid == adm or uid in allowed_users
