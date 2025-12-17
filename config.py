@@ -1,15 +1,26 @@
+# config.py
 import os
 from pathlib import Path
 
-# Корень проекта (папка, где лежит bot.py)
+# =========================
+# БАЗОВЫЕ ПУТИ ПРОЕКТА
+# =========================
+
+# Папка, где лежит bot.py
 BASE_DIR = Path(__file__).resolve().parent
 
+# Папка с данными
 DATA_DIR = BASE_DIR / "data"
 
+# Файлы данных
 WORDS_FILE = DATA_DIR / "words.json"
 GRAMMAR_FILE = DATA_DIR / "grammar.json"
 ALLOWED_USERS_FILE = DATA_DIR / "allowed_users.txt"
 USER_STATE_FILE = DATA_DIR / "user_state.json"
+
+# =========================
+# НАСТРОЙКИ TELEGRAM
+# =========================
 
 TOKEN = (
     os.getenv("BOT_TOKEN")
@@ -20,11 +31,19 @@ TOKEN = (
 
 if not TOKEN:
     raise RuntimeError(
-        "Не найден токен бота. "
-        "Проверь, что в Render есть переменная окружения BOT_TOKEN "
+        "Не найден токен бота.\n"
+        "Добавь переменную окружения BOT_TOKEN в Render "
         "(или TELEGRAM_TOKEN / TELEGRAM_BOT_TOKEN / TOKEN)."
     )
 
+# =========================
+# НАСТРОЙКИ OPENAI
+# =========================
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-ADMIN_ID = 5319848687  # ЗАМЕНИ НА СВОЙ TELEGRAM ID
+# =========================
+# АДМИНИСТРАТОР
+# =========================
+
+ADMIN_ID = 5319848687  # ← замени на свой Telegram ID
