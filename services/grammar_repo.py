@@ -8,7 +8,6 @@ from config import GRAMMAR_FILE
 
 GRAMMAR_RULES: List[Dict[str, Any]] = []
 
-
 def strip_html_tags(text: str) -> str:
     if not isinstance(text, str):
         return str(text)
@@ -16,38 +15,40 @@ def strip_html_tags(text: str) -> str:
         text = text.replace(tag, "")
     return text
 
-
 def load_grammar_rules() -> None:
     global GRAMMAR_RULES
-    file_path = Path(GRAMMAR_FILE)
-    if not file_path.exists():
+
+    if not GRAMMAR_FILE.exists():
+        print(f"Grammar file not found: {GRAMMAR_FILE}")
         GRAMMAR_RULES = []
-        print(f"Grammar file not found: {file_path}")
         return
 
     try:
-        with file_path.open("r", encoding="utf-8") as f:
-            data = json.load(f)
+        raw_text = GRAMMAR_FILE.read_text(encoding="utf-8").strip()
+        if not raw_text:
+            print(f"Grammar file is empty: {GRAMMAR_FILE}")
+            GRAMMAR_RULES = []
+            return
+        data = json.loads(raw_text)
     except Exception as e:
+        print("Failed to parse grammar.json:", e)
         GRAMMAR_RULES = []
-        print(f"Failed to parse grammar.json: {e}")
         return
 
     if isinstance(data, list):
         GRAMMAR_RULES = data
-    elif isinstance(data, dict) and "rules" in data and isinstance(data["rules"], list):
+    elif isinstance(data, dict) and "rules" in data:
         GRAMMAR_RULES = data["rules"]
     elif isinstance(data, dict):
         rules: List[Dict[str, Any]] = []
         for v in data.values():
             if isinstance(v, list):
-                rules.extend([x for x in v if isinstance(x, dict)])
+                rules.extend(v)
         GRAMMAR_RULES = rules
     else:
         GRAMMAR_RULES = []
 
     print(f"Grammar rules loaded: {len(GRAMMAR_RULES)}")
-
 
 def get_sublevel_from_topic(topic: str) -> str:
     if "—" in topic:
@@ -56,10 +57,8 @@ def get_sublevel_from_topic(topic: str) -> str:
         return topic.split("-", 1)[0].strip()
     return topic.strip()
 
-
 def get_rules_by_level(level: str) -> List[Dict[str, Any]]:
     return [r for r in GRAMMAR_RULES if r.get("level") == level]
-
 
 def get_sublevels_for_level(level: str) -> List[str]:
     sublevels = set()
@@ -70,7 +69,6 @@ def get_sublevels_for_level(level: str) -> List[str]:
             sublevels.add(sub)
     return sorted(sublevels)
 
-
 def get_rules_by_sublevel(sublevel: str) -> List[Dict[str, Any]]:
     result: List[Dict[str, Any]] = []
     for r in GRAMMAR_RULES:
@@ -78,7 +76,6 @@ def get_rules_by_sublevel(sublevel: str) -> List[Dict[str, Any]]:
         if get_sublevel_from_topic(topic) == sublevel:
             result.append(r)
     return result
-
 
 def get_rule_by_id(rule_id: str) -> Optional[Dict[str, Any]]:
     for r in GRAMMAR_RULES:
