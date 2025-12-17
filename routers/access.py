@@ -1,87 +1,54 @@
-from aiogram import Router, F
-from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+# services/access.py
+from __future__ import annotations
 
-from config import ADMIN_ID
-from keyboards.main import build_main_menu_keyboard
-from services.access import allowed_users, save_allowed_users, has_access
+from pathlib import Path
+from typing import Set
 
-router = Router()
+from config import ADMIN_ID, ALLOWED_USERS_FILE
 
-@router.message(Command("access"))
-async def cmd_access(message: Message) -> None:
-    uid = message.from_user.id
+allowed_users: Set[int] = set()
 
-    if has_access(uid, ADMIN_ID):
-        await message.answer("У тебя уже есть доступ к боту. Пользуйся главным меню ниже.")
+
+def load_allowed_users() -> None:
+    global allowed_users
+
+    path = Path(ALLOWED_USERS_FILE)
+    if not path.exists():
+        allowed_users = set()
+        print("allowed_users.txt не найден, начинаем с пустого списка.")
         return
 
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="✅ Разрешить доступ", callback_data=f"allow|{uid}")]
-        ]
-    )
+    ids: list[int] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            ids.append(int(line))
+        except ValueError:
+            continue
 
-    txt = (
-        "🆕 Новый запрос на доступ.\n"
-        f"Пользователь: {message.from_user.full_name}\n"
-        f"ID: {uid}"
-    )
+    allowed_users = set(ids)
+    print(f"Загружено разрешенных пользователей: {len(allowed_users)}")
 
-    try:
-        await message.bot.send_message(ADMIN_ID, txt, reply_markup=kb)
-        await message.answer("Запрос на доступ отправлен администратору.\nПосле одобрения ты получишь сообщение.")
-    except Exception:
-        await message.answer("Не получилось отправить запрос администратору. Попробуй позже.")
 
-@router.callback_query(F.data == "req_access")
-async def cb_req_access(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
+def save_allowed_users() -> None:
+    path = Path(ALLOWED_USERS_FILE)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    if has_access(uid, ADMIN_ID):
-        await callback.answer("Доступ уже есть.")
-        return
+    content = "\n".join(str(uid) for uid in sorted(allowed_users))
+    if content:
+        content += "\n"
 
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="✅ Разрешить доступ", callback_data=f"allow|{uid}")]
-        ]
-    )
+    path.write_text(content, encoding="utf-8")
+    print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
 
-    txt = (
-        "🆕 Новый запрос на доступ.\n"
-        f"Пользователь: {callback.from_user.full_name}\n"
-        f"ID: {uid}"
-    )
 
-    try:
-        await callback.bot.send_message(ADMIN_ID, txt, reply_markup=kb)
-        await callback.answer("Запрос отправлен администратору.")
-        await callback.message.answer("Запрос на доступ отправлен. Ожидай решение администратора.")
-    except Exception:
-        await callback.answer("Ошибка отправки запроса.", show_alert=True)
-
-@router.callback_query(F.data.startswith("allow|"))
-async def cb_allow_user(callback: CallbackQuery) -> None:
-    if callback.from_user.id != ADMIN_ID:
-        await callback.answer("Нет прав.", show_alert=True)
-        return
-
-    _, user_id_str = callback.data.split("|", maxsplit=1)
-    user_id = int(user_id_str)
-
-    allowed_users.add(user_id)
+def add_allowed_user(user_id: int) -> None:
+    allowed_users.add(int(user_id))
     save_allowed_users()
 
-    await callback.answer("Доступ разрешен.")
-    await callback.message.edit_text(f"✅ Доступ пользователю {user_id} разрешен.")
 
-    try:
-        text = (
-            "✅ Доступ к боту одобрен.\n\n"
-            "Теперь ты можешь пользоваться всеми режимами через главное меню.\n\n"
-            "Выбирай тренировки слов, грамматику, проверку предложений, формат ответа или статистику с помощью кнопок."
-        )
-        await callback.bot.send_message(user_id, text, reply_markup=build_main_menu_keyboard())
-    except Exception:
-        pass
+def has_access(user_id: int) -> bool:
+    user_id = int(user_id)
+    return user_id == int(ADMIN_ID) or user_id in allowed_users
