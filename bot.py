@@ -1,45 +1,42 @@
-# services/access.py
-from __future__ import annotations
+# bot.py
+import sys
+import os
+import asyncio
+import logging
 
-from pathlib import Path
-from typing import Set
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, BASE_DIR)
 
-from config import ADMIN_ID, ALLOWED_USERS_FILE
+from loader import create_bot, create_dispatcher
+from routers import setup_routers
 
-allowed_users: Set[int] = set()
-
-
-def load_allowed_users() -> None:
-    global allowed_users
-    path = Path(ALLOWED_USERS_FILE)
-
-    if not path.exists():
-        allowed_users = set()
-        print("allowed_users.txt не найден, начинаем с пустого списка.")
-        return
-
-    ids: list[int] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            ids.append(int(line))
-        except ValueError:
-            continue
-
-    allowed_users = set(ids)
-    print(f"Загружено разрешенных пользователей: {len(allowed_users)}")
+from services.access import load_allowed_users
+from services.words_repo import load_words
+from services.state import load_user_state
+from services.grammar_repo import load_grammar_rules
 
 
-def save_allowed_users() -> None:
-    path = Path(ALLOWED_USERS_FILE)
-    path.write_text(
-        "\n".join(str(uid) for uid in sorted(allowed_users)) + ("\n" if allowed_users else ""),
-        encoding="utf-8",
-    )
-    print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
+async def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+
+    bot = create_bot()
+    dp = create_dispatcher()
+
+    dp.include_router(setup_routers())
+
+    load_allowed_users()
+    load_words()
+    load_user_state()
+    load_grammar_rules()
+
+    # ВАЖНО: если раньше был webhook, он может мешать polling
+    await bot.delete_webhook(drop_pending_updates=True)
+
+    me = await bot.get_me()
+    logging.info(f"Started bot: @{me.username} (id={me.id})")
+
+    await dp.start_polling(bot)
 
 
-def has_access(user_id: int) -> bool:
-    return user_id == ADMIN_ID or user_id in allowed_users
+if __name__ == "__main__":
+    asyncio.run(main())
