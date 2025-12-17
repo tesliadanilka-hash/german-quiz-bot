@@ -1,4 +1,3 @@
-# ai_client.py
 import os
 import json
 import random
@@ -7,16 +6,9 @@ from typing import Optional, Dict, Any, List
 
 from openai import OpenAI
 
-
-# Один клиент на весь процесс
 _client: Optional[OpenAI] = None
-
-# Кэш викторин по rule_id
 QUIZ_CACHE: Dict[str, List[Dict[str, Any]]] = {}
-
-# Чтобы не спамить логами при каждом сообщении
 _LOGGED_ONCE = False
-
 
 AI_SYSTEM_PROMPT = (
     "Ты преподаватель немецкого языка. "
@@ -36,10 +28,6 @@ AI_SYSTEM_PROMPT = (
 
 
 def get_client() -> Optional[OpenAI]:
-    """
-    Создает и возвращает OpenAI-клиент.
-    Если ключа нет или клиент не создается, вернет None.
-    """
     global _client, _LOGGED_ONCE
 
     if _client is not None:
@@ -47,7 +35,6 @@ def get_client() -> Optional[OpenAI]:
 
     api_key = os.getenv("OPENAI_API_KEY")
 
-    # Логи только один раз, и без вывода ключа
     if not _LOGGED_ONCE:
         print("AI_CLIENT: checking OPENAI_API_KEY")
         print(f"AI_CLIENT: key exists = {bool(api_key)}")
@@ -58,13 +45,11 @@ def get_client() -> Optional[OpenAI]:
         return None
 
     try:
-        # Если используешь прокси или совместимый endpoint, можно задать OPENAI_BASE_URL
         base_url = os.getenv("OPENAI_BASE_URL")
         if base_url:
             _client = OpenAI(api_key=api_key, base_url=base_url)
         else:
             _client = OpenAI(api_key=api_key)
-
         print("AI_CLIENT: OpenAI client initialized successfully")
         return _client
     except Exception as e:
@@ -74,63 +59,44 @@ def get_client() -> Optional[OpenAI]:
 
 
 def strip_html_tags(text: str) -> str:
-    """
-    Удаляет простые HTML-теги, которые могут быть в grammar.json
-    """
     if not isinstance(text, str):
         return str(text)
-
     for tag in ("<b>", "</b>", "<i>", "</i>", "<u>", "</u>"):
         text = text.replace(tag, "")
-
     return text
 
 
 def _extract_json_block(content: str) -> str:
-    """
-    Если модель вернула JSON в ``` ``` или ```json ``` аккуратно вытаскиваем.
-    """
     if not content:
         return ""
-
     c = content.strip()
-
     if c.startswith("```"):
         c = c[3:].strip()
         if c.lower().startswith("json"):
             c = c[4:].strip()
         if c.endswith("```"):
             c = c[:-3].strip()
-
     return c.strip()
 
 
 def _safe_json_loads(maybe_json: str) -> Optional[Dict[str, Any]]:
-    """
-    Пытается распарсить JSON. Если не получилось, пробует найти первую { и последнюю }.
-    """
     if not maybe_json:
         return None
-
     s = maybe_json.strip()
 
     try:
         obj = json.loads(s)
-        if isinstance(obj, dict):
-            return obj
-        return None
+        return obj if isinstance(obj, dict) else None
     except Exception:
         pass
 
-    # Попытка вытащить JSON-объект из мусора
     try:
         start = s.find("{")
         end = s.rfind("}")
         if start != -1 and end != -1 and end > start:
-            chunk = s[start : end + 1]
+            chunk = s[start:end + 1]
             obj = json.loads(chunk)
-            if isinstance(obj, dict):
-                return obj
+            return obj if isinstance(obj, dict) else None
     except Exception:
         return None
 
@@ -138,10 +104,6 @@ def _safe_json_loads(maybe_json: str) -> Optional[Dict[str, Any]]:
 
 
 def _chat_completion_sync(messages: List[Dict[str, str]], model: str, temperature: float, max_tokens: int) -> str:
-    """
-    Синхронный вызов OpenAI. Мы будем запускать его в отдельном потоке через asyncio.to_thread,
-    чтобы не блокировать event loop aiogram.
-    """
     client = get_client()
     if client is None:
         return ""
@@ -156,10 +118,6 @@ def _chat_completion_sync(messages: List[Dict[str, str]], model: str, temperatur
 
 
 async def check_text_with_ai(text: str) -> str:
-    """
-    Проверка немецкого текста на грамматику/правописание.
-    Возвращает строку для отправки пользователю.
-    """
     client = get_client()
     if client is None:
         return (
@@ -172,21 +130,13 @@ async def check_text_with_ai(text: str) -> str:
         return "Пустой текст. Напиши предложение на немецком."
 
     model = os.getenv("OPENAI_MODEL_GRAMMAR", "gpt-4.1-mini")
-
     messages = [
         {"role": "system", "content": AI_SYSTEM_PROMPT},
         {"role": "user", "content": text},
     ]
 
     try:
-        # Важно: не блокируем aiogram, делаем вызов в отдельном потоке
-        result = await asyncio.to_thread(
-            _chat_completion_sync,
-            messages,
-            model,
-            0.2,
-            800,
-        )
+        result = await asyncio.to_thread(_chat_completion_sync, messages, model, 0.2, 800)
         if not result:
             return "Не удалось получить ответ ИИ. Попробуй еще раз."
         return result
@@ -196,11 +146,6 @@ async def check_text_with_ai(text: str) -> str:
 
 
 async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Генерирует 5 вопросов (4 варианта, 1 правильный) по конкретному правилу.
-    Возвращает список:
-    [{"question": str, "options": [str,str,str,str], "correct_index": int}, ...]
-    """
     client = get_client()
     if client is None:
         return []
@@ -246,14 +191,7 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     ]
 
     try:
-        content = await asyncio.to_thread(
-            _chat_completion_sync,
-            messages,
-            model,
-            0.35,
-            900,
-        )
-
+        content = await asyncio.to_thread(_chat_completion_sync, messages, model, 0.35, 900)
         content = _extract_json_block(content)
         data = _safe_json_loads(content)
         if not data:
@@ -267,7 +205,6 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
         return []
 
     clean: List[Dict[str, Any]] = []
-
     for q in questions:
         if not isinstance(q, dict):
             continue
