@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 import json
 import random
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional
+from typing import Any, Dict, List, Tuple
 
 from config import WORDS_FILE
 
 TOPIC_ALL = "ALL"
 
-WORDS: List[Dict[str, Any]] = []
+Word = Dict[str, Any]
+
+WORDS: List[Word] = []
 WORDS_BY_TOPIC: Dict[str, List[int]] = defaultdict(list)
 
 LEVEL_COUNTS: Dict[str, int] = defaultdict(int)
@@ -21,7 +25,7 @@ SUBTOPIC_ID_BY_KEY: Dict[Tuple[str, str, str], str] = {}
 SUBTOPIC_KEY_BY_ID: Dict[str, Tuple[str, str, str]] = {}
 
 
-def load_words(path: Optional[Path] = None) -> None:
+def load_words() -> None:
     global WORDS, WORDS_BY_TOPIC, LEVEL_COUNTS, TOPIC_COUNTS, SUBTOPIC_COUNTS
     global TOPIC_ID_BY_KEY, TOPIC_KEY_BY_ID, SUBTOPIC_ID_BY_KEY, SUBTOPIC_KEY_BY_ID
 
@@ -35,31 +39,23 @@ def load_words(path: Optional[Path] = None) -> None:
     SUBTOPIC_ID_BY_KEY = {}
     SUBTOPIC_KEY_BY_ID = {}
 
-    file_path = Path(path) if path else Path(WORDS_FILE)
-
-    print(f"[words_repo] WORDS_FILE = {file_path}")
-    print(f"[words_repo] exists = {file_path.exists()}")
-
+    file_path = Path(WORDS_FILE)
     if not file_path.exists():
-        print("[words_repo] words.json not found. 0 words loaded.")
+        print(f"Words file not found: {file_path}")
         return
-
-    try:
-        print(f"[words_repo] size = {file_path.stat().st_size} bytes")
-    except Exception:
-        pass
 
     try:
         with file_path.open("r", encoding="utf-8") as f:
             data = json.load(f)
     except Exception as e:
-        print("[words_repo] JSON load error:", e)
+        print(f"Failed to parse words.json: {e}")
         return
 
     def add_word(raw: Dict[str, Any], level_raw: str, topic_raw: str, subtopic_raw: str) -> None:
         de = raw.get("de")
         tr = raw.get("tr")
         ru = raw.get("ru")
+
         if not de or not tr or not ru:
             return
 
@@ -68,17 +64,16 @@ def load_words(path: Optional[Path] = None) -> None:
         subtopic = (subtopic_raw or "").strip() or "Общее"
 
         idx = len(WORDS)
-        WORDS.append(
-            {
-                "id": idx,
-                "de": de,
-                "tr": tr,
-                "ru": ru,
-                "level": level,
-                "topic": topic,
-                "subtopic": subtopic,
-            }
-        )
+        word: Word = {
+            "id": idx,
+            "de": de,
+            "tr": tr,
+            "ru": ru,
+            "level": level,
+            "topic": topic,
+            "subtopic": subtopic,
+        }
+        WORDS.append(word)
 
         key_all = TOPIC_ALL
         key_topic = f"{level}|{topic}"
@@ -92,37 +87,29 @@ def load_words(path: Optional[Path] = None) -> None:
         TOPIC_COUNTS[(level, topic)] += 1
         SUBTOPIC_COUNTS[(level, topic, subtopic)] += 1
 
-    # Формат 1: список блоков
-    # [
-    #   {"topic":"...", "level":"A1", "subtopic":"...", "words":[{de,tr,ru}, ...]},
-    #   ...
-    # ]
+    # Поддержка твоего формата: list блоков, где внутри "words": [...]
     if isinstance(data, list):
         for block in data:
-            if not isinstance(block, dict):
-                continue
-            level_raw = block.get("level") or ""
-            topic_raw = block.get("topic") or ""
-            subtopic_raw = block.get("subtopic") or ""
-            words = block.get("words", [])
-            if isinstance(words, list):
-                for raw in words:
+            if isinstance(block, dict) and "words" in block:
+                level_raw = block.get("level") or ""
+                topic_raw = block.get("topic") or ""
+                subtopic_raw = block.get("subtopic") or ""
+                for raw in block.get("words", []):
                     if isinstance(raw, dict):
                         add_word(raw, level_raw, topic_raw, subtopic_raw)
 
-    # Формат 2: {"topics":[...]}
-    elif isinstance(data, dict) and "topics" in data and isinstance(data["topics"], list):
+    # Альтернатива: {"topics":[...]}
+    elif isinstance(data, dict) and "topics" in data:
         for block in data["topics"]:
-            if not isinstance(block, dict):
-                continue
             level_raw = block.get("level") or ""
             topic_raw = block.get("topic") or ""
             subtopic_raw = block.get("subtopic") or ""
             for raw in block.get("words", []):
                 if isinstance(raw, dict):
                     add_word(raw, level_raw, topic_raw, subtopic_raw)
+
     else:
-        print("[words_repo] Unknown words.json format.")
+        print("Unknown format for words.json")
         return
 
     for i, key in enumerate(sorted(TOPIC_COUNTS.keys())):
@@ -135,8 +122,7 @@ def load_words(path: Optional[Path] = None) -> None:
         SUBTOPIC_ID_BY_KEY[key] = sid
         SUBTOPIC_KEY_BY_ID[sid] = key
 
-    print(f"[words_repo] Loaded words: {len(WORDS)}")
-    print(f"[words_repo] Topics: {len(TOPIC_COUNTS)} | Subtopics: {len(SUBTOPIC_COUNTS)}")
+    print(f"Words loaded: {len(WORDS)} | Topics: {len(TOPIC_COUNTS)} | Subtopics: {len(SUBTOPIC_COUNTS)}")
 
 
 def get_levels() -> List[str]:
@@ -144,11 +130,7 @@ def get_levels() -> List[str]:
 
 
 def get_topics_for_level(level: str) -> List[str]:
-    topics = [
-        topic
-        for (lvl, topic), count in TOPIC_COUNTS.items()
-        if lvl == level and count > 0
-    ]
+    topics = [topic for (lvl, topic), count in TOPIC_COUNTS.items() if lvl == level and count > 0]
     return sorted(set(topics))
 
 
@@ -174,13 +156,13 @@ def pretty_topic_name(topic_key: str) -> str:
     return topic_key
 
 
-def get_user_words(topic_key: str) -> List[int]:
+def get_word_ids_for_topic(topic_key: str) -> List[int]:
     if not topic_key or topic_key == TOPIC_ALL:
         return WORDS_BY_TOPIC.get(TOPIC_ALL, [])
     return WORDS_BY_TOPIC.get(topic_key, [])
 
 
-def new_shuffled_cycle(topic_key: str) -> List[int]:
-    ids = get_user_words(topic_key).copy()
-    random.shuffle(ids)
-    return ids
+def shuffle_ids(ids: List[int]) -> List[int]:
+    ids2 = ids.copy()
+    random.shuffle(ids2)
+    return ids2
