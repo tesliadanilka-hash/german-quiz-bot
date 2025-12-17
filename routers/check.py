@@ -1,88 +1,66 @@
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
+from aiogram.enums import ChatAction
 
-from config import ADMIN_ID
-from services.access import has_access
-from services.state import user_state, save_user_state
-from services.ai_client import check_text_with_ai
+from ai_client import check_text_with_ai  # если файл ai_client.py в корне проекта
+
 
 router = Router()
 
-
-def _enable_check_mode(uid: int) -> None:
-    st = user_state[uid]
-    st["check_mode"] = True
-    user_state[uid] = st
-    save_user_state()
+# Простой режим проверки в памяти процесса.
+# На Render после перезапуска сбросится. Это нормально для старта.
+CHECK_MODE_USERS: set[int] = set()
 
 
-def _disable_check_mode(uid: int) -> None:
-    st = user_state[uid]
-    st["check_mode"] = False
-    user_state[uid] = st
-    save_user_state()
-
-
-@router.message(Command("check"))
-async def cmd_check_on(message: Message) -> None:
-    uid = message.from_user.id
-    if not has_access(uid, ADMIN_ID):
-        await message.answer("Нет доступа.")
-        return
-
-    _enable_check_mode(uid)
+@router.message(Command("check_on"))
+async def check_on(message: Message):
+    CHECK_MODE_USERS.add(message.from_user.id)
     await message.answer(
-        "Режим проверки предложений включен.\n\n"
-        "Напиши предложение на немецком, и я предложу исправленный вариант и отмечу ошибки."
+        "Режим проверки предложений включен.\n"
+        "Напиши предложение на немецком, и я проверю его через ИИ."
     )
 
 
-@router.message(Command("checkoff"))
-async def cmd_check_off(message: Message) -> None:
-    uid = message.from_user.id
-    if not has_access(uid, ADMIN_ID):
-        await message.answer("Нет доступа.")
-        return
-
-    _disable_check_mode(uid)
+@router.message(Command("check_off"))
+async def check_off(message: Message):
+    CHECK_MODE_USERS.discard(message.from_user.id)
     await message.answer("Режим проверки предложений выключен.")
 
 
-@router.callback_query(F.data == "menu_check")
-async def cb_menu_check(callback: CallbackQuery) -> None:
-    uid = callback.from_user.id
-    if not has_access(uid, ADMIN_ID):
-        await callback.answer("Нет доступа.", show_alert=True)
-        return
-
-    _enable_check_mode(uid)
-    await callback.answer()
-    await callback.message.answer(
-        "Режим проверки предложений включен.\n\n"
-        "Напиши предложение на немецком, и я предложу исправленный вариант и отмечу ошибки.\n\n"
-        "Чтобы выключить: /checkoff"
+@router.message(Command("check"))
+async def check_help(message: Message):
+    await message.answer(
+        "Команды проверки:\n"
+        "/check_on включить проверку\n"
+        "/check_off выключить проверку\n\n"
+        "Когда режим включен, просто отправляй немецкие предложения обычным текстом."
     )
 
 
-@router.message(F.text & ~F.text.startswith("/"))
-async def handle_text_in_check_mode(message: Message) -> None:
-    uid = message.from_user.id
-    if not has_access(uid, ADMIN_ID):
-        return
-
-    st = user_state[uid]
-    if not st.get("check_mode", False):
-        return
-
+@router.message(F.text)
+async def check_text_handler(message: Message):
+    # Не трогаем команды
     text = (message.text or "").strip()
-    if not text:
+    if not text or text.startswith("/"):
         return
 
-    waiting = await message.answer("Проверяю...")
+    # Проверяем только если режим включен
+    if message.from_user.id not in CHECK_MODE_USERS:
+        return
+
+    # Сразу показать, что бот работает
+    try:
+        await message.bot.send_chat_action(message.chat.id, ChatAction.TYPING)
+    except Exception:
+        pass
+
+    wait_msg = await message.answer("⏳ Проверяю. Подожди немного...")
+
     result = await check_text_with_ai(text)
 
+    # Лучше редактировать сообщение "подожди" на результат
     try:
-        await waiting.edit_text(result, parse_mode=None)
+        await wait_msg.edit_text(result)
     except Exception:
-        await message.answer(result, parse_mode=None)
+        await message.answer(result)
