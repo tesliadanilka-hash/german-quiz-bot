@@ -1,26 +1,20 @@
-# config.py
 import os
 from pathlib import Path
 
-# =========================
-# БАЗОВЫЕ ПУТИ ПРОЕКТА
-# =========================
-
-# Папка, где лежит bot.py
 BASE_DIR = Path(__file__).resolve().parent
-
-# Папка с данными
 DATA_DIR = BASE_DIR / "data"
 
-# Файлы данных
-WORDS_FILE = DATA_DIR / "words.json"
-GRAMMAR_FILE = DATA_DIR / "grammar.json"
-ALLOWED_USERS_FILE = DATA_DIR / "allowed_users.txt"
-USER_STATE_FILE = DATA_DIR / "user_state.json"
+def pick_file(data_path: Path, root_path: Path) -> Path:
+    if data_path.exists() and data_path.stat().st_size > 0:
+        return data_path
+    if root_path.exists() and root_path.stat().st_size > 0:
+        return root_path
+    return data_path
 
-# =========================
-# НАСТРОЙКИ TELEGRAM
-# =========================
+WORDS_FILE = pick_file(DATA_DIR / "words.json", BASE_DIR / "words.json")
+GRAMMAR_FILE = pick_file(DATA_DIR / "grammar.json", BASE_DIR / "grammar.json")
+ALLOWED_USERS_FILE = pick_file(DATA_DIR / "allowed_users.txt", BASE_DIR / "allowed_users.txt")
+USER_STATE_FILE = pick_file(DATA_DIR / "user_state.json", BASE_DIR / "user_state.json")
 
 TOKEN = (
     os.getenv("BOT_TOKEN")
@@ -31,19 +25,9 @@ TOKEN = (
 
 if not TOKEN:
     raise RuntimeError(
-        "Не найден токен бота.\n"
-        "Добавь переменную окружения BOT_TOKEN в Render "
+        "Не найден токен бота. Проверь переменную окружения BOT_TOKEN "
         "(или TELEGRAM_TOKEN / TELEGRAM_BOT_TOKEN / TOKEN)."
     )
 
-# =========================
-# НАСТРОЙКИ OPENAI
-# =========================
-
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-# =========================
-# АДМИНИСТРАТОР
-# =========================
-
-ADMIN_ID = 5319848687  # ← замени на свой Telegram ID
+ADMIN_ID = 5319848687
