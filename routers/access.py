@@ -11,8 +11,8 @@ allowed_users: Set[int] = set()
 
 def load_allowed_users() -> None:
     global allowed_users
-
     path = Path(ALLOWED_USERS_FILE)
+
     if not path.exists():
         allowed_users = set()
         print("allowed_users.txt не найден, начинаем с пустого списка.")
