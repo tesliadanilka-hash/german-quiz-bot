@@ -1,6 +1,4 @@
 # services/access.py
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Set
 
@@ -15,10 +13,10 @@ def load_allowed_users() -> None:
     path = Path(ALLOWED_USERS_FILE)
     if not path.exists():
         allowed_users = set()
-        print("allowed_users.txt not found. Starting with empty list.")
+        print("allowed_users.txt not found, starting empty.")
         return
 
-    ids: list[int] = []
+    ids = []
     for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line:
@@ -36,12 +34,11 @@ def save_allowed_users() -> None:
     path = Path(ALLOWED_USERS_FILE)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    content = "\n".join(str(uid) for uid in sorted(allowed_users))
-    if content:
-        content += "\n"
+    text = "\n".join(str(uid) for uid in sorted(allowed_users))
+    if text:
+        text += "\n"
 
-    path.write_text(content, encoding="utf-8")
-    print(f"Allowed users saved: {len(allowed_users)}")
+    path.write_text(text, encoding="utf-8")
 
 
 def add_allowed_user(user_id: int) -> None:
