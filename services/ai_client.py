@@ -29,15 +29,29 @@ AI_SYSTEM_PROMPT = (
 
 def get_client() -> Optional[OpenAI]:
     global _client
+
+    # Если клиент уже создан — сразу возвращаем
     if _client is not None:
         return _client
 
     api_key = os.getenv("OPENAI_API_KEY")
-    print(f"OPENAI_API_KEY set: {bool(api_key)}")  # <-- добавь это
-    if api_key:
-        print(f"OPENAI_API_KEY starts with: {api_key[:7]}")  # sk-xxxx
+
+    # ЛОГИ ТОЛЬКО ОДИН РАЗ
+    print("AI_CLIENT: checking OPENAI_API_KEY")
+    print(f"AI_CLIENT: key exists = {bool(api_key)}")
 
     if not api_key:
+        print("AI_CLIENT: OPENAI_API_KEY NOT FOUND")
+        return None
+
+    print(f"AI_CLIENT: OPENAI_API_KEY starts with {api_key[:7]}")
+
+    try:
+        _client = OpenAI(api_key=api_key)
+        print("AI_CLIENT: OpenAI client initialized successfully")
+        return _client
+    except Exception as e:
+        print(f"AI_CLIENT: failed to init OpenAI client: {e}")
         return None
 
     _client = OpenAI(api_key=api_key)
@@ -179,4 +193,5 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     QUIZ_CACHE[rule_id] = clean
     return clean
+
 
