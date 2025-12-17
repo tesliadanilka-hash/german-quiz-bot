@@ -10,14 +10,19 @@ router = Router()
 @router.callback_query(F.data.in_({"back_main", "main_menu"}))
 async def cb_back_main(callback: CallbackQuery) -> None:
     uid = callback.from_user.id
+
+    # Проверка доступа
     if not has_access(uid):
         await callback.answer("Нет доступа.", show_alert=True)
         return
 
     await callback.answer()
+
     text = "Главное меню. Выбери режим:"
-    kb = build_main_menu_keyboard()
+    keyboard = build_main_menu_keyboard()
+
     try:
-        await callback.message.edit_text(text, reply_markup=kb)
+        await callback.message.edit_text(text, reply_markup=keyboard)
     except Exception:
-        await callback.message.answer(text, reply_markup=kb)
+        # Если сообщение нельзя отредактировать (например, это не текст)
+        await callback.message.answer(text, reply_markup=keyboard)
