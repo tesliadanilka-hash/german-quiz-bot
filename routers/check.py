@@ -1,39 +1,110 @@
-from __future__ import annotations
-
-import sys
-from pathlib import Path
+import os
+import asyncio
+from typing import Optional
 
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.enums import ChatAction
 
+from openai import OpenAI
 
-# -------------------------
-# Надежный импорт ai_client.py
-# -------------------------
-def _import_check_text_with_ai():
-    current_file = Path(__file__).resolve()
-    src_dir = current_file.parent.parent          # .../src
-    repo_root = src_dir.parent                    # .../project
-
-    # добавим пути в sys.path, чтобы "import ai_client" заработал
-    if str(src_dir) not in sys.path:
-        sys.path.insert(0, str(src_dir))
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
-
-    from ai_client import check_text_with_ai  # type: ignore
-    return check_text_with_ai
-
-
-check_text_with_ai = _import_check_text_with_ai()
-
-# -------------------------
 
 router = Router()
 
 CHECK_MODE_USERS: set[int] = set()
+
+_client: Optional[OpenAI] = None
+_LOGGED_ONCE = False
+
+AI_SYSTEM_PROMPT = (
+    "Ты преподаватель немецкого языка. "
+    "Твоя задача проверить грамматику и правописание немецкого текста.\n"
+    "Всегда отвечай строго в таком формате:\n\n"
+    "Исправленный вариант:\n"
+    "{исправленный текст целиком}\n\n"
+    "Ошибки:\n"
+    "1) {кратко: что было не так, где, как правильно}\n"
+    "2) {если есть}\n\n"
+    "Если ошибок нет, напиши:\n"
+    "Исправленный вариант:\n"
+    "{исходный текст}\n\n"
+    "Ошибки:\n"
+    "Ошибок не найдено. Предложение грамматически корректно."
+)
+
+
+def get_client() -> Optional[OpenAI]:
+    global _client, _LOGGED_ONCE
+
+    if _client is not None:
+        return _client
+
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if not _LOGGED_ONCE:
+        print("AI_CHECK: checking OPENAI_API_KEY")
+        print(f"AI_CHECK: key exists = {bool(api_key)}")
+        _LOGGED_ONCE = True
+
+    if not api_key:
+        print("AI_CHECK: OPENAI_API_KEY NOT FOUND")
+        return None
+
+    try:
+        base_url = os.getenv("OPENAI_BASE_URL")
+        if base_url:
+            _client = OpenAI(api_key=api_key, base_url=base_url)
+        else:
+            _client = OpenAI(api_key=api_key)
+        print("AI_CHECK: OpenAI client initialized")
+        return _client
+    except Exception as e:
+        print(f"AI_CHECK: failed to init client: {e}")
+        _client = None
+        return None
+
+
+def _chat_completion_sync(text: str) -> str:
+    client = get_client()
+    if client is None:
+        return ""
+
+    model = os.getenv("OPENAI_MODEL_GRAMMAR", "gpt-4.1-mini")
+
+    completion = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": AI_SYSTEM_PROMPT},
+            {"role": "user", "content": text},
+        ],
+        temperature=0.2,
+        max_tokens=800,
+    )
+    return (completion.choices[0].message.content or "").strip()
+
+
+async def check_text_with_ai(text: str) -> str:
+    client = get_client()
+    if client is None:
+        return (
+            "Проверка ИИ сейчас недоступна.\n"
+            "Проверь переменную окружения OPENAI_API_KEY в Render."
+        )
+
+    text = (text or "").strip()
+    if not text:
+        return "Пустой текст. Напиши предложение на немецком."
+
+    try:
+        # В отдельном потоке, чтобы не блокировать aiogram
+        result = await asyncio.to_thread(_chat_completion_sync, text)
+        if not result:
+            return "Не удалось получить ответ ИИ. Попробуй еще раз."
+        return result
+    except Exception as e:
+        print(f"AI_CHECK: check_text_with_ai error: {e}")
+        return "Произошла ошибка при проверке. Попробуй еще раз позже."
 
 
 @router.message(Command("check_on"))
