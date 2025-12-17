@@ -8,7 +8,6 @@ from services.words_repo import load_words
 from services.state import load_user_state
 from services.grammar_repo import load_grammar_rules
 
-
 async def main() -> None:
     bot = create_bot()
     dp = create_dispatcher()
@@ -21,7 +20,6 @@ async def main() -> None:
     load_grammar_rules()
 
     await dp.start_polling(bot)
-
 
 if __name__ == "__main__":
     asyncio.run(main())
