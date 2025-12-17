@@ -1,4 +1,3 @@
-# services/access.py
 from pathlib import Path
 from typing import Set
 
@@ -37,7 +36,6 @@ def save_allowed_users() -> None:
     text = "\n".join(str(uid) for uid in sorted(allowed_users))
     if text:
         text += "\n"
-
     path.write_text(text, encoding="utf-8")
 
 
@@ -46,6 +44,12 @@ def add_allowed_user(user_id: int) -> None:
     save_allowed_users()
 
 
-def has_access(user_id: int) -> bool:
-    user_id = int(user_id)
-    return user_id == int(ADMIN_ID) or user_id in allowed_users
+def has_access(user_id: int, admin_id: int | None = None) -> bool:
+    """
+    Возвращает True, если:
+    - user_id == ADMIN_ID (или admin_id если передали)
+    - user_id в allowed_users
+    """
+    uid = int(user_id)
+    adm = int(admin_id) if admin_id is not None else int(ADMIN_ID)
+    return uid == adm or uid in allowed_users
