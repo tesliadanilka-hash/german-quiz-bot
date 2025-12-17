@@ -8,8 +8,10 @@ from .grammar import router as grammar_router
 from .check import router as check_router
 from .stats import router as stats_router
 
+
 def setup_routers() -> Router:
     root = Router()
+
     root.include_router(common_router)
     root.include_router(start_router)
     root.include_router(access_router)
@@ -17,4 +19,5 @@ def setup_routers() -> Router:
     root.include_router(grammar_router)
     root.include_router(check_router)
     root.include_router(stats_router)
+
     return root
