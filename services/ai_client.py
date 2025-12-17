@@ -1,3 +1,4 @@
+# ai_client.py
 import os
 import json
 import random
@@ -5,9 +6,11 @@ from typing import Optional, Dict, Any, List
 
 from openai import OpenAI
 
+
+# Один клиент на весь процесс
 _client: Optional[OpenAI] = None
 
-# Кэш вопросов по rule_id, чтобы не дергать API каждый раз
+# Кэш викторин по rule_id
 QUIZ_CACHE: Dict[str, List[Dict[str, Any]]] = {}
 
 AI_SYSTEM_PROMPT = (
@@ -28,15 +31,18 @@ AI_SYSTEM_PROMPT = (
 
 
 def get_client() -> Optional[OpenAI]:
+    """
+    Создает и возвращает OpenAI-клиент.
+    Если ключа нет или клиент не создается - вернет None.
+    """
     global _client
 
-    # Если клиент уже создан — сразу возвращаем
     if _client is not None:
         return _client
 
     api_key = os.getenv("OPENAI_API_KEY")
 
-    # ЛОГИ ТОЛЬКО ОДИН РАЗ
+    # Безопасные логи: не печатаем кусок ключа
     print("AI_CLIENT: checking OPENAI_API_KEY")
     print(f"AI_CLIENT: key exists = {bool(api_key)}")
 
@@ -44,30 +50,56 @@ def get_client() -> Optional[OpenAI]:
         print("AI_CLIENT: OPENAI_API_KEY NOT FOUND")
         return None
 
-    print(f"AI_CLIENT: OPENAI_API_KEY starts with {api_key[:7]}")
-
     try:
         _client = OpenAI(api_key=api_key)
         print("AI_CLIENT: OpenAI client initialized successfully")
         return _client
     except Exception as e:
         print(f"AI_CLIENT: failed to init OpenAI client: {e}")
+        _client = None
         return None
-
-    _client = OpenAI(api_key=api_key)
-    return _client
-
 
 
 def strip_html_tags(text: str) -> str:
+    """
+    Удаляет простые HTML-теги, которые могут быть в grammar.json
+    """
     if not isinstance(text, str):
         return str(text)
+
     for tag in ("<b>", "</b>", "<i>", "</i>", "<u>", "</u>"):
         text = text.replace(tag, "")
+
     return text
 
 
+def _extract_json_block(content: str) -> str:
+    """
+    Если модель вернула JSON в ``` ``` - аккуратно вытаскиваем.
+    """
+    if not content:
+        return ""
+
+    c = content.strip()
+
+    if c.startswith("```"):
+        # убираем первые ```
+        c = c[3:].strip()
+        # может быть ```json
+        if c.lower().startswith("json"):
+            c = c[4:].strip()
+        # убираем завершающие ```
+        if c.endswith("```"):
+            c = c[:-3].strip()
+
+    return c.strip()
+
+
 async def check_text_with_ai(text: str) -> str:
+    """
+    Проверка немецкого текста на грамматику/правописание.
+    Возвращает строку для отправки пользователю.
+    """
     client = get_client()
     if client is None:
         return (
@@ -75,9 +107,13 @@ async def check_text_with_ai(text: str) -> str:
             "Проверь переменную окружения OPENAI_API_KEY в Render."
         )
 
+    text = (text or "").strip()
+    if not text:
+        return "Пустой текст. Напиши предложение на немецком."
+
     try:
         completion = client.chat.completions.create(
-            model="gpt-4.1-mini",
+            model=os.getenv("OPENAI_MODEL_GRAMMAR", "gpt-4.1-mini"),
             messages=[
                 {"role": "system", "content": AI_SYSTEM_PROMPT},
                 {"role": "user", "content": text},
@@ -86,7 +122,8 @@ async def check_text_with_ai(text: str) -> str:
             max_tokens=800,
         )
         return (completion.choices[0].message.content or "").strip()
-    except Exception:
+    except Exception as e:
+        print(f"AI_CLIENT: check_text_with_ai error: {e}")
         return "Произошла ошибка при проверке. Попробуй еще раз позже."
 
 
@@ -106,7 +143,8 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     cached = QUIZ_CACHE.get(rule_id)
     if cached:
-        return cached
+        # Возвращаем копию, чтобы внешний код не портил кэш случайно
+        return [dict(x) for x in cached]
 
     title = strip_html_tags(rule.get("title", ""))
     explanation = strip_html_tags(rule.get("explanation", ""))
@@ -136,32 +174,21 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     try:
         completion = client.chat.completions.create(
-            model="gpt-4.1-mini",
+            model=os.getenv("OPENAI_MODEL_QUIZ", "gpt-4.1-mini"),
             messages=[
-                {
-                    "role": "system",
-                    "content": "Antworte immer NUR mit einem gueltigen JSON-Objekt.",
-                },
+                {"role": "system", "content": "Antworte immer NUR mit einem gueltigen JSON-Objekt."},
                 {"role": "user", "content": user_prompt},
             ],
             temperature=0.35,
             max_tokens=900,
         )
-        content = (completion.choices[0].message.content or "").strip()
 
-        # На всякий случай убираем ```json
-        if content.startswith("```"):
-            content = content.strip()
-            if content.startswith("```"):
-                content = content[3:]
-            if content.endswith("```"):
-                content = content[:-3]
-            content = content.strip()
-            if content.lower().startswith("json"):
-                content = content[4:].lstrip()
+        content = (completion.choices[0].message.content or "").strip()
+        content = _extract_json_block(content)
 
         data = json.loads(content)
-    except Exception:
+    except Exception as e:
+        print(f"AI_CLIENT: generate_quiz_for_rule error: {e}")
         return []
 
     questions = data.get("questions", [])
@@ -170,9 +197,11 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     for q in questions:
         if not isinstance(q, dict):
             continue
+
         opts = q.get("options", [])
         if not isinstance(opts, list) or len(opts) != 4:
             continue
+
         ci = q.get("correct_index", None)
         if not isinstance(ci, int) or not (0 <= ci <= 3):
             continue
@@ -192,6 +221,4 @@ async def generate_quiz_for_rule(rule: Dict[str, Any]) -> List[Dict[str, Any]]:
     clean = clean[:5]
 
     QUIZ_CACHE[rule_id] = clean
-    return clean
-
-
+    return [dict(x) for x in clean]
