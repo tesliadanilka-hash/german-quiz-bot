@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 import json
 from collections import defaultdict
-from typing import Dict, Any
+from typing import Any, Dict
+
 from config import USER_STATE_FILE
 
 TOPIC_ALL = "ALL"
 
-def _default_state() -> Dict[str, Any]:
-    return {
+user_state: Dict[int, Dict[str, Any]] = defaultdict(
+    lambda: {
         "mode": "de_ru",
         "topic": TOPIC_ALL,
         "correct": 0,
@@ -17,20 +20,14 @@ def _default_state() -> Dict[str, Any]:
         "answer_mode": "choice",
         "waiting_text_answer": False,
         "current_word_id": None,
-        "grammar_stats": {
-            "total_correct": 0,
-            "total_wrong": 0,
-            "per_rule": {}
-        },
+        "grammar_stats": {"total_correct": 0, "total_wrong": 0, "per_rule": {}},
     }
-
-user_state: Dict[int, Dict[str, Any]] = defaultdict(_default_state)
+)
 
 def load_user_state() -> None:
     try:
         with USER_STATE_FILE.open("r", encoding="utf-8") as f:
             raw = json.load(f)
-
         count = 0
         for uid_str, state in raw.items():
             try:
@@ -42,12 +39,11 @@ def load_user_state() -> None:
                 base.update(state)
             user_state[uid] = base
             count += 1
-
-        print(f"Загружено состояний пользователей: {count}")
+        print(f"User states loaded: {count}")
     except FileNotFoundError:
-        print("Файл user_state.json не найден, начинаем с пустого состояния.")
+        print("user_state.json not found. Starting empty.")
     except Exception as e:
-        print("Ошибка при загрузке состояний пользователей:", e)
+        print("Failed to load user_state.json:", e)
 
 def save_user_state() -> None:
     try:
@@ -55,6 +51,5 @@ def save_user_state() -> None:
         raw = {str(uid): state for uid, state in user_state.items()}
         with USER_STATE_FILE.open("w", encoding="utf-8") as f:
             json.dump(raw, f, ensure_ascii=False, indent=2)
-        print(f"Состояние пользователей сохранено. Всего пользователей: {len(raw)}")
     except Exception as e:
-        print("Ошибка при сохранении состояний пользователей:", e)
+        print("Failed to save user_state.json:", e)
