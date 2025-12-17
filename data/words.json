@@ -1,0 +1,6163 @@
+[
+    {
+        "topic": "Приветствия и базовые фразы",
+        "level": "A1",
+        "subtopic": "Приветствия",
+        "words": [
+            {
+                "de": "Hallo",
+                "tr": "ˈhalo",
+                "ru": "привет"
+            },
+            {
+                "de": "Hi",
+                "tr": "haɪ̯",
+                "ru": "хай"
+            },
+            {
+                "de": "Guten Tag",
+                "tr": "ˌɡuːtn̩ ˈtaːk",
+                "ru": "добрый день"
+            },
+            {
+                "de": "Guten Morgen",
+                "tr": "ˌɡuːtn̩ ˈmɔʁɡn̩",
+                "ru": "доброе утро"
+            },
+            {
+                "de": "Guten Abend",
+                "tr": "ˌɡuːtn̩ ˈaːbn̩t",
+                "ru": "добрый вечер"
+            },
+            {
+                "de": "Willkommen",
+                "tr": "vɪlˈkɔmən",
+                "ru": "добро пожаловать"
+            },
+            {
+                "de": "Grüß dich",
+                "tr": "ɡʁyːs dɪç",
+                "ru": "привет (неформально)"
+            },
+            {
+                "de": "Grüß Gott",
+                "tr": "ɡʁyːs ɡɔt",
+                "ru": "привет/добрый день (юг Германии)"
+            },
+            {
+                "de": "Servus",
+                "tr": "ˈsɛʁvʊs",
+                "ru": "привет (Австрия, Бавария)"
+            }
+        ]
+    },
+    {
+        "topic": "Приветствия и базовые фразы",
+        "level": "A1",
+        "subtopic": "Прощания",
+        "words": [
+            {
+                "de": "Tschüss",
+                "tr": "tʃʏs",
+                "ru": "пока"
+            },
+            {
+                "de": "Auf Wiedersehen",
+                "tr": "aʊ̯f ˈviːdɐzeːən",
+                "ru": "до свидания"
+            },
+            {
+                "de": "Bis später",
+                "tr": "bɪs ˈʃpɛːtɐ",
+                "ru": "до позже"
+            },
+            {
+                "de": "Bis bald",
+                "tr": "bɪs balt",
+                "ru": "до скорого"
+            },
+            {
+                "de": "Bis morgen",
+                "tr": "bɪs ˈmɔʁɡn̩",
+                "ru": "до завтра"
+            },
+            {
+                "de": "Gute Nacht",
+                "tr": "ˈɡuːtə naxt",
+                "ru": "спокойной ночи"
+            },
+            {
+                "de": "Mach's gut",
+                "tr": "maxs ɡuːt",
+                "ru": "береги себя"
+            }
+        ]
+    },
+    {
+        "topic": "Приветствия и базовые фразы",
+        "level": "A1",
+        "subtopic": "Вежливые фразы",
+        "words": [
+            {
+                "de": "Bitte",
+                "tr": "ˈbɪtə",
+                "ru": "пожалуйста"
+            },
+            {
+                "de": "Danke",
+                "tr": "ˈdaŋkə",
+                "ru": "спасибо"
+            },
+            {
+                "de": "Danke schön",
+                "tr": "ˈdaŋkə ʃøːn",
+                "ru": "большое спасибо"
+            },
+            {
+                "de": "Bitte schön",
+                "tr": "ˈbɪtə ʃøːn",
+                "ru": "пожалуйста (в ответ)"
+            },
+            {
+                "de": "Gerne",
+                "tr": "ˈɡɛʁnə",
+                "ru": "с удовольствием / не за что"
+            },
+            {
+                "de": "Kein Problem",
+                "tr": "kaɪ̯n pʁoˈbleːm",
+                "ru": "без проблем"
+            },
+            {
+                "de": "Alles klar",
+                "tr": "ˈaləs klaːɐ̯",
+                "ru": "все понятно / договорились"
+            }
+        ]
+    },
+    {
+        "topic": "Приветствия и базовые фразы",
+        "level": "A1",
+        "subtopic": "Благодарности и извинения",
+        "words": [
+            {
+                "de": "Entschuldigung",
+                "tr": "ɛntˈʃʊldɪɡʊŋ",
+                "ru": "извините"
+            },
+            {
+                "de": "Es tut mir leid",
+                "tr": "ɛs tuːt miːɐ̯ laɪ̯t",
+                "ru": "мне жаль"
+            },
+            {
+                "de": "Verzeihung",
+                "tr": "fɛɐ̯ˈtsaɪ̯ʊŋ",
+                "ru": "простите"
+            },
+            {
+                "de": "Entschuldige bitte",
+                "tr": "ɛntˈʃʊldɪɡə ˈbɪtə",
+                "ru": "прости, пожалуйста"
+            },
+            {
+                "de": "Keine Ursache",
+                "tr": "ˈkaɪ̯nə ˈuːɐ̯zaχə",
+                "ru": "не за что"
+            }
+        ]
+    },
+    {
+        "topic": "Приветствия и базовые фразы",
+        "level": "A1",
+        "subtopic": "Как дела",
+        "words": [
+            {
+                "de": "Wie geht's?",
+                "tr": "viː ɡeːts",
+                "ru": "как дела?"
+            },
+            {
+                "de": "Wie geht es Ihnen?",
+                "tr": "viː ɡeːt ɛs ˈiːnən",
+                "ru": "как у вас дела? (вежливо)"
+            },
+            {
+                "de": "Gut, danke",
+                "tr": "ɡuːt ˈdaŋkə",
+                "ru": "хорошо, спасибо"
+            },
+            {
+                "de": "Es geht",
+                "tr": "ɛs ɡeːt",
+                "ru": "нормально"
+            },
+            {
+                "de": "Nicht so gut",
+                "tr": "nɪçt zoː ɡuːt",
+                "ru": "не очень"
+            },
+            {
+                "de": "Und dir?",
+                "tr": "ʊnt diːɐ̯",
+                "ru": "а у тебя?"
+            },
+            {
+                "de": "Und Ihnen?",
+                "tr": "ʊnt ˈiːnən",
+                "ru": "а у вас? (вежливо)"
+            }
+        ]
+    },
+    {
+        "topic": "Личные данные и знакомство",
+        "level": "A1",
+        "subtopic": "Основные данные",
+        "words": [
+            {
+                "de": "Ich heiße ...",
+                "tr": "ɪç ˈhaɪ̯sə",
+                "ru": "Меня зовут ..."
+            },
+            {
+                "de": "Ich bin ... Jahre alt",
+                "tr": "ɪç bɪn ... ˈjaːʁə alt",
+                "ru": "Мне ... лет"
+            },
+            {
+                "de": "Ich komme aus ...",
+                "tr": "ɪç ˈkɔmə aʊ̯s",
+                "ru": "Я из ..."
+            },
+            {
+                "de": "Ich wohne in ...",
+                "tr": "ɪç ˈvoːnə ɪn",
+                "ru": "Я живу в ..."
+            },
+            {
+                "de": "Der Name",
+                "tr": "deːɐ̯ ˈnaːmə",
+                "ru": "Имя"
+            },
+            {
+                "de": "Das Alter",
+                "tr": "ˈaltɐ",
+                "ru": "Возраст"
+            },
+            {
+                "de": "Die Adresse",
+                "tr": "aˈdʁɛsə",
+                "ru": "Адрес"
+            },
+            {
+                "de": "Die Telefonnummer",
+                "tr": "ˈtɛlɛfoˌnʊmɐ",
+                "ru": "Номер телефона"
+            },
+            {
+                "de": "Die Straße",
+                "tr": "ˈʃtʁaːsə",
+                "ru": "Улица"
+            },
+            {
+                "de": "Die Stadt",
+                "tr": "ʃtat",
+                "ru": "Город"
+            },
+            {
+                "de": "Das Land",
+                "tr": "lant",
+                "ru": "Страна"
+            }
+        ]
+    },
+    {
+        "topic": "Личные данные и знакомство",
+        "level": "A1",
+        "subtopic": "Национальность и язык",
+        "words": [
+            {
+                "de": "Deutsch",
+                "tr": "dɔɪ̯tʃ",
+                "ru": "Немецкий язык"
+            },
+            {
+                "de": "Russisch",
+                "tr": "ˈʁʊsɪʃ",
+                "ru": "Русский язык"
+            },
+            {
+                "de": "Ukrainisch",
+                "tr": "ʊkʁaˈiːnɪʃ",
+                "ru": "Украинский язык"
+            },
+            {
+                "de": "Türkisch",
+                "tr": "ˈtʏʁkɪʃ",
+                "ru": "Турецкий язык"
+            },
+            {
+                "de": "Englisch",
+                "tr": "ˈɛŋlɪʃ",
+                "ru": "Английский язык"
+            },
+            {
+                "de": "Ich spreche ...",
+                "tr": "ɪç ˈʃpʁɛçə",
+                "ru": "Я говорю на ..."
+            },
+            {
+                "de": "Ich lerne Deutsch",
+                "tr": "ɪç ˈlɛʁnə dɔɪ̯tʃ",
+                "ru": "Я учу немецкий"
+            },
+            {
+                "de": "Deutscher / Deutsche",
+                "tr": "ˈdɔʏ̯tʃɐ / ˈdɔʏ̯tʃə",
+                "ru": "Немец / Немка"
+            },
+            {
+                "de": "Russe / Russin",
+                "tr": "ˈʁʊsə / ˈʁʊsɪn",
+                "ru": "Русский / Русская"
+            },
+            {
+                "de": "Ukrainer / Ukrainerin",
+                "tr": "ukʁaˈiːnɐ / ukʁaˈiːnəʁɪn",
+                "ru": "Украинец / Украинка"
+            },
+            {
+                "de": "Türke / Türkin",
+                "tr": "ˈtʏʁkə / ˈtʏʁkɪn",
+                "ru": "Турок / Турчанка"
+            }
+        ]
+    },
+    {
+        "topic": "Личные данные и знакомство",
+        "level": "A1",
+        "subtopic": "Краткое представление",
+        "words": [
+            {
+                "de": "Ich bin Student",
+                "tr": "ɪç bɪn ʃtuˈdɛnt",
+                "ru": "Я студент"
+            },
+            {
+                "de": "Ich arbeite als ...",
+                "tr": "ɪç ˈaʁbaɪ̯tə als",
+                "ru": "Я работаю как ..."
+            },
+            {
+                "de": "Ich mag ...",
+                "tr": "ɪç maːk",
+                "ru": "Мне нравится ..."
+            },
+            {
+                "de": "Ich habe zwei Kinder",
+                "tr": "ɪç ˈhaːbə tsvaɪ̯ ˈkɪndɐ",
+                "ru": "У меня двое детей"
+            },
+            {
+                "de": "Ich bin verheiratet",
+                "tr": "ɪç bɪn fɛɐ̯ˈhaɪ̯ʁatət",
+                "ru": "Я женат / замужем"
+            },
+            {
+                "de": "Ich wohne allein",
+                "tr": "ɪç ˈvoːnə aˈlaɪ̯n",
+                "ru": "Я живу один"
+            },
+            {
+                "de": "Ich wohne mit meiner Familie",
+                "tr": "ɪç ˈvoːnə mɪt ˈmaɪ̯nɐ faˈmiːli̯ə",
+                "ru": "Я живу с семьей"
+            }
+        ]
+    },
+    {
+        "topic": "Личные данные и знакомство",
+        "level": "A1",
+        "subtopic": "Вопросы при знакомстве",
+        "words": [
+            {
+                "de": "Wie heißt du?",
+                "tr": "viː haɪ̯st duː",
+                "ru": "Как тебя зовут?"
+            },
+            {
+                "de": "Wie heißen Sie?",
+                "tr": "viː ˈhaɪ̯sən ziː",
+                "ru": "Как вас зовут? (вежливо)"
+            },
+            {
+                "de": "Woher kommst du?",
+                "tr": "voˈheːɐ̯ kɔmst duː",
+                "ru": "Откуда ты?"
+            },
+            {
+                "de": "Woher kommen Sie?",
+                "tr": "voˈheːɐ̯ ˈkɔmən ziː",
+                "ru": "Откуда вы? (вежливо)"
+            },
+            {
+                "de": "Wo wohnst du?",
+                "tr": "voː voːnst duː",
+                "ru": "Где ты живешь?"
+            },
+            {
+                "de": "Wo wohnen Sie?",
+                "tr": "voː ˈvoːnən ziː",
+                "ru": "Где вы живете? (вежливо)"
+            },
+            {
+                "de": "Wie alt bist du?",
+                "tr": "viː alt bɪst duː",
+                "ru": "Сколько тебе лет?"
+            },
+            {
+                "de": "Wie alt sind Sie?",
+                "tr": "viː alt zɪnt ziː",
+                "ru": "Сколько вам лет? (вежливо)"
+            },
+            {
+                "de": "Was machst du?",
+                "tr": "vas maxt duː",
+                "ru": "Чем ты занимаешься?"
+            },
+            {
+                "de": "Was machen Sie?",
+                "tr": "vas ˈmaxən ziː",
+                "ru": "Чем вы занимаетесь? (вежливо)"
+            }
+        ]
+    },
+    {
+        "topic": "Семья",
+        "level": "A1",
+        "subtopic": "Ближняя семья",
+        "words": [
+            {
+                "de": "die Familie",
+                "tr": "faˈmiːli̯ə",
+                "ru": "семья"
+            },
+            {
+                "de": "die Eltern",
+                "tr": "ˈɛltɐn",
+                "ru": "родители"
+            },
+            {
+                "de": "die Mutter",
+                "tr": "ˈmʊtɐ",
+                "ru": "мама"
+            },
+            {
+                "de": "der Vater",
+                "tr": "ˈfaːtɐ",
+                "ru": "папа"
+            },
+            {
+                "de": "der Sohn",
+                "tr": "zoːn",
+                "ru": "сын"
+            },
+            {
+                "de": "die Tochter",
+                "tr": "ˈtɔxtɐ",
+                "ru": "дочь"
+            },
+            {
+                "de": "die Geschwister",
+                "tr": "ɡəˈʃvɪstɐ",
+                "ru": "братья и сестры"
+            },
+            {
+                "de": "der Bruder",
+                "tr": "ˈbʁuːdɐ",
+                "ru": "брат"
+            },
+            {
+                "de": "die Schwester",
+                "tr": "ˈʃvɛstɐ",
+                "ru": "сестра"
+            },
+            {
+                "de": "die Ehefrau",
+                "tr": "ˈeːəˌfʁaʊ̯",
+                "ru": "жена"
+            },
+            {
+                "de": "der Ehemann",
+                "tr": "ˈeːəˌman",
+                "ru": "муж"
+            },
+            {
+                "de": "das Baby",
+                "tr": "ˈbeːbi",
+                "ru": "младенец"
+            }
+        ]
+    },
+    {
+        "topic": "Семья",
+        "level": "A1",
+        "subtopic": "Расширенная семья",
+        "words": [
+            {
+                "de": "die Großeltern",
+                "tr": "ˈɡʁoːsˌʔɛltɐn",
+                "ru": "бабушка и дедушка"
+            },
+            {
+                "de": "die Oma",
+                "tr": "ˈoːma",
+                "ru": "бабушка"
+            },
+            {
+                "de": "der Opa",
+                "tr": "ˈoːpa",
+                "ru": "дедушка"
+            },
+            {
+                "de": "die Tante",
+                "tr": "ˈtantə",
+                "ru": "тетя"
+            },
+            {
+                "de": "der Onkel",
+                "tr": "ˈɔŋkl̩",
+                "ru": "дядя"
+            },
+            {
+                "de": "der Cousin",
+                "tr": "kuˈzɛ̃ː",
+                "ru": "двоюродный брат"
+            },
+            {
+                "de": "die Cousine",
+                "tr": "kuˈziːnə",
+                "ru": "двоюродная сестра"
+            },
+            {
+                "de": "der Neffe",
+                "tr": "ˈnɛfə",
+                "ru": "племянник"
+            },
+            {
+                "de": "die Nichte",
+                "tr": "ˈnɪçtə",
+                "ru": "племянница"
+            }
+        ]
+    },
+    {
+        "topic": "Семья",
+        "level": "A1",
+        "subtopic": "Семейное положение",
+        "words": [
+            {
+                "de": "ledig",
+                "tr": "ˈleːdɪç",
+                "ru": "холост / не замужем"
+            },
+            {
+                "de": "verheiratet",
+                "tr": "fɛɐ̯ˈhaɪ̯ʁatət",
+                "ru": "женат / замужем"
+            },
+            {
+                "de": "geschieden",
+                "tr": "ɡəˈʃiːdən",
+                "ru": "в разводе"
+            },
+            {
+                "de": "verwitwet",
+                "tr": "fɛɐ̯ˈvɪtvət",
+                "ru": "вдова / вдовец"
+            },
+            {
+                "de": "der Partner",
+                "tr": "ˈpaʁtnɐ",
+                "ru": "партнер"
+            },
+            {
+                "de": "die Partnerin",
+                "tr": "ˈpaʁtnəʁɪn",
+                "ru": "партнерша"
+            },
+            {
+                "de": "die Familie gründen",
+                "tr": "faˈmiːli̯ə ˈɡʁʏndən",
+                "ru": "создать семью"
+            }
+        ]
+    },
+    {
+        "topic": "Дом и жилье",
+        "level": "A1",
+        "subtopic": "Типы жилья",
+        "words": [
+            {
+                "de": "die Wohnung",
+                "tr": "ˈvoːnʊŋ",
+                "ru": "квартира"
+            },
+            {
+                "de": "das Haus",
+                "tr": "haʊ̯s",
+                "ru": "дом"
+            },
+            {
+                "de": "das Zimmer",
+                "tr": "ˈtsɪmɐ",
+                "ru": "комната"
+            },
+            {
+                "de": "das Einfamilienhaus",
+                "tr": "ˈaɪ̯nfamili̯ənhaʊ̯s",
+                "ru": "односемейный дом"
+            },
+            {
+                "de": "das Mehrfamilienhaus",
+                "tr": "ˈmeːɐ̯famili̯ənhaʊ̯s",
+                "ru": "многоквартирный дом"
+            },
+            {
+                "de": "der Balkon",
+                "tr": "balˈkoːn",
+                "ru": "балкон"
+            },
+            {
+                "de": "der Garten",
+                "tr": "ˈɡaʁtn̩",
+                "ru": "сад"
+            },
+            {
+                "de": "die Miete",
+                "tr": "ˈmiːtə",
+                "ru": "аренда"
+            }
+        ]
+    },
+    {
+        "topic": "Дом и жилье",
+        "level": "A1",
+        "subtopic": "Комнаты",
+        "words": [
+            {
+                "de": "das Wohnzimmer",
+                "tr": "ˈvoːnˌtsɪmɐ",
+                "ru": "гостиная"
+            },
+            {
+                "de": "das Schlafzimmer",
+                "tr": "ˈʃlaːfˌtsɪmɐ",
+                "ru": "спальня"
+            },
+            {
+                "de": "die Küche",
+                "tr": "ˈkʏçə",
+                "ru": "кухня"
+            },
+            {
+                "de": "das Bad",
+                "tr": "baːt",
+                "ru": "ванная"
+            },
+            {
+                "de": "die Toilette",
+                "tr": "to̯aˈlɛtə",
+                "ru": "туалет"
+            },
+            {
+                "de": "der Flur",
+                "tr": "fluːɐ̯",
+                "ru": "коридор"
+            },
+            {
+                "de": "das Kinderzimmer",
+                "tr": "ˈkɪndɐˌtsɪmɐ",
+                "ru": "детская комната"
+            },
+            {
+                "de": "der Keller",
+                "tr": "ˈkɛlɐ",
+                "ru": "подвал"
+            }
+        ]
+    },
+    {
+        "topic": "Дом и жилье",
+        "level": "A1",
+        "subtopic": "Мебель",
+        "words": [
+            {
+                "de": "der Tisch",
+                "tr": "tɪʃ",
+                "ru": "стол"
+            },
+            {
+                "de": "der Stuhl",
+                "tr": "ʃtuːl",
+                "ru": "стул"
+            },
+            {
+                "de": "das Bett",
+                "tr": "bɛt",
+                "ru": "кровать"
+            },
+            {
+                "de": "der Schrank",
+                "tr": "ʃʁaŋk",
+                "ru": "шкаф"
+            },
+            {
+                "de": "das Sofa",
+                "tr": "ˈzoːfa",
+                "ru": "диван"
+            },
+            {
+                "de": "der Sessel",
+                "tr": "ˈzɛsl̩",
+                "ru": "кресло"
+            },
+            {
+                "de": "die Kommode",
+                "tr": "koˈmoːdə",
+                "ru": "комод"
+            },
+            {
+                "de": "das Regal",
+                "tr": "ʁeˈɡaːl",
+                "ru": "полка"
+            },
+            {
+                "de": "der Teppich",
+                "tr": "ˈtɛpɪç",
+                "ru": "ковер"
+            },
+            {
+                "de": "die Lampe",
+                "tr": "ˈlampə",
+                "ru": "лампа"
+            }
+        ]
+    },
+    {
+        "topic": "Дом и жилье",
+        "level": "A1",
+        "subtopic": "Бытовая техника",
+        "words": [
+            {
+                "de": "der Kühlschrank",
+                "tr": "ˈkyːlˌʃʁaŋk",
+                "ru": "холодильник"
+            },
+            {
+                "de": "der Herd",
+                "tr": "heːɐ̯t",
+                "ru": "плита"
+            },
+            {
+                "de": "die Waschmaschine",
+                "tr": "ˈvaʃmaˌʃiːnə",
+                "ru": "стиральная машина"
+            },
+            {
+                "de": "die Spülmaschine",
+                "tr": "ˈʃpyːlmaˌʃiːnə",
+                "ru": "посудомоечная машина"
+            },
+            {
+                "de": "der Fernseher",
+                "tr": "ˈfɛʁnˌzeːɐ̯",
+                "ru": "телевизор"
+            },
+            {
+                "de": "die Mikrowelle",
+                "tr": "ˈmikʁoˌvɛlə",
+                "ru": "микроволновка"
+            },
+            {
+                "de": "die Heizung",
+                "tr": "ˈhaɪ̯tsʊŋ",
+                "ru": "отопление"
+            },
+            {
+                "de": "das Licht",
+                "tr": "lɪçt",
+                "ru": "свет"
+            }
+        ]
+    },
+    {
+        "topic": "Еда и напитки",
+        "level": "A1",
+        "subtopic": "Продукты",
+        "words": [
+            {
+                "de": "das Brot",
+                "tr": "bʁoːt",
+                "ru": "хлеб"
+            },
+            {
+                "de": "die Butter",
+                "tr": "ˈbʊtɐ",
+                "ru": "масло"
+            },
+            {
+                "de": "der Käse",
+                "tr": "ˈkɛːzə",
+                "ru": "сыр"
+            },
+            {
+                "de": "die Wurst",
+                "tr": "vʊʁst",
+                "ru": "колбаса"
+            },
+            {
+                "de": "das Fleisch",
+                "tr": "flaɪ̯ʃ",
+                "ru": "мясо"
+            },
+            {
+                "de": "das Hähnchen",
+                "tr": "ˈhɛːnçən",
+                "ru": "курица"
+            },
+            {
+                "de": "der Fisch",
+                "tr": "fɪʃ",
+                "ru": "рыба"
+            },
+            {
+                "de": "das Gemüse",
+                "tr": "ɡəˈmyːzə",
+                "ru": "овощи"
+            },
+            {
+                "de": "das Obst",
+                "tr": "oːpst",
+                "ru": "фрукты"
+            },
+            {
+                "de": "der Apfel",
+                "tr": "ˈapfl̩",
+                "ru": "яблоко"
+            },
+            {
+                "de": "die Banane",
+                "tr": "baˈnaːnə",
+                "ru": "банан"
+            },
+            {
+                "de": "die Kartoffel",
+                "tr": "kaʁˈtɔfl̩",
+                "ru": "картофель"
+            },
+            {
+                "de": "der Reis",
+                "tr": "ʁaɪ̯s",
+                "ru": "рис"
+            },
+            {
+                "de": "die Nudeln",
+                "tr": "ˈnuːdl̩n",
+                "ru": "макароны"
+            },
+            {
+                "de": "der Salat",
+                "tr": "zaˈlaːt",
+                "ru": "салат"
+            },
+            {
+                "de": "das Ei",
+                "tr": "aɪ̯",
+                "ru": "яйцо"
+            },
+            {
+                "de": "der Zucker",
+                "tr": "ˈtsʊkɐ",
+                "ru": "сахар"
+            },
+            {
+                "de": "das Salz",
+                "tr": "zalts",
+                "ru": "соль"
+            }
+        ]
+    },
+    {
+        "topic": "Еда и напитки",
+        "level": "A1",
+        "subtopic": "Напитки",
+        "words": [
+            {
+                "de": "das Wasser",
+                "tr": "ˈvasɐ",
+                "ru": "вода"
+            },
+            {
+                "de": "das Mineralwasser",
+                "tr": "mɪnəˈʁaːlˌvasɐ",
+                "ru": "минеральная вода"
+            },
+            {
+                "de": "der Kaffee",
+                "tr": "ˈkafe",
+                "ru": "кофе"
+            },
+            {
+                "de": "der Tee",
+                "tr": "teː",
+                "ru": "чай"
+            },
+            {
+                "de": "die Milch",
+                "tr": "mɪlç",
+                "ru": "молоко"
+            },
+            {
+                "de": "der Saft",
+                "tr": "zaft",
+                "ru": "сок"
+            },
+            {
+                "de": "die Cola",
+                "tr": "ˈkoːla",
+                "ru": "кола"
+            },
+            {
+                "de": "das Bier",
+                "tr": "biːɐ̯",
+                "ru": "пиво"
+            },
+            {
+                "de": "der Wein",
+                "tr": "vaɪ̯n",
+                "ru": "вино"
+            }
+        ]
+    },
+    {
+        "topic": "Еда и напитки",
+        "level": "A1",
+        "subtopic": "Приёмы пищи",
+        "words": [
+            {
+                "de": "das Frühstück",
+                "tr": "ˈfʁyːʃtʏk",
+                "ru": "завтрак"
+            },
+            {
+                "de": "zu Mittag essen",
+                "tr": "tsuː ˈmɪtaːk ˈɛsn̩",
+                "ru": "обедать"
+            },
+            {
+                "de": "das Mittagessen",
+                "tr": "ˈmɪtaːkˌʔɛsn̩",
+                "ru": "обед"
+            },
+            {
+                "de": "zu Abend essen",
+                "tr": "tsuː ˈaːbn̩t ˈɛsn̩",
+                "ru": "ужинать"
+            },
+            {
+                "de": "das Abendessen",
+                "tr": "ˈaːbn̩tˌʔɛsn̩",
+                "ru": "ужин"
+            },
+            {
+                "de": "der Snack",
+                "tr": "snɛk",
+                "ru": "перекус"
+            }
+        ]
+    },
+    {
+        "topic": "Еда и напитки",
+        "level": "A1",
+        "subtopic": "В кафе и столовой",
+        "words": [
+            {
+                "de": "das Menü",
+                "tr": "meˈnyː",
+                "ru": "меню"
+            },
+            {
+                "de": "die Speisekarte",
+                "tr": "ˈʃpaɪ̯zəˌkaʁtə",
+                "ru": "меню (список блюд)"
+            },
+            {
+                "de": "die Rechnung",
+                "tr": "ˈʁaɪ̯çnʊŋ",
+                "ru": "счет"
+            },
+            {
+                "de": "der Kellner",
+                "tr": "ˈkɛlnaɐ̯",
+                "ru": "официант"
+            },
+            {
+                "de": "die Kellnerin",
+                "tr": "ˈkɛlnaʁɪn",
+                "ru": "официантка"
+            },
+            {
+                "de": "bestellen",
+                "tr": "bəˈʃtɛlən",
+                "ru": "заказывать"
+            },
+            {
+                "de": "bezahlen",
+                "tr": "bəˈtsaːlən",
+                "ru": "платить"
+            },
+            {
+                "de": "leckeres Essen",
+                "tr": "ˈlɛkərəs ˈʔɛsn̩",
+                "ru": "вкусная еда"
+            },
+            {
+                "de": "Ich möchte ...",
+                "tr": "ɪç ˈmœçtə",
+                "ru": "Я хотел бы ..."
+            },
+            {
+                "de": "Was empfehlen Sie?",
+                "tr": "vas ɛmpˈfeːlən ziː",
+                "ru": "Что вы порекомендуете?"
+            }
+        ]
+    },
+    {
+        "topic": "Числа",
+        "level": "A1",
+        "subtopic": "0–20",
+        "words": [
+            {
+                "de": "null",
+                "tr": "nʊl",
+                "ru": "ноль"
+            },
+            {
+                "de": "eins",
+                "tr": "aɪ̯ns",
+                "ru": "один"
+            },
+            {
+                "de": "zwei",
+                "tr": "tsvaɪ̯",
+                "ru": "два"
+            },
+            {
+                "de": "drei",
+                "tr": "dʁaɪ̯",
+                "ru": "три"
+            },
+            {
+                "de": "vier",
+                "tr": "fiːɐ̯",
+                "ru": "четыре"
+            },
+            {
+                "de": "fünf",
+                "tr": "fʏnf",
+                "ru": "пять"
+            },
+            {
+                "de": "sechs",
+                "tr": "zɛks",
+                "ru": "шесть"
+            },
+            {
+                "de": "sieben",
+                "tr": "ˈziːbm̩",
+                "ru": "семь"
+            },
+            {
+                "de": "acht",
+                "tr": "axt",
+                "ru": "восемь"
+            },
+            {
+                "de": "neun",
+                "tr": "nɔɪ̯n",
+                "ru": "девять"
+            },
+            {
+                "de": "zehn",
+                "tr": "tseːn",
+                "ru": "десять"
+            },
+            {
+                "de": "elf",
+                "tr": "ɛlf",
+                "ru": "одиннадцать"
+            },
+            {
+                "de": "zwölf",
+                "tr": "tsvœlf",
+                "ru": "двенадцать"
+            },
+            {
+                "de": "dreizehn",
+                "tr": "ˈdʁaɪ̯tseːn",
+                "ru": "тринадцать"
+            },
+            {
+                "de": "vierzehn",
+                "tr": "ˈfiːɐ̯tseːn",
+                "ru": "четырнадцать"
+            },
+            {
+                "de": "fünfzehn",
+                "tr": "ˈfʏnftseːn",
+                "ru": "пятнадцать"
+            },
+            {
+                "de": "sechzehn",
+                "tr": "ˈzɛkstseːn",
+                "ru": "шестнадцать"
+            },
+            {
+                "de": "siebzehn",
+                "tr": "ˈziːptseːn",
+                "ru": "семнадцать"
+            },
+            {
+                "de": "achtzehn",
+                "tr": "ˈaxtseːn",
+                "ru": "восемнадцать"
+            },
+            {
+                "de": "neunzehn",
+                "tr": "ˈnɔɪ̯ntseːn",
+                "ru": "девятнадцать"
+            },
+            {
+                "de": "zwanzig",
+                "tr": "ˈtsvantsɪç",
+                "ru": "двадцать"
+            }
+        ]
+    },
+    {
+        "topic": "Числа",
+        "level": "A1",
+        "subtopic": "Десятки",
+        "words": [
+            {
+                "de": "dreißig",
+                "tr": "ˈdʁaɪ̯sɪç",
+                "ru": "тридцать"
+            },
+            {
+                "de": "vierzig",
+                "tr": "ˈfiːɐ̯tsɪç",
+                "ru": "сорок"
+            },
+            {
+                "de": "fünfzig",
+                "tr": "ˈfʏnf.tsɪç",
+                "ru": "пятьдесят"
+            },
+            {
+                "de": "sechzig",
+                "tr": "ˈzɛçtsɪç",
+                "ru": "шестьдесят"
+            },
+            {
+                "de": "siebzig",
+                "tr": "ˈziːptsɪç",
+                "ru": "семьдесят"
+            },
+            {
+                "de": "achtzig",
+                "tr": "ˈaxtsɪç",
+                "ru": "восемьдесят"
+            },
+            {
+                "de": "neunzig",
+                "tr": "ˈnɔɪ̯ntsɪç",
+                "ru": "девяносто"
+            },
+            {
+                "de": "hundert",
+                "tr": "ˈhʊndɐt",
+                "ru": "сто"
+            }
+        ]
+    },
+    {
+        "topic": "Числа",
+        "level": "A1",
+        "subtopic": "Сотни",
+        "words": [
+            {
+                "de": "zweihundert",
+                "tr": "ˈtsvaɪ̯hʊndɐt",
+                "ru": "двести"
+            },
+            {
+                "de": "dreihundert",
+                "tr": "ˈdʁaɪ̯hʊndɐt",
+                "ru": "триста"
+            },
+            {
+                "de": "vierhundert",
+                "tr": "ˈfiːɐ̯hʊndɐt",
+                "ru": "четыреста"
+            },
+            {
+                "de": "fünfhundert",
+                "tr": "ˈfʏnfhʊndɐt",
+                "ru": "пятьсот"
+            },
+            {
+                "de": "sechshundert",
+                "tr": "ˈzɛksˌhʊndɐt",
+                "ru": "шестьсот"
+            },
+            {
+                "de": "siebenhundert",
+                "tr": "ˈziːbm̩hʊndɐt",
+                "ru": "семьсот"
+            },
+            {
+                "de": "achthundert",
+                "tr": "ˈaxtˌhʊndɐt",
+                "ru": "восемьсот"
+            },
+            {
+                "de": "neunhundert",
+                "tr": "ˈnɔɪ̯nhʊndɐt",
+                "ru": "девятьсот"
+            },
+            {
+                "de": "tausend",
+                "tr": "ˈtaʊ̯znt",
+                "ru": "тысяча"
+            }
+        ]
+    },
+    {
+        "topic": "Числа, даты и время",
+        "level": "A1",
+        "subtopic": "Время на часах",
+        "words": [
+            {
+                "de": "Wie spät ist es?",
+                "tr": "viː ʃpɛːt ɪst ʔɛs",
+                "ru": "Сколько времени?"
+            },
+            {
+                "de": "Es ist ... Uhr.",
+                "tr": "ɛs ɪst ... uːɐ̯",
+                "ru": "Сейчас ... часов."
+            },
+            {
+                "de": "punkt",
+                "tr": "pʊŋkt",
+                "ru": "ровно (время)"
+            },
+            {
+                "de": "halb",
+                "tr": "halp",
+                "ru": "половина"
+            },
+            {
+                "de": "Viertel",
+                "tr": "ˈfɪʁtl̩",
+                "ru": "четверть"
+            },
+            {
+                "de": "Es ist halb drei.",
+                "tr": "ɛs ɪst halp dʁaɪ̯",
+                "ru": "Сейчас половина третьего."
+            },
+            {
+                "de": "Es ist Viertel nach zwei.",
+                "tr": "ɛs ɪst ˈfɪʁtl̩ naːx t͡svaɪ̯",
+                "ru": "Сейчас четверть третьего."
+            },
+            {
+                "de": "Es ist Viertel vor drei.",
+                "tr": "ɛs ɪst ˈfɪʁtl̩ foːɐ̯ dʁaɪ̯",
+                "ru": "Сейчас без четверти три."
+            },
+            {
+                "de": "nach",
+                "tr": "naːx",
+                "ru": "после (например: пять минут после)"
+            },
+            {
+                "de": "vor",
+                "tr": "foːɐ̯",
+                "ru": "до (без пяти и т.д.)"
+            },
+            {
+                "de": "Es ist zehn nach acht.",
+                "tr": "ɛs ɪst tseːn naːx axt",
+                "ru": "Сейчас десять минут девятого."
+            },
+            {
+                "de": "Es ist zehn vor acht.",
+                "tr": "ɛs ɪst tseːn foːɐ̯ axt",
+                "ru": "Сейчас без десяти восемь."
+            },
+            {
+                "de": "fünf nach",
+                "tr": "fʏnf naːx",
+                "ru": "пять минут после"
+            },
+            {
+                "de": "fünf vor",
+                "tr": "fʏnf foːɐ̯",
+                "ru": "без пяти"
+            },
+            {
+                "de": "Es ist fünf nach neun.",
+                "tr": "ɛs ɪst fʏnf naːx nɔɪ̯n",
+                "ru": "Сейчас 9:05."
+            },
+            {
+                "de": "Es ist fünf vor neun.",
+                "tr": "ɛs ɪst fʏnf foːɐ̯ nɔɪ̯n",
+                "ru": "Сейчас 8:55."
+            },
+            {
+                "de": "Mittag",
+                "tr": "ˈmɪtaːk",
+                "ru": "полдень"
+            },
+            {
+                "de": "Mitternacht",
+                "tr": "ˈmɪtɐnaxt",
+                "ru": "полночь"
+            },
+            {
+                "de": "am Morgen",
+                "tr": "am ˈmɔʁɡn̩",
+                "ru": "утром"
+            },
+            {
+                "de": "am Vormittag",
+                "tr": "am ˈfoːɐ̯ˌmɪtaːk",
+                "ru": "до полудня"
+            },
+            {
+                "de": "am Nachmittag",
+                "tr": "am ˈnaːxˌmɪtaːk",
+                "ru": "днём (после обеда)"
+            },
+            {
+                "de": "am Abend",
+                "tr": "am ˈaːbn̩t",
+                "ru": "вечером"
+            },
+            {
+                "de": "in der Nacht",
+                "tr": "ɪn deːɐ̯ naxt",
+                "ru": "ночью"
+            }
+        ]
+    },
+    {
+        "topic": "Город и ориентиры",
+        "level": "A1",
+        "subtopic": "Места в городе",
+        "words": [
+            {
+                "de": "die Stadt",
+                "tr": "ʃtat",
+                "ru": "город"
+            },
+            {
+                "de": "das Zentrum",
+                "tr": "ˈtsɛntrʊm",
+                "ru": "центр"
+            },
+            {
+                "de": "der Bahnhof",
+                "tr": "ˈbaːnˌhoːf",
+                "ru": "вокзал"
+            },
+            {
+                "de": "die Bushaltestelle",
+                "tr": "ˈbʊsˌhaltəˌʃtɛlə",
+                "ru": "автобусная остановка"
+            },
+            {
+                "de": "die U-Bahn",
+                "tr": "ˈuːˌbaːn",
+                "ru": "метро"
+            },
+            {
+                "de": "die Straßenbahn",
+                "tr": "ˈʃtraːsn̩ˌbaːn",
+                "ru": "трамвай"
+            },
+            {
+                "de": "der Flughafen",
+                "tr": "ˈfluːkˌhaːfn̩",
+                "ru": "аэропорт"
+            },
+            {
+                "de": "das Hotel",
+                "tr": "hoˈtɛl",
+                "ru": "отель"
+            },
+            {
+                "de": "das Restaurant",
+                "tr": "ʁɛstoˈʁãː",
+                "ru": "ресторан"
+            },
+            {
+                "de": "das Café",
+                "tr": "kaˈfeː",
+                "ru": "кафе"
+            },
+            {
+                "de": "der Supermarkt",
+                "tr": "ˈzuːpɐˌmaʁkt",
+                "ru": "супермаркет"
+            },
+            {
+                "de": "das Geschäft",
+                "tr": "ɡəˈʃɛft",
+                "ru": "магазин"
+            },
+            {
+                "de": "die Apotheke",
+                "tr": "apoˈteːkə",
+                "ru": "аптека"
+            },
+            {
+                "de": "das Krankenhaus",
+                "tr": "ˈkʁaŋkn̩ˌhaʊ̯s",
+                "ru": "больница"
+            },
+            {
+                "de": "die Bank",
+                "tr": "baŋk",
+                "ru": "банк"
+            },
+            {
+                "de": "die Schule",
+                "tr": "ˈʃuːlə",
+                "ru": "школа"
+            },
+            {
+                "de": "die Polizei",
+                "tr": "poliˈtsaɪ̯",
+                "ru": "полиция"
+            },
+            {
+                "de": "der Park",
+                "tr": "paʁk",
+                "ru": "парк"
+            },
+            {
+                "de": "die Post",
+                "tr": "pɔst",
+                "ru": "почта"
+            }
+        ]
+    },
+    {
+        "topic": "Город и ориентиры",
+        "level": "A1",
+        "subtopic": "Направления",
+        "words": [
+            {
+                "de": "geradeaus",
+                "tr": "ɡəˌʁaːdəˈaʊ̯s",
+                "ru": "прямо"
+            },
+            {
+                "de": "links",
+                "tr": "lɪŋks",
+                "ru": "налево"
+            },
+            {
+                "de": "rechts",
+                "tr": "ʁɛçts",
+                "ru": "направо"
+            },
+            {
+                "de": "nach links",
+                "tr": "naːx lɪŋks",
+                "ru": "повернуть налево"
+            },
+            {
+                "de": "nach rechts",
+                "tr": "naːx ʁɛçts",
+                "ru": "повернуть направо"
+            },
+            {
+                "de": "die Straße entlang",
+                "tr": "diː ˈʃtraːsə ɛntˈlaŋ",
+                "ru": "вдоль улицы"
+            },
+            {
+                "de": "über die Straße",
+                "tr": "ˈyːbɐ diː ˈʃtraːsə",
+                "ru": "через дорогу"
+            },
+            {
+                "de": "an der Ecke",
+                "tr": "an deːɐ̯ ˈɛkə",
+                "ru": "на углу"
+            },
+            {
+                "de": "in der Nähe",
+                "tr": "ɪn deːɐ̯ ˈnɛːə",
+                "ru": "рядом, поблизости"
+            },
+            {
+                "de": "weit weg",
+                "tr": "vaɪ̯t vɛk",
+                "ru": "далеко"
+            },
+            {
+                "de": "hier",
+                "tr": "hiːɐ̯",
+                "ru": "здесь"
+            },
+            {
+                "de": "dort",
+                "tr": "dɔʁt",
+                "ru": "там"
+            }
+        ]
+    },
+    {
+        "topic": "Город и ориентиры",
+        "level": "A1",
+        "subtopic": "Вопросы о местоположении",
+        "words": [
+            {
+                "de": "Wo ist ...?",
+                "tr": "voː ɪst",
+                "ru": "Где находится ...?"
+            },
+            {
+                "de": "Wie komme ich zu ...?",
+                "tr": "viː ˈkɔmə ɪç tsuː",
+                "ru": "Как мне пройти к ...?"
+            },
+            {
+                "de": "Wie weit ist es?",
+                "tr": "viː vaɪ̯t ɪst ʔɛs",
+                "ru": "Как далеко?"
+            },
+            {
+                "de": "Ist es in der Nähe?",
+                "tr": "ɪst ɛs ɪn deːɐ̯ ˈnɛːə",
+                "ru": "Это рядом?"
+            },
+            {
+                "de": "Kann ich zu Fuß gehen?",
+                "tr": "kan ɪç tsuː fuːs ˈɡeːən",
+                "ru": "Можно пройти пешком?"
+            },
+            {
+                "de": "Gibt es hier ...?",
+                "tr": "ɡɪpt ɛs hiːɐ̯",
+                "ru": "Есть ли здесь ...?"
+            },
+            {
+                "de": "Entschuldigung, ich suche ...",
+                "tr": "ɛntˈʃʊldɪɡʊŋ ɪç ˈzuːxə",
+                "ru": "Извините, я ищу ..."
+            },
+            {
+                "de": "Wo befindet sich ...?",
+                "tr": "vo bəˈfɪndət zɪç",
+                "ru": "Где располагается ...?"
+            }
+        ]
+    },
+    {
+        "topic": "Транспорт",
+        "level": "A1",
+        "subtopic": "Виды транспорта",
+        "words": [
+            {
+                "de": "das Auto",
+                "tr": "ˈaʊ̯to",
+                "ru": "автомобиль"
+            },
+            {
+                "de": "der Bus",
+                "tr": "bʊs",
+                "ru": "автобус"
+            },
+            {
+                "de": "die Straßenbahn",
+                "tr": "ˈʃtraːsn̩ˌbaːn",
+                "ru": "трамвай"
+            },
+            {
+                "de": "die U-Bahn",
+                "tr": "ˈuːˌbaːn",
+                "ru": "метро"
+            },
+            {
+                "de": "die S-Bahn",
+                "tr": "ˈɛsˌbaːn",
+                "ru": "городская электричка"
+            },
+            {
+                "de": "der Zug",
+                "tr": "tsuːk",
+                "ru": "поезд"
+            },
+            {
+                "de": "das Fahrrad",
+                "tr": "ˈfaːʁʁaːt",
+                "ru": "велосипед"
+            },
+            {
+                "de": "das Motorrad",
+                "tr": "moˈtoːʁaːt",
+                "ru": "мотоцикл"
+            },
+            {
+                "de": "das Taxi",
+                "tr": "ˈtaksi",
+                "ru": "такси"
+            },
+            {
+                "de": "das Flugzeug",
+                "tr": "ˈfluːkˌtsɔʏ̯k",
+                "ru": "самолет"
+            },
+            {
+                "de": "das Schiff",
+                "tr": "ʃɪf",
+                "ru": "корабль"
+            },
+            {
+                "de": "zu Fuß gehen",
+                "tr": "tsuː fuːs ˈɡeːən",
+                "ru": "идти пешком"
+            }
+        ]
+    },
+    {
+        "topic": "Транспорт",
+        "level": "A1",
+        "subtopic": "Покупка билетов",
+        "words": [
+            {
+                "de": "die Fahrkarte",
+                "tr": "ˈfaːʁˌkaʁtə",
+                "ru": "проездной билет"
+            },
+            {
+                "de": "das Ticket",
+                "tr": "ˈtɪkət",
+                "ru": "билет"
+            },
+            {
+                "de": "der Fahrplan",
+                "tr": "ˈfaːʁˌplaːn",
+                "ru": "расписание"
+            },
+            {
+                "de": "die Haltestelle",
+                "tr": "ˈhaltəˌʃtɛlə",
+                "ru": "остановка"
+            },
+            {
+                "de": "einsteigen",
+                "tr": "ˈaɪ̯nˌʃtaɪ̯ɡn̩",
+                "ru": "садиться (в транспорт)"
+            },
+            {
+                "de": "aussteigen",
+                "tr": "ˈaʊ̯sˌʃtaɪ̯ɡn̩",
+                "ru": "выходить"
+            },
+            {
+                "de": "umsteigen",
+                "tr": "ˈʊmˌʃtaɪ̯ɡn̩",
+                "ru": "делать пересадку"
+            },
+            {
+                "de": "eine Fahrkarte kaufen",
+                "tr": "ˈfaːʁˌkaʁtə ˈkaʊ̯fn̩",
+                "ru": "купить билет"
+            },
+            {
+                "de": "Wie viel kostet das Ticket?",
+                "tr": "viː fiːl ˈkɔstət das ˈtɪkət",
+                "ru": "Сколько стоит билет?"
+            },
+            {
+                "de": "einfach",
+                "tr": "ˈaɪ̯nfax",
+                "ru": "в одну сторону"
+            },
+            {
+                "de": "hin und zurück",
+                "tr": "hɪn ʊnt tsuˈʁʏk",
+                "ru": "туда и обратно"
+            },
+            {
+                "de": "die Tageskarte",
+                "tr": "ˈtaːɡəsˌkaʁtə",
+                "ru": "дневной билет"
+            }
+        ]
+    },
+    {
+        "topic": "Транспорт",
+        "level": "A1",
+        "subtopic": "В пути",
+        "words": [
+            {
+                "de": "Ich fahre mit dem Bus.",
+                "tr": "ɪç ˈfaːʁə mɪt deːm bʊs",
+                "ru": "Я еду на автобусе."
+            },
+            {
+                "de": "Ich fahre mit der U-Bahn.",
+                "tr": "ɪç ˈfaːʁə mɪt deːɐ̯ ˈuːbaːn",
+                "ru": "Я еду на метро."
+            },
+            {
+                "de": "Der Zug kommt um ... Uhr.",
+                "tr": "deːɐ̯ tsuːk kɔmt ʊm ... uːɐ̯",
+                "ru": "Поезд прибывает в ... часов."
+            },
+            {
+                "de": "Der Zug hat Verspätung.",
+                "tr": "deːɐ̯ tsuːk hat fɛʁˈʃpeːtʊŋ",
+                "ru": "Поезд опаздывает."
+            },
+            {
+                "de": "Ich bin unterwegs.",
+                "tr": "ɪç bɪn ʊntɐˈveːks",
+                "ru": "Я в пути."
+            },
+            {
+                "de": "Wo muss ich aussteigen?",
+                "tr": "vo mʊs ɪç ˈaʊ̯sʃtaɪ̯ɡn̩",
+                "ru": "Где мне выходить?"
+            },
+            {
+                "de": "die nächste Station",
+                "tr": "diː ˈnɛːçstə ʃtaˈtsioːn",
+                "ru": "следующая станция"
+            },
+            {
+                "de": "die Endstation",
+                "tr": "diː ˈɛntʃtaˌtsioːn",
+                "ru": "конечная станция"
+            },
+            {
+                "de": "Bitte zurückbleiben!",
+                "tr": "ˈbɪtə tsuˈʁʏkˌblaɪ̯bn̩",
+                "ru": "Пожалуйста, отойдите от двери!"
+            },
+            {
+                "de": "Fahrkarten bitte!",
+                "tr": "ˈfaːʁkaʁtn̩ ˈbɪtə",
+                "ru": "Билеты, пожалуйста!"
+            }
+        ]
+    },
+    {
+        "topic": "Учеба и курсы",
+        "level": "A1",
+        "subtopic": "Школа и курсы",
+        "words": [
+            {
+                "de": "die Schule",
+                "tr": "ˈʃuːlə",
+                "ru": "школа"
+            },
+            {
+                "de": "die Klasse",
+                "tr": "ˈklasə",
+                "ru": "класс (группа)"
+            },
+            {
+                "de": "das Klassenzimmer",
+                "tr": "ˈklasn̩ˌtsɪmɐ",
+                "ru": "классная комната"
+            },
+            {
+                "de": "der Kurs",
+                "tr": "kʊʁs",
+                "ru": "курс"
+            },
+            {
+                "de": "der Deutschkurs",
+                "tr": "ˈdɔʏ̯tʃˌkʊʁs",
+                "ru": "курс немецкого"
+            },
+            {
+                "de": "der Unterricht",
+                "tr": "ˈʊntɐˌʁɪçt",
+                "ru": "урок / занятия"
+            },
+            {
+                "de": "die Hausaufgabe",
+                "tr": "ˈhaʊ̯sʔaʊ̯fˌɡaːbə",
+                "ru": "домашнее задание"
+            },
+            {
+                "de": "die Prüfung",
+                "tr": "ˈpʁyːfʊŋ",
+                "ru": "экзамен"
+            },
+            {
+                "de": "der Test",
+                "tr": "tɛst",
+                "ru": "тест"
+            },
+            {
+                "de": "die Pause",
+                "tr": "ˈpaʊ̯zə",
+                "ru": "перемена / пауза"
+            },
+            {
+                "de": "lernen",
+                "tr": "ˈlɛʁnən",
+                "ru": "учиться (заучивать)"
+            },
+            {
+                "de": "studieren",
+                "tr": "ʃtuˈdiːʁən",
+                "ru": "учиться в университете"
+            }
+        ]
+    },
+    {
+        "topic": "Учеба и курсы",
+        "level": "A1",
+        "subtopic": "Учебные предметы",
+        "words": [
+            {
+                "de": "Deutsch",
+                "tr": "ˈdɔʏ̯tʃ",
+                "ru": "немецкий язык"
+            },
+            {
+                "de": "Englisch",
+                "tr": "ˈɛŋlɪʃ",
+                "ru": "английский язык"
+            },
+            {
+                "de": "Mathematik",
+                "tr": "matemaˈtiːk",
+                "ru": "математика"
+            },
+            {
+                "de": "Biologie",
+                "tr": "bioloˈɡiːə",
+                "ru": "биология"
+            },
+            {
+                "de": "Chemie",
+                "tr": "çeˈmiː",
+                "ru": "химия"
+            },
+            {
+                "de": "Physik",
+                "tr": "fyˈziːk",
+                "ru": "физика"
+            },
+            {
+                "de": "Geschichte",
+                "tr": "ɡəˈʃɪçtə",
+                "ru": "история"
+            },
+            {
+                "de": "Geografie",
+                "tr": "ɡeoɡʁaˈfiː",
+                "ru": "география"
+            },
+            {
+                "de": "Kunst",
+                "tr": "kʊnst",
+                "ru": "искусство"
+            },
+            {
+                "de": "Musik",
+                "tr": "muˈziːk",
+                "ru": "музыка"
+            },
+            {
+                "de": "Sport",
+                "tr": "ʃpɔʁt",
+                "ru": "физкультура"
+            }
+        ]
+    },
+    {
+        "topic": "Учеба и курсы",
+        "level": "A1",
+        "subtopic": "Люди в учебе",
+        "words": [
+            {
+                "de": "der Schüler",
+                "tr": "ˈʃyːlɐ",
+                "ru": "ученик"
+            },
+            {
+                "de": "die Schülerin",
+                "tr": "ˈʃyːləʁɪn",
+                "ru": "ученица"
+            },
+            {
+                "de": "der Student",
+                "tr": "ʃtuˈdɛnt",
+                "ru": "студент"
+            },
+            {
+                "de": "die Studentin",
+                "tr": "ʃtuˈdɛntɪn",
+                "ru": "студентка"
+            },
+            {
+                "de": "der Lehrer",
+                "tr": "ˈleːʁɐ",
+                "ru": "учитель"
+            },
+            {
+                "de": "die Lehrerin",
+                "tr": "ˈleːʁəʁɪn",
+                "ru": "учительница"
+            },
+            {
+                "de": "der Kursleiter",
+                "tr": "ˈkʊʁslaɪ̯tɐ",
+                "ru": "преподаватель курса"
+            },
+            {
+                "de": "die Kursleiterin",
+                "tr": "ˈkʊʁslaɪ̯təʁɪn",
+                "ru": "преподавательница курса"
+            },
+            {
+                "de": "die Gruppe",
+                "tr": "ˈɡʁʊpə",
+                "ru": "группа"
+            },
+            {
+                "de": "der Mitschüler",
+                "tr": "ˈmɪtˌʃyːlɐ",
+                "ru": "одноклассник"
+            },
+            {
+                "de": "die Mitschülerin",
+                "tr": "ˈmɪtˌʃyːləʁɪn",
+                "ru": "одноклассница"
+            }
+        ]
+    },
+    {
+        "topic": "Работа на базовом уровне",
+        "level": "A1",
+        "subtopic": "Профессии A1",
+        "words": [
+            {
+                "de": "der Arbeiter",
+                "tr": "ˈaʁbaɪ̯tɐ",
+                "ru": "работник"
+            },
+            {
+                "de": "die Arbeiterin",
+                "tr": "ˈaʁbaɪ̯təʁɪn",
+                "ru": "работница"
+            },
+            {
+                "de": "der Verkäufer",
+                "tr": "fɛɐ̯ˈkɔɪ̯fɐ",
+                "ru": "продавец"
+            },
+            {
+                "de": "die Verkäuferin",
+                "tr": "fɛɐ̯ˈkɔɪ̯fəʁɪn",
+                "ru": "продавщица"
+            },
+            {
+                "de": "der Lehrer",
+                "tr": "ˈleːʁɐ",
+                "ru": "учитель"
+            },
+            {
+                "de": "die Lehrerin",
+                "tr": "ˈleːʁəʁɪn",
+                "ru": "учительница"
+            },
+            {
+                "de": "der Fahrer",
+                "tr": "ˈfaːʁɐ",
+                "ru": "водитель"
+            },
+            {
+                "de": "die Fahrerin",
+                "tr": "ˈfaːʁəʁɪn",
+                "ru": "водительница"
+            },
+            {
+                "de": "der Koch",
+                "tr": "kɔx",
+                "ru": "повар"
+            },
+            {
+                "de": "die Köchin",
+                "tr": "ˈkœçɪn",
+                "ru": "повариха"
+            },
+            {
+                "de": "der Kellner",
+                "tr": "ˈkɛlnaɐ̯",
+                "ru": "официант"
+            },
+            {
+                "de": "die Kellnerin",
+                "tr": "ˈkɛlnaʁɪn",
+                "ru": "официантка"
+            },
+            {
+                "de": "der Arzt",
+                "tr": "aʁtst",
+                "ru": "врач"
+            },
+            {
+                "de": "die Ärztin",
+                "tr": "ˈɛːɐ̯tstɪn",
+                "ru": "врач (жен.)"
+            },
+            {
+                "de": "der Krankenpfleger",
+                "tr": "ˈkʁaŋkn̩ˌfleːɡɐ",
+                "ru": "медбрат"
+            },
+            {
+                "de": "die Krankenschwester",
+                "tr": "ˈkʁaŋkn̩ˌʃvɛstɐ",
+                "ru": "медсестра"
+            },
+            {
+                "de": "der Ingenieur",
+                "tr": "ɪnʒeˈnjøːɐ̯",
+                "ru": "инженер"
+            },
+            {
+                "de": "die Ingenieurin",
+                "tr": "ɪnʒeˈnjøːʁɪn",
+                "ru": "инженер (жен.)"
+            },
+            {
+                "de": "der Student",
+                "tr": "ʃtuˈdɛnt",
+                "ru": "студент"
+            },
+            {
+                "de": "die Studentin",
+                "tr": "ʃtuˈdɛntɪn",
+                "ru": "студентка"
+            }
+        ]
+    },
+    {
+        "topic": "Работа на базовом уровне",
+        "level": "A1",
+        "subtopic": "Место работы",
+        "words": [
+            {
+                "de": "der Arbeitsplatz",
+                "tr": "ˈaʁbaɪ̯tsˌplats",
+                "ru": "рабочее место"
+            },
+            {
+                "de": "die Firma",
+                "tr": "ˈfɪʁma",
+                "ru": "фирма / компания"
+            },
+            {
+                "de": "das Büro",
+                "tr": "byˈʁoː",
+                "ru": "офис"
+            },
+            {
+                "de": "die Schule",
+                "tr": "ˈʃuːlə",
+                "ru": "школа"
+            },
+            {
+                "de": "das Restaurant",
+                "tr": "ʁɛstoˈʁãː",
+                "ru": "ресторан"
+            },
+            {
+                "de": "der Supermarkt",
+                "tr": "ˈzuːpɐˌmaʁkt",
+                "ru": "супермаркет"
+            },
+            {
+                "de": "das Krankenhaus",
+                "tr": "ˈkʁaŋkn̩ˌhaʊ̯s",
+                "ru": "больница"
+            },
+            {
+                "de": "die Baustelle",
+                "tr": "ˈbaʊ̯ʃtɛlə",
+                "ru": "стройка"
+            },
+            {
+                "de": "die Fabrik",
+                "tr": "faˈbʁiːk",
+                "ru": "завод / фабрика"
+            },
+            {
+                "de": "der Laden",
+                "tr": "ˈlaːdn̩",
+                "ru": "магазин"
+            },
+            {
+                "de": "das Hotel",
+                "tr": "hoˈtɛl",
+                "ru": "отель"
+            },
+            {
+                "de": "zu Hause arbeiten",
+                "tr": "tsuː ˈhaʊ̯zə ˈaʁbaɪ̯tn̩",
+                "ru": "работать из дома"
+            }
+        ]
+    },
+    {
+        "topic": "Работа на базовом уровне",
+        "level": "A1",
+        "subtopic": "Фразы о работе",
+        "words": [
+            {
+                "de": "Ich arbeite als ...",
+                "tr": "ɪç ˈaʁbaɪ̯tə als",
+                "ru": "Я работаю как ..."
+            },
+            {
+                "de": "Ich arbeite bei ...",
+                "tr": "ɪç ˈaʁbaɪ̯tə baɪ̯",
+                "ru": "Я работаю в (компания) ..."
+            },
+            {
+                "de": "Ich habe einen Job.",
+                "tr": "ɪç ˈhaːbə ˈaɪ̯nən ʤɔp",
+                "ru": "У меня есть работа."
+            },
+            {
+                "de": "Ich suche Arbeit.",
+                "tr": "ɪç ˈzuːxə ˈaʁbaɪ̯t",
+                "ru": "Я ищу работу."
+            },
+            {
+                "de": "Ich bin arbeitslos.",
+                "tr": "ɪç bɪn ˈaʁbaɪ̯tsˌloːs",
+                "ru": "Я безработный."
+            },
+            {
+                "de": "Ich habe Urlaub.",
+                "tr": "ɪç ˈhaːbə ˈuːɐ̯laʊ̯p",
+                "ru": "У меня отпуск."
+            },
+            {
+                "de": "Ich arbeite Vollzeit.",
+                "tr": "ɪç ˈaʁbaɪ̯tə ˈfɔlt͡saɪ̯t",
+                "ru": "Я работаю полный день."
+            },
+            {
+                "de": "Ich arbeite Teilzeit.",
+                "tr": "ɪç ˈaʁbaɪ̯tə ˈtaɪ̯lt͡saɪ̯t",
+                "ru": "Я работаю неполный день."
+            },
+            {
+                "de": "Ich habe Feierabend.",
+                "tr": "ɪç ˈhaːbə ˈfaɪ̯ɐˌʔaːbn̩t",
+                "ru": "У меня конец рабочего дня."
+            },
+            {
+                "de": "Ich bin im Dienst.",
+                "tr": "ɪç bɪn ɪm diːnst",
+                "ru": "Я на смене / на работе."
+            }
+        ]
+    },
+    {
+        "topic": "Хобби и свободное время",
+        "level": "A1",
+        "subtopic": "Хобби",
+        "words": [
+            {
+                "de": "das Hobby",
+                "tr": "ˈhɔbi",
+                "ru": "хобби"
+            },
+            {
+                "de": "lesen",
+                "tr": "ˈleːzn̩",
+                "ru": "читать"
+            },
+            {
+                "de": "Musik hören",
+                "tr": "muˈziːk ˈhøːʁən",
+                "ru": "слушать музыку"
+            },
+            {
+                "de": "fernsehen",
+                "tr": "ˈfɛʁnˌzeːən",
+                "ru": "смотреть телевизор"
+            },
+            {
+                "de": "kochen",
+                "tr": "ˈkɔxn̩",
+                "ru": "готовить"
+            },
+            {
+                "de": "spazieren gehen",
+                "tr": "ʃpaˈt͡siːʁən ˈɡeːən",
+                "ru": "гулять"
+            },
+            {
+                "de": "reisen",
+                "tr": "ˈʁaɪ̯zn̩",
+                "ru": "путешествовать"
+            },
+            {
+                "de": "Fotografieren",
+                "tr": "fotoɡʁaˈfiːʁən",
+                "ru": "фотографировать"
+            },
+            {
+                "de": "tanzen",
+                "tr": "ˈtant͡sn̩",
+                "ru": "танцевать"
+            },
+            {
+                "de": "zeichnen",
+                "tr": "ˈt͡saɪ̯çnən",
+                "ru": "рисовать"
+            }
+        ]
+    },
+    {
+        "topic": "Хобби и свободное время",
+        "level": "A1",
+        "subtopic": "Спорт",
+        "words": [
+            {
+                "de": "der Sport",
+                "tr": "ʃpɔʁt",
+                "ru": "спорт"
+            },
+            {
+                "de": "Sport machen",
+                "tr": "ʃpɔʁt ˈmaxn̩",
+                "ru": "заниматься спортом"
+            },
+            {
+                "de": "schwimmen",
+                "tr": "ˈʃvɪmən",
+                "ru": "плавать"
+            },
+            {
+                "de": "laufen",
+                "tr": "ˈlaʊ̯fn̩",
+                "ru": "бегать"
+            },
+            {
+                "de": "joggen",
+                "tr": "ˈdʒɔɡn̩",
+                "ru": "бегать трусцой"
+            },
+            {
+                "de": "Fußball spielen",
+                "tr": "ˈfuːsˌbal ˈʃpiːlən",
+                "ru": "играть в футбол"
+            },
+            {
+                "de": "Basketball spielen",
+                "tr": "ˈbaskətbal ˈʃpiːlən",
+                "ru": "играть в баскетбол"
+            },
+            {
+                "de": "Tennis spielen",
+                "tr": "ˈtɛnɪs ˈʃpiːlən",
+                "ru": "играть в теннис"
+            },
+            {
+                "de": "ins Fitnessstudio gehen",
+                "tr": "ɪns ˈfɪtnɛsˌʃtuːdi̯o ˈɡeːən",
+                "ru": "ходить в спортзал"
+            },
+            {
+                "de": "Rad fahren",
+                "tr": "ʁaːt ˈfaːʁən",
+                "ru": "ездить на велосипеде"
+            }
+        ]
+    },
+    {
+        "topic": "Хобби и свободное время",
+        "level": "A1",
+        "subtopic": "Выходные",
+        "words": [
+            {
+                "de": "das Wochenende",
+                "tr": "ˈvɔxn̩ˌʔɛndə",
+                "ru": "выходные"
+            },
+            {
+                "de": "am Wochenende",
+                "tr": "am ˈvɔxn̩ˌʔɛndə",
+                "ru": "на выходных"
+            },
+            {
+                "de": "ausgehen",
+                "tr": "ˈaʊ̯sˌɡeːən",
+                "ru": "проводить время вне дома"
+            },
+            {
+                "de": "Freunde treffen",
+                "tr": "ˈfʁɔʏ̯ndə ˈtʁɛfn̩",
+                "ru": "встречаться с друзьями"
+            },
+            {
+                "de": "ins Kino gehen",
+                "tr": "ɪns ˈkiːno ˈɡeːən",
+                "ru": "ходить в кино"
+            },
+            {
+                "de": "ins Restaurant gehen",
+                "tr": "ɪns ʁɛstoˈʁãː ˈɡeːən",
+                "ru": "ходить в ресторан"
+            },
+            {
+                "de": "schlafen",
+                "tr": "ˈʃlaːfn̩",
+                "ru": "спать"
+            },
+            {
+                "de": "sich entspannen",
+                "tr": "ɛntˈʃpanən",
+                "ru": "расслабляться"
+            },
+            {
+                "de": "zu Hause bleiben",
+                "tr": "tsuː ˈhaʊ̯zə ˈblaɪ̯bn̩",
+                "ru": "оставаться дома"
+            },
+            {
+                "de": "einen Ausflug machen",
+                "tr": "ˈaʊ̯sˌfluːk ˈmaxn̩",
+                "ru": "делать поездку / выезд"
+            }
+        ]
+    },
+    {
+        "topic": "Покупки и деньги",
+        "level": "A1",
+        "subtopic": "Магазины",
+        "words": [
+            {
+                "de": "der Supermarkt",
+                "tr": "ˈzuːpɐˌmaʁkt",
+                "ru": "супермаркет"
+            },
+            {
+                "de": "das Geschäft",
+                "tr": "ɡəˈʃɛft",
+                "ru": "магазин"
+            },
+            {
+                "de": "der Markt",
+                "tr": "maʁkt",
+                "ru": "рынок"
+            },
+            {
+                "de": "die Bäckerei",
+                "tr": "bɛkəˈʁaɪ̯",
+                "ru": "пекарня"
+            },
+            {
+                "de": "die Metzgerei",
+                "tr": "mɛt͡sɡəˈʁaɪ̯",
+                "ru": "мясная лавка"
+            },
+            {
+                "de": "die Apotheke",
+                "tr": "apoˈteːkə",
+                "ru": "аптека"
+            },
+            {
+                "de": "die Drogerie",
+                "tr": "dʁoɡeˈʁiː",
+                "ru": "магазин косметики/бытовой химии"
+            },
+            {
+                "de": "der Kiosk",
+                "tr": "ˈkiːɔsk",
+                "ru": "киоск"
+            },
+            {
+                "de": "das Einkaufszentrum",
+                "tr": "ˈaɪ̯nkaʊ̯fsˌtsɛntrʊm",
+                "ru": "торговый центр"
+            },
+            {
+                "de": "der Bioladen",
+                "tr": "ˈbiːolaːdn̩",
+                "ru": "магазин натуральных продуктов"
+            }
+        ]
+    },
+    {
+        "topic": "Покупки и деньги",
+        "level": "A1",
+        "subtopic": "Товары",
+        "words": [
+            {
+                "de": "das Brot",
+                "tr": "bʁoːt",
+                "ru": "хлеб"
+            },
+            {
+                "de": "die Milch",
+                "tr": "mɪlç",
+                "ru": "молоко"
+            },
+            {
+                "de": "das Wasser",
+                "tr": "ˈvasɐ",
+                "ru": "вода"
+            },
+            {
+                "de": "der Käse",
+                "tr": "ˈkɛːzə",
+                "ru": "сыр"
+            },
+            {
+                "de": "das Fleisch",
+                "tr": "flaɪ̯ʃ",
+                "ru": "мясо"
+            },
+            {
+                "de": "das Gemüse",
+                "tr": "ɡəˈmyːzə",
+                "ru": "овощи"
+            },
+            {
+                "de": "das Obst",
+                "tr": "oːpst",
+                "ru": "фрукты"
+            },
+            {
+                "de": "die Kleidung",
+                "tr": "ˈklaɪ̯dʊŋ",
+                "ru": "одежда"
+            },
+            {
+                "de": "die Schuhe",
+                "tr": "ˈʃuːə",
+                "ru": "обувь"
+            },
+            {
+                "de": "die Tasche",
+                "tr": "ˈtaʃə",
+                "ru": "сумка"
+            },
+            {
+                "de": "die Seife",
+                "tr": "ˈzaɪ̯fə",
+                "ru": "мыло"
+            },
+            {
+                "de": "das Shampoo",
+                "tr": "ˈʃampuː",
+                "ru": "шампунь"
+            },
+            {
+                "de": "das Geschenk",
+                "tr": "ɡəˈʃɛŋk",
+                "ru": "подарок"
+            },
+            {
+                "de": "das Spielzeug",
+                "tr": "ˈʃpiːlˌtsɔʏ̯k",
+                "ru": "игрушка"
+            }
+        ]
+    },
+    {
+        "topic": "Покупки и деньги",
+        "level": "A1",
+        "subtopic": "Цены и оплата",
+        "words": [
+            {
+                "de": "Wie viel kostet das?",
+                "tr": "viː fiːl ˈkɔstət das",
+                "ru": "Сколько это стоит?"
+            },
+            {
+                "de": "Es kostet ... Euro.",
+                "tr": "ɛs ˈkɔstət ɔɪ̯ʁo",
+                "ru": "Это стоит ... евро."
+            },
+            {
+                "de": "der Preis",
+                "tr": "pʁaɪ̯s",
+                "ru": "цена"
+            },
+            {
+                "de": "billig",
+                "tr": "ˈbɪlɪç",
+                "ru": "дешево"
+            },
+            {
+                "de": "teuer",
+                "tr": "ˈtɔɪ̯ɐ",
+                "ru": "дорого"
+            },
+            {
+                "de": "bezahlen",
+                "tr": "bəˈtsaːlən",
+                "ru": "платить"
+            },
+            {
+                "de": "bar bezahlen",
+                "tr": "baːɐ̯ bəˈtsaːlən",
+                "ru": "платить наличными"
+            },
+            {
+                "de": "mit Karte bezahlen",
+                "tr": "mɪt ˈkaʁtə bəˈtsaːlən",
+                "ru": "платить картой"
+            },
+            {
+                "de": "die Quittung",
+                "tr": "ˈkvɪtʊŋ",
+                "ru": "квитанция / чек"
+            },
+            {
+                "de": "der Rabatt",
+                "tr": "ʁaˈbat",
+                "ru": "скидка"
+            },
+            {
+                "de": "im Angebot",
+                "tr": "ɪm ˈaŋɡəˌboːt",
+                "ru": "по акции / по скидке"
+            },
+            {
+                "de": "Kann ich Ihnen helfen?",
+                "tr": "kan ɪç ˈiːnən ˈhɛlfən",
+                "ru": "Могу я вам помочь?"
+            }
+        ]
+    },
+    {
+        "topic": "Здоровье и самочувствие",
+        "level": "A1",
+        "subtopic": "Части тела",
+        "words": [
+            {
+                "de": "der Kopf",
+                "tr": "kɔpf",
+                "ru": "голова"
+            },
+            {
+                "de": "das Gesicht",
+                "tr": "ɡəˈzɪçt",
+                "ru": "лицо"
+            },
+            {
+                "de": "das Auge",
+                "tr": "ˈaʊ̯ɡə",
+                "ru": "глаз"
+            },
+            {
+                "de": "das Ohr",
+                "tr": "oːɐ̯",
+                "ru": "ухо"
+            },
+            {
+                "de": "die Nase",
+                "tr": "ˈnaːzə",
+                "ru": "нос"
+            },
+            {
+                "de": "der Mund",
+                "tr": "mʊnt",
+                "ru": "рот"
+            },
+            {
+                "de": "der Zahn",
+                "tr": "t͡saːn",
+                "ru": "зуб"
+            },
+            {
+                "de": "der Hals",
+                "tr": "hals",
+                "ru": "горло / шея"
+            },
+            {
+                "de": "die Schulter",
+                "tr": "ˈʃʊltɐ",
+                "ru": "плечо"
+            },
+            {
+                "de": "der Arm",
+                "tr": "aʁm",
+                "ru": "рука (полностью)"
+            },
+            {
+                "de": "die Hand",
+                "tr": "hant",
+                "ru": "ладонь / кисть"
+            },
+            {
+                "de": "der Finger",
+                "tr": "ˈfɪŋɐ",
+                "ru": "палец"
+            },
+            {
+                "de": "das Bein",
+                "tr": "baɪ̯n",
+                "ru": "нога (полностью)"
+            },
+            {
+                "de": "der Fuß",
+                "tr": "fuːs",
+                "ru": "стопа"
+            },
+            {
+                "de": "der Rücken",
+                "tr": "ˈʁʏkŋ̍",
+                "ru": "спина"
+            }
+        ]
+    },
+    {
+        "topic": "Здоровье и самочувствие",
+        "level": "A1",
+        "subtopic": "Жалобы",
+        "words": [
+            {
+                "de": "Ich habe Schmerzen.",
+                "tr": "ɪç ˈhaːbə ˈʃmɛʁt͡sn̩",
+                "ru": "У меня боли."
+            },
+            {
+                "de": "Ich habe Kopfschmerzen.",
+                "tr": "ˈkɔpfˌʃmɛʁt͡sn̩",
+                "ru": "У меня болит голова."
+            },
+            {
+                "de": "Ich habe Halsschmerzen.",
+                "tr": "ˈhalsˌʃmɛʁt͡sn̩",
+                "ru": "У меня болит горло."
+            },
+            {
+                "de": "Ich habe Rückenschmerzen.",
+                "tr": "ˈʁʏkŋ̍ˌʃmɛʁt͡sn̩",
+                "ru": "У меня болит спина."
+            },
+            {
+                "de": "Ich habe Bauchschmerzen.",
+                "tr": "ˈbaʊ̯xˌʃmɛʁt͡sn̩",
+                "ru": "У меня болит живот."
+            },
+            {
+                "de": "Mir ist schlecht.",
+                "tr": "miːɐ̯ ɪst ʃlɛçt",
+                "ru": "Мне плохо / тошнит."
+            },
+            {
+                "de": "Ich bin krank.",
+                "tr": "ɪç bɪn kʁaŋk",
+                "ru": "Я болею."
+            },
+            {
+                "de": "Ich bin müde.",
+                "tr": "ˈmyːdə",
+                "ru": "Я устал."
+            },
+            {
+                "de": "Ich habe Fieber.",
+                "tr": "ˈfiːbɐ",
+                "ru": "У меня температура."
+            },
+            {
+                "de": "Ich huste.",
+                "tr": "ˈhuːstə",
+                "ru": "Я кашляю."
+            },
+            {
+                "de": "Ich niese.",
+                "tr": "ˈniːzə",
+                "ru": "Я чихаю."
+            }
+        ]
+    },
+    {
+        "topic": "Здоровье и самочувствие",
+        "level": "A1",
+        "subtopic": "В аптеке",
+        "words": [
+            {
+                "de": "die Apotheke",
+                "tr": "apoˈteːkə",
+                "ru": "аптека"
+            },
+            {
+                "de": "das Medikament",
+                "tr": "medikaˈmɛnt",
+                "ru": "лекарство"
+            },
+            {
+                "de": "die Tablette",
+                "tr": "taˈblɛtə",
+                "ru": "таблетка"
+            },
+            {
+                "de": "der Sirup",
+                "tr": "ˈziːʁʊp",
+                "ru": "сироп"
+            },
+            {
+                "de": "die Salbe",
+                "tr": "ˈzalbə",
+                "ru": "мазь"
+            },
+            {
+                "de": "das Rezept",
+                "tr": "ʁeˈt͡sɛpt",
+                "ru": "рецепт"
+            },
+            {
+                "de": "Haben Sie etwas gegen Schmerzen?",
+                "tr": "ˈhaːbn̩ ziː ˈɛtvas ˈɡeːɡn̩ ˈʃmɛʁt͡sn̩",
+                "ru": "У вас есть что-нибудь от боли?"
+            },
+            {
+                "de": "Ich brauche etwas gegen Husten.",
+                "tr": "ɪç ˈbʁaʊ̯xə ˈɛtvas ˈɡeːɡn̩ ˈhuːstn̩",
+                "ru": "Мне нужно что-то от кашля."
+            },
+            {
+                "de": "Wie oft soll ich das nehmen?",
+                "tr": "viː ɔft zɔl ɪç das ˈneːmən",
+                "ru": "Как часто мне это принимать?"
+            },
+            {
+                "de": "dreimal täglich",
+                "tr": "ˈdʁaɪ̯maːl ˈtɛːklɪç",
+                "ru": "три раза в день"
+            },
+            {
+                "de": "einmal täglich",
+                "tr": "ˈaɪ̯nmaːl ˈtɛːklɪç",
+                "ru": "один раз в день"
+            }
+        ]
+    },
+    {
+        "topic": "Погода и природа",
+        "level": "A1",
+        "subtopic": "Погода",
+        "words": [
+            {
+                "de": "das Wetter",
+                "tr": "ˈvɛtɐ",
+                "ru": "погода"
+            },
+            {
+                "de": "Wie ist das Wetter?",
+                "tr": "viː ɪst das ˈvɛtɐ",
+                "ru": "Какая погода?"
+            },
+            {
+                "de": "Es ist warm.",
+                "tr": "ɛs ɪst vaʁm",
+                "ru": "Тепло."
+            },
+            {
+                "de": "Es ist kalt.",
+                "tr": "ɛs ɪst kalt",
+                "ru": "Холодно."
+            },
+            {
+                "de": "Es ist sonnig.",
+                "tr": "ˈzɔnɪç",
+                "ru": "Солнечно."
+            },
+            {
+                "de": "Es ist bewölkt.",
+                "tr": "bəˈvœlkt",
+                "ru": "Облачно."
+            },
+            {
+                "de": "Es regnet.",
+                "tr": "ˈʁeːɡnət",
+                "ru": "Идет дождь."
+            },
+            {
+                "de": "Es schneit.",
+                "tr": "ʃnaɪ̯t",
+                "ru": "Идет снег."
+            },
+            {
+                "de": "Es ist windig.",
+                "tr": "ˈvɪndɪç",
+                "ru": "Ветрено."
+            },
+            {
+                "de": "Es ist heiß.",
+                "tr": "haɪ̯s",
+                "ru": "Жарко."
+            },
+            {
+                "de": "Es ist kühl.",
+                "tr": "kyːl",
+                "ru": "Прохладно."
+            }
+        ]
+    },
+    {
+        "topic": "Погода и природа",
+        "level": "A1",
+        "subtopic": "Времена года",
+        "words": [
+            {
+                "de": "der Frühling",
+                "tr": "ˈfʁyːlɪŋ",
+                "ru": "весна"
+            },
+            {
+                "de": "der Sommer",
+                "tr": "ˈzɔmɐ",
+                "ru": "лето"
+            },
+            {
+                "de": "der Herbst",
+                "tr": "hɛʁpst",
+                "ru": "осень"
+            },
+            {
+                "de": "der Winter",
+                "tr": "ˈvɪntɐ",
+                "ru": "зима"
+            },
+            {
+                "de": "im Frühling",
+                "tr": "ɪm ˈfʁyːlɪŋ",
+                "ru": "весной"
+            },
+            {
+                "de": "im Sommer",
+                "tr": "ɪm ˈzɔmɐ",
+                "ru": "летом"
+            },
+            {
+                "de": "im Herbst",
+                "tr": "ɪm hɛʁpst",
+                "ru": "осенью"
+            },
+            {
+                "de": "im Winter",
+                "tr": "ɪm ˈvɪntɐ",
+                "ru": "зимой"
+            }
+        ]
+    },
+    {
+        "topic": "Погода и природа",
+        "level": "A1",
+        "subtopic": "Природа",
+        "words": [
+            {
+                "de": "der Baum",
+                "tr": "baʊ̯m",
+                "ru": "дерево"
+            },
+            {
+                "de": "die Blume",
+                "tr": "ˈbluːmə",
+                "ru": "цветок"
+            },
+            {
+                "de": "die Pflanze",
+                "tr": "ˈpflant͡sə",
+                "ru": "растение"
+            },
+            {
+                "de": "das Wasser",
+                "tr": "ˈvasɐ",
+                "ru": "вода"
+            },
+            {
+                "de": "der Fluss",
+                "tr": "flʊs",
+                "ru": "река"
+            },
+            {
+                "de": "der See",
+                "tr": "zeː",
+                "ru": "озеро"
+            },
+            {
+                "de": "der Berg",
+                "tr": "bɛʁk",
+                "ru": "гора"
+            },
+            {
+                "de": "das Tal",
+                "tr": "taːl",
+                "ru": "долина"
+            },
+            {
+                "de": "der Wald",
+                "tr": "valt",
+                "ru": "лес"
+            },
+            {
+                "de": "der Himmel",
+                "tr": "ˈhɪml̩",
+                "ru": "небо"
+            }
+        ]
+    },
+    {
+        "topic": "Цвета и простые прилагательные",
+        "level": "A1",
+        "subtopic": "Цвета",
+        "words": [
+            {
+                "de": "die Farbe",
+                "tr": "ˈfaʁbə",
+                "ru": "цвет"
+            },
+            {
+                "de": "rot",
+                "tr": "ʁoːt",
+                "ru": "красный"
+            },
+            {
+                "de": "blau",
+                "tr": "blaʊ̯",
+                "ru": "синий / голубой"
+            },
+            {
+                "de": "gelb",
+                "tr": "ɡɛlp",
+                "ru": "желтый"
+            },
+            {
+                "de": "grün",
+                "tr": "ɡʁyːn",
+                "ru": "зеленый"
+            },
+            {
+                "de": "schwarz",
+                "tr": "ʃvaʁt͡s",
+                "ru": "черный"
+            },
+            {
+                "de": "weiß",
+                "tr": "vaɪ̯s",
+                "ru": "белый"
+            },
+            {
+                "de": "grau",
+                "tr": "ɡʁaʊ̯",
+                "ru": "серый"
+            },
+            {
+                "de": "braun",
+                "tr": "bʁaʊ̯n",
+                "ru": "коричневый"
+            },
+            {
+                "de": "orange",
+                "tr": "oˈʁãːʒ",
+                "ru": "оранжевый"
+            },
+            {
+                "de": "lila",
+                "tr": "ˈliːla",
+                "ru": "фиолетовый"
+            },
+            {
+                "de": "rosa",
+                "tr": "ˈʁoːza",
+                "ru": "розовый"
+            }
+        ]
+    },
+    {
+        "topic": "Цвета и простые прилагательные",
+        "level": "A1",
+        "subtopic": "Прилагательные A1",
+        "words": [
+            {
+                "de": "groß",
+                "tr": "ɡʁoːs",
+                "ru": "большой"
+            },
+            {
+                "de": "klein",
+                "tr": "klaɪ̯n",
+                "ru": "маленький"
+            },
+            {
+                "de": "lang",
+                "tr": "laŋ",
+                "ru": "длинный"
+            },
+            {
+                "de": "kurz",
+                "tr": "kʊʁt͡s",
+                "ru": "короткий"
+            },
+            {
+                "de": "neu",
+                "tr": "nɔɪ̯",
+                "ru": "новый"
+            },
+            {
+                "de": "alt",
+                "tr": "alt",
+                "ru": "старый"
+            },
+            {
+                "de": "gut",
+                "tr": "ɡuːt",
+                "ru": "хороший"
+            },
+            {
+                "de": "schlecht",
+                "tr": "ʃlɛçt",
+                "ru": "плохой"
+            },
+            {
+                "de": "schön",
+                "tr": "ʃøːn",
+                "ru": "красивый"
+            },
+            {
+                "de": "hässlich",
+                "tr": "ˈhɛslɪç",
+                "ru": "некрасивый"
+            },
+            {
+                "de": "teuer",
+                "tr": "ˈtɔɪ̯ɐ",
+                "ru": "дорогой"
+            },
+            {
+                "de": "billig",
+                "tr": "ˈbɪlɪç",
+                "ru": "дешевый"
+            },
+            {
+                "de": "laut",
+                "tr": "laʊ̯t",
+                "ru": "громкий"
+            },
+            {
+                "de": "leise",
+                "tr": "ˈlaɪ̯zə",
+                "ru": "тихий"
+            },
+            {
+                "de": "gesund",
+                "tr": "ɡəˈzʊnt",
+                "ru": "здоровый"
+            },
+            {
+                "de": "krank",
+                "tr": "kʁaŋk",
+                "ru": "больной"
+            },
+            {
+                "de": "warm",
+                "tr": "vaʁm",
+                "ru": "тёплый"
+            },
+            {
+                "de": "kalt",
+                "tr": "kalt",
+                "ru": "холодный"
+            },
+            {
+                "de": "sauber",
+                "tr": "ˈzaʊ̯bɐ",
+                "ru": "чистый"
+            },
+            {
+                "de": "schmutzig",
+                "tr": "ˈʃmʊt͡sɪç",
+                "ru": "грязный"
+            }
+        ]
+    },
+    {
+        "topic": "Расширенное знакомство и биография",
+        "level": "A2",
+        "subtopic": "Биография",
+        "words": [
+            {
+                "de": "die Biografie",
+                "tr": "bi̯oɡʁaˈfiː",
+                "ru": "биография"
+            },
+            {
+                "de": "geboren sein",
+                "tr": "ɡəˈboːʁən zaɪ̯n",
+                "ru": "быть рождённым"
+            },
+            {
+                "de": "aufwachsen",
+                "tr": "ˈaʊ̯fˌvaksn̩",
+                "ru": "вырастать"
+            },
+            {
+                "de": "die Kindheit",
+                "tr": "ˈkɪnthait",
+                "ru": "детство"
+            },
+            {
+                "de": "die Jugend",
+                "tr": "ˈjuːɡn̩t",
+                "ru": "юность"
+            },
+            {
+                "de": "der Erwachsene",
+                "tr": "ɛʁˈvaksn̩ə",
+                "ru": "взрослый"
+            },
+            {
+                "de": "der Lebenslauf",
+                "tr": "ˈleːbn̩sˌlaʊ̯f",
+                "ru": "резюме"
+            },
+            {
+                "de": "die Erfahrung",
+                "tr": "ɛʁˈfaːʁʊŋ",
+                "ru": "опыт"
+            },
+            {
+                "de": "der Umzug",
+                "tr": "ˈʊmˌt͡suːk",
+                "ru": "переезд"
+            },
+            {
+                "de": "die Herkunft",
+                "tr": "ˈheːɐ̯ˌkʊnft",
+                "ru": "происхождение"
+            },
+            {
+                "de": "verheiratet sein",
+                "tr": "fɛɐ̯ˈhaɪ̯ʁatət zaɪ̯n",
+                "ru": "быть женатым/замужем"
+            },
+            {
+                "de": "ledig",
+                "tr": "ˈleːdɪç",
+                "ru": "холостой / неженатая"
+            },
+            {
+                "de": "geschieden",
+                "tr": "ɡəˈʃiːdn̩",
+                "ru": "разведённый"
+            },
+            {
+                "de": "verwitwet",
+                "tr": "fɛɐ̯ˈvɪtvət",
+                "ru": "вдовец / вдова"
+            }
+        ]
+    },
+    {
+        "topic": "Расширенное знакомство и биография",
+        "level": "A2",
+        "subtopic": "Образование",
+        "words": [
+            {
+                "de": "die Ausbildung",
+                "tr": "ˈaʊ̯sˌbɪldʊŋ",
+                "ru": "профессиональное обучение"
+            },
+            {
+                "de": "die Schule abschließen",
+                "tr": "ˈʃuːlə ˈapˌʃliːsn̩",
+                "ru": "закончить школу"
+            },
+            {
+                "de": "der Schulabschluss",
+                "tr": "ˈʃuːlʔapˌʃlʊs",
+                "ru": "аттестат"
+            },
+            {
+                "de": "die Universität",
+                "tr": "uniˌvɛʁziˈtɛːt",
+                "ru": "университет"
+            },
+            {
+                "de": "studieren",
+                "tr": "ʃtuˈdiːʁən",
+                "ru": "изучать в университете"
+            },
+            {
+                "de": "der Studiengang",
+                "tr": "ˈʃtuːdi̯ənˌɡaŋ",
+                "ru": "направление обучения"
+            },
+            {
+                "de": "der Abschluss",
+                "tr": "ˈapˌʃlʊs",
+                "ru": "окончание / диплом"
+            },
+            {
+                "de": "das Zeugnis",
+                "tr": "ˈt͡sɔʏ̯knɪs",
+                "ru": "свидетельство, характеристика"
+            },
+            {
+                "de": "die Prüfung",
+                "tr": "ˈpʁyːfʊŋ",
+                "ru": "экзамен"
+            },
+            {
+                "de": "die Sprachkenntnisse",
+                "tr": "ˈʃpʁaːxˌkɛntnɪsə",
+                "ru": "знание языков"
+            },
+            {
+                "de": "der Kurs",
+                "tr": "kʊʁs",
+                "ru": "курс"
+            },
+            {
+                "de": "einen Kurs besuchen",
+                "tr": "ˈaɪ̯nən kʊʁs bəˈzuːxn̩",
+                "ru": "посещать курс"
+            }
+        ]
+    },
+    {
+        "topic": "Расширенное знакомство и биография",
+        "level": "A2",
+        "subtopic": "Планы на будущее",
+        "words": [
+            {
+                "de": "die Zukunft",
+                "tr": "ˈt͡suːˌkʊnft",
+                "ru": "будущее"
+            },
+            {
+                "de": "Ich möchte ...",
+                "tr": "ɪç ˈmœçtə",
+                "ru": "Я хотел бы..."
+            },
+            {
+                "de": "Ich plane ...",
+                "tr": "ɪç ˈplaːnə",
+                "ru": "Я планирую..."
+            },
+            {
+                "de": "Ich hoffe, dass ...",
+                "tr": "ɪç ˈhɔfə das",
+                "ru": "Я надеюсь, что..."
+            },
+            {
+                "de": "ein Ziel haben",
+                "tr": "aɪ̯n t͡siːl ˈhaːbn̩",
+                "ru": "иметь цель"
+            },
+            {
+                "de": "einen Beruf lernen",
+                "tr": "ˈbɛˌʁuːf ˈlɛʁnən",
+                "ru": "получить профессию"
+            },
+            {
+                "de": "eine Familie gründen",
+                "tr": "ˈfamili̯ə ˈɡʁʏndn̩",
+                "ru": "создать семью"
+            },
+            {
+                "de": "umziehen",
+                "tr": "ˈʊmˌt͡siːən",
+                "ru": "переехать"
+            },
+            {
+                "de": "eine Reise machen",
+                "tr": "ˈʁaɪ̯zə ˈmaxn̩",
+                "ru": "совершить поездку"
+            },
+            {
+                "de": "Karriere machen",
+                "tr": "kaˈʁi̯eːrə ˈmaxn̩",
+                "ru": "строить карьеру"
+            }
+        ]
+    },
+    {
+        "topic": "Семья и отношения",
+        "level": "A2",
+        "subtopic": "Описание семьи",
+        "words": [
+            {
+                "de": "die Familienmitglieder",
+                "tr": "famiˈli̯eːnˌmɪtɡliːdɐ",
+                "ru": "члены семьи"
+            },
+            {
+                "de": "die Verwandten",
+                "tr": "fɛɐ̯ˈvantn̩",
+                "ru": "родственники"
+            },
+            {
+                "de": "der Verwandte / die Verwandte",
+                "tr": "fɛɐ̯ˈvantə",
+                "ru": "родственник / родственница"
+            },
+            {
+                "de": "verheiratet mit",
+                "tr": "fɛɐ̯ˈhaɪ̯ʁatət mɪt",
+                "ru": "женат/замужем за"
+            },
+            {
+                "de": "geschieden sein",
+                "tr": "ɡəˈʃiːdn̩ zaɪ̯n",
+                "ru": "быть разведённым"
+            },
+            {
+                "de": "verwitwet sein",
+                "tr": "fɛɐ̯ˈvɪtvət zaɪ̯n",
+                "ru": "быть вдовцом/вдовицей"
+            },
+            {
+                "de": "zusammenwohnen",
+                "tr": "t͡suˈzamənˌvoːnən",
+                "ru": "жить вместе"
+            },
+            {
+                "de": "getrennt leben",
+                "tr": "ɡəˈtʁɛnt ˈleːbn̩",
+                "ru": "жить отдельно"
+            },
+            {
+                "de": "alleinerziehend",
+                "tr": "aˈlaɪ̯nʔɛʁˌt͡siːhənt",
+                "ru": "воспитывающий ребёнка один"
+            },
+            {
+                "de": "die Beziehung",
+                "tr": "bəˈt͡siːʊŋ",
+                "ru": "отношения"
+            },
+            {
+                "de": "der Haushalt",
+                "tr": "ˈhaʊ̯sˌhalt",
+                "ru": "домохозяйство"
+            },
+            {
+                "de": "jemanden unterstützen",
+                "tr": "ʔʊntɐˈʃtʏt͡sn̩",
+                "ru": "поддерживать кого-то"
+            }
+        ]
+    },
+    {
+        "topic": "Семья и отношения",
+        "level": "A2",
+        "subtopic": "Отношения",
+        "words": [
+            {
+                "de": "die Beziehung",
+                "tr": "bəˈt͡siːʊŋ",
+                "ru": "отношения"
+            },
+            {
+                "de": "eine gute Beziehung haben",
+                "tr": "ˈɡuːtə bəˈt͡siːʊŋ ˈhaːbn̩",
+                "ru": "иметь хорошие отношения"
+            },
+            {
+                "de": "sich gut verstehen",
+                "tr": "fɛɐ̯ˈʃteːən",
+                "ru": "хорошо понимать друг друга"
+            },
+            {
+                "de": "sich streiten",
+                "tr": "ˈʃtʁaɪ̯tn̩",
+                "ru": "ссориться"
+            },
+            {
+                "de": "sich trennen",
+                "tr": "ˈtʁɛnən",
+                "ru": "расставаться"
+            },
+            {
+                "de": "der Partner / die Partnerin",
+                "tr": "ˈpaʁtnɐ",
+                "ru": "партнёр / партнёрша"
+            },
+            {
+                "de": "der Freund / die Freundin",
+                "tr": "fʁɔʏ̯nt / ˈfʁɔʏ̯ndɪn",
+                "ru": "друг / девушка, подруга"
+            },
+            {
+                "de": "die Freundschaft",
+                "tr": "ˈfʁɔʏ̯ntˌʃaft",
+                "ru": "дружба"
+            },
+            {
+                "de": "vertrauen",
+                "tr": "fɛɐ̯ˈtʁaʊ̯ən",
+                "ru": "доверять"
+            },
+            {
+                "de": "sich kümmern um",
+                "tr": "ˈkʏmɐn ʊm",
+                "ru": "заботиться о"
+            },
+            {
+                "de": "unterstützen",
+                "tr": "ʔʊntɐˈʃtʏt͡sn̩",
+                "ru": "поддерживать"
+            },
+            {
+                "de": "sich verlieben",
+                "tr": "fɛɐ̯ˈliːbn̩",
+                "ru": "влюбиться"
+            }
+        ]
+    },
+    {
+        "topic": "Семья и отношения",
+        "level": "A2",
+        "subtopic": "Традиции и праздники",
+        "words": [
+            {
+                "de": "die Tradition",
+                "tr": "tʁadiˈt͡si̯oːn",
+                "ru": "традиция"
+            },
+            {
+                "de": "der Feiertag",
+                "tr": "ˈfaɪ̯ɐˌtaːk",
+                "ru": "праздничный день"
+            },
+            {
+                "de": "Weihnachten",
+                "tr": "ˈvaɪ̯naxtn̩",
+                "ru": "Рождество"
+            },
+            {
+                "de": "Ostern",
+                "tr": "ˈoːstɐn",
+                "ru": "Пасха"
+            },
+            {
+                "de": "der Geburtstag",
+                "tr": "ɡəˈbʊʁt͡sˌtaːk",
+                "ru": "день рождения"
+            },
+            {
+                "de": "Silvester",
+                "tr": "zɪlˈvɛstɐ",
+                "ru": "канун Нового года"
+            },
+            {
+                "de": "feiern",
+                "tr": "ˈfaɪ̯ɐn",
+                "ru": "праздновать"
+            },
+            {
+                "de": "die Feier",
+                "tr": "ˈfaɪ̯ɐ",
+                "ru": "праздник / торжество"
+            },
+            {
+                "de": "das Geschenk",
+                "tr": "ɡəˈʃɛŋk",
+                "ru": "подарок"
+            },
+            {
+                "de": "einladen",
+                "tr": "ˈaɪ̯nˌlaːdn̩",
+                "ru": "приглашать"
+            },
+            {
+                "de": "die Gäste",
+                "tr": "ˈɡɛstə",
+                "ru": "гости"
+            },
+            {
+                "de": "die Gewohnheiten",
+                "tr": "ɡəˈvoːnˌhaɪ̯tn̩",
+                "ru": "обычаи / привычки"
+            }
+        ]
+    },
+    {
+        "topic": "Жилье и переезд",
+        "level": "A2",
+        "subtopic": "Описание жилья",
+        "words": [
+            {
+                "de": "die Wohnung",
+                "tr": "ˈvoːnʊŋ",
+                "ru": "квартира"
+            },
+            {
+                "de": "das Haus",
+                "tr": "haʊ̯s",
+                "ru": "дом"
+            },
+            {
+                "de": "das Zimmer",
+                "tr": "ˈt͡sɪmɐ",
+                "ru": "комната"
+            },
+            {
+                "de": "die Küche",
+                "tr": "ˈkʏçə",
+                "ru": "кухня"
+            },
+            {
+                "de": "das Wohnzimmer",
+                "tr": "ˈvoːnˌt͡sɪmɐ",
+                "ru": "гостиная"
+            },
+            {
+                "de": "das Schlafzimmer",
+                "tr": "ˈʃlaːfˌt͡sɪmɐ",
+                "ru": "спальня"
+            },
+            {
+                "de": "das Badezimmer",
+                "tr": "ˈbaːt͡sɪmɐ",
+                "ru": "ванная"
+            },
+            {
+                "de": "der Balkon",
+                "tr": "balˈkoːn",
+                "ru": "балкон"
+            },
+            {
+                "de": "der Garten",
+                "tr": "ˈɡaʁtn̩",
+                "ru": "сад"
+            },
+            {
+                "de": "möbliert",
+                "tr": "møˈbliːɐ̯t",
+                "ru": "меблированный"
+            },
+            {
+                "de": "unmöbliert",
+                "tr": "ʊnˈmøːbliːɐ̯t",
+                "ru": "без мебели"
+            },
+            {
+                "de": "die Größe",
+                "tr": "ˈɡʁøːsə",
+                "ru": "размер"
+            },
+            {
+                "de": "die Lage",
+                "tr": "ˈlaːɡə",
+                "ru": "расположение"
+            },
+            {
+                "de": "ruhig",
+                "tr": "ˈʁuːɪç",
+                "ru": "тихий"
+            },
+            {
+                "de": "zentral",
+                "tr": "t͡sɛnˈtʁaːl",
+                "ru": "центральный"
+            }
+        ]
+    },
+    {
+        "topic": "Жилье и переезд",
+        "level": "A2",
+        "subtopic": "Аренда и поиск",
+        "words": [
+            {
+                "de": "mieten",
+                "tr": "ˈmiːtn̩",
+                "ru": "арендовать"
+            },
+            {
+                "de": "die Miete",
+                "tr": "ˈmiːtə",
+                "ru": "аренда / плата"
+            },
+            {
+                "de": "die Warmmiete",
+                "tr": "ˈvaʁmˌmiːtə",
+                "ru": "аренда с коммунальными"
+            },
+            {
+                "de": "die Kaltmiete",
+                "tr": "ˈkaltˌmiːtə",
+                "ru": "аренда без коммунальных"
+            },
+            {
+                "de": "die Nebenkosten",
+                "tr": "ˈneːbn̩ˌkɔstn̩",
+                "ru": "коммунальные расходы"
+            },
+            {
+                "de": "der Vermieter",
+                "tr": "fɛɐ̯ˈmiːtɐ",
+                "ru": "арендодатель"
+            },
+            {
+                "de": "der Mieter",
+                "tr": "ˈmiːtɐ",
+                "ru": "арендатор"
+            },
+            {
+                "de": "die Anzeige",
+                "tr": "ˈant͡saɪ̯ɡə",
+                "ru": "объявление"
+            },
+            {
+                "de": "besichtigen",
+                "tr": "bəˈzɪçtɪɡn̩",
+                "ru": "осматривать жильё"
+            },
+            {
+                "de": "der Mietvertrag",
+                "tr": "ˈmiːtfəʁˌtʁaːk",
+                "ru": "договор аренды"
+            },
+            {
+                "de": "die Kaution",
+                "tr": "kaʊ̯ˈt͡si̯oːn",
+                "ru": "залог"
+            },
+            {
+                "de": "umziehen",
+                "tr": "ˈʊmˌt͡siːən",
+                "ru": "переезжать"
+            },
+            {
+                "de": "der Umzug",
+                "tr": "ˈʊmˌt͡suːk",
+                "ru": "переезд"
+            },
+            {
+                "de": "eine Wohnung suchen",
+                "tr": "ˈvoːnʊŋ ˈzuːxn̩",
+                "ru": "искать квартиру"
+            },
+            {
+                "de": "einziehen",
+                "tr": "ˈaɪ̯nˌt͡siːən",
+                "ru": "въезжать"
+            }
+        ]
+    },
+    {
+        "topic": "Жилье и переезд",
+        "level": "A2",
+        "subtopic": "Проблемы с жильем",
+        "words": [
+            {
+                "de": "der Schaden",
+                "tr": "ˈʃaːdn̩",
+                "ru": "повреждение"
+            },
+            {
+                "de": "kaputt sein",
+                "tr": "kaˈpʊt zaɪ̯n",
+                "ru": "быть сломанным"
+            },
+            {
+                "de": "defekt",
+                "tr": "deˈfɛkt",
+                "ru": "неисправный"
+            },
+            {
+                "de": "der Lärm",
+                "tr": "lɛʁm",
+                "ru": "шум"
+            },
+            {
+                "de": "die Heizung funktioniert nicht",
+                "tr": "ˈhaɪ̯t͡sʊŋ fʊŋktsi̯oˈniːʁt nɪçt",
+                "ru": "отопление не работает"
+            },
+            {
+                "de": "das Wasser läuft nicht",
+                "tr": "ˈvasɐ lɔɪ̯ft nɪçt",
+                "ru": "вода не течёт"
+            },
+            {
+                "de": "Schimmel an der Wand",
+                "tr": "ˈʃɪml̩ an deːɐ̯ vant",
+                "ru": "плесень на стене"
+            },
+            {
+                "de": "die Reparatur",
+                "tr": "ʁepaˈtuːɐ̯",
+                "ru": "ремонт (починка)"
+            },
+            {
+                "de": "reparieren",
+                "tr": "ʁepaˈʁiːʁən",
+                "ru": "ремонтировать"
+            },
+            {
+                "de": "sich beschweren",
+                "tr": "bəˈʃveːʁən",
+                "ru": "жаловаться"
+            },
+            {
+                "de": "den Vermieter informieren",
+                "tr": "fɛɐ̯ˈmiːtɐ ɪnfɔʁˈmiːʁən",
+                "ru": "сообщить арендодателю"
+            },
+            {
+                "de": "eine Lösung finden",
+                "tr": "ˈløːzʊŋ ˈfɪndn̩",
+                "ru": "найти решение"
+            }
+        ]
+    },
+    {
+        "topic": "Работа и профессии",
+        "level": "A2",
+        "subtopic": "Профессии A2",
+        "words": [
+            {
+                "de": "der Arbeitnehmer",
+                "tr": "ˈaʁbaɪ̯tˌneːmɐ",
+                "ru": "работник"
+            },
+            {
+                "de": "der Arbeitgeber",
+                "tr": "ˈaʁbaɪ̯tˌɡeːbɐ",
+                "ru": "работодатель"
+            },
+            {
+                "de": "der Verkäufer / die Verkäuferin",
+                "tr": "fɛɐ̯ˈkɔɪ̯fɐ",
+                "ru": "продавец / продавщица"
+            },
+            {
+                "de": "der Kellner / die Kellnerin",
+                "tr": "ˈkɛlnɐ",
+                "ru": "официант / официантка"
+            },
+            {
+                "de": "der Krankenpfleger / die Krankenschwester",
+                "tr": "ˈkʁaŋkn̩ˌp͡fleːɡɐ",
+                "ru": "медбрат / медсестра"
+            },
+            {
+                "de": "der Mechaniker",
+                "tr": "meˈçaːnɪkɐ",
+                "ru": "механик"
+            },
+            {
+                "de": "der Ingenieur",
+                "tr": "ɪnʒeˈnøːɐ̯",
+                "ru": "инженер"
+            },
+            {
+                "de": "der Fahrer",
+                "tr": "ˈfaːʁɐ",
+                "ru": "водитель"
+            },
+            {
+                "de": "der Lehrer / die Lehrerin",
+                "tr": "ˈleːʁɐ",
+                "ru": "учитель / учительница"
+            },
+            {
+                "de": "der Bauarbeiter",
+                "tr": "ˈbaʊ̯ʔaʁˌbaɪ̯tɐ",
+                "ru": "строитель"
+            },
+            {
+                "de": "der Elektriker",
+                "tr": "eˈlɛktʁɪkɐ",
+                "ru": "электрик"
+            },
+            {
+                "de": "der Koch / die Köchin",
+                "tr": "kɔx / ˈkœçɪn",
+                "ru": "повар / повариха"
+            },
+            {
+                "de": "der Hausmeister",
+                "tr": "ˈhaʊ̯sˌmaɪ̯stɐ",
+                "ru": "домовик / обслуживающий"
+            },
+            {
+                "de": "der Sachbearbeiter",
+                "tr": "ˈzaxbəˌaʁbaɪ̯tɐ",
+                "ru": "делопроизводитель"
+            },
+            {
+                "de": "der Angestellte",
+                "tr": "ˈaŋɡəˌʃtɛltə",
+                "ru": "служащий"
+            }
+        ]
+    },
+    {
+        "topic": "Работа и профессии",
+        "level": "A2",
+        "subtopic": "Обязанности на работе",
+        "words": [
+            {
+                "de": "arbeiten an",
+                "tr": "ˈaʁbaɪ̯tn̩ an",
+                "ru": "работать над чем-то"
+            },
+            {
+                "de": "verantwortlich sein für",
+                "tr": "fɛɐ̯ˈʔantvɔʁtlɪç zaɪ̯n fyːɐ̯",
+                "ru": "быть ответственным за"
+            },
+            {
+                "de": "telefonieren",
+                "tr": "teləfoˈniːʁən",
+                "ru": "звонить"
+            },
+            {
+                "de": "Termine vereinbaren",
+                "tr": "tɛʁˈmiːnə fɛɐ̯ˈʔaɪ̯nbaːʁən",
+                "ru": "договариваться о встречах"
+            },
+            {
+                "de": "E-Mails beantworten",
+                "tr": "ˈiːmeːls bəˈantˌvoːʁtn̩",
+                "ru": "отвечать на письма"
+            },
+            {
+                "de": "Kunden beraten",
+                "tr": "ˈkʊndn̩ bəˈʁaːtn̩",
+                "ru": "консультировать клиентов"
+            },
+            {
+                "de": "reparieren",
+                "tr": "ʁepaˈʁiːʁən",
+                "ru": "ремонтировать"
+            },
+            {
+                "de": "kontrollieren",
+                "tr": "kɔntʁoˈliːʁən",
+                "ru": "проверять"
+            },
+            {
+                "de": "liefern",
+                "tr": "ˈliːfɐn",
+                "ru": "доставлять"
+            },
+            {
+                "de": "putzen",
+                "tr": "ˈpʊt͡sn̩",
+                "ru": "убирать"
+            },
+            {
+                "de": "organisieren",
+                "tr": "ɔʁɡaniˈziːʁən",
+                "ru": "организовывать"
+            },
+            {
+                "de": "dokumentieren",
+                "tr": "dokʊmɛnˈtiːʁən",
+                "ru": "документировать"
+            }
+        ]
+    },
+    {
+        "topic": "Работа и профессии",
+        "level": "A2",
+        "subtopic": "Рабочий день",
+        "words": [
+            {
+                "de": "der Arbeitstag",
+                "tr": "ˈaʁbaɪ̯t͡sˌtaːk",
+                "ru": "рабочий день"
+            },
+            {
+                "de": "der Schichtdienst",
+                "tr": "ˈʃɪçtˌdiːnst",
+                "ru": "сменная работа"
+            },
+            {
+                "de": "die Frühschicht",
+                "tr": "ˈfʁyːˌʃɪçt",
+                "ru": "утренняя смена"
+            },
+            {
+                "de": "die Spätschicht",
+                "tr": "ˈʃpɛːtˌʃɪçt",
+                "ru": "вечерняя смена"
+            },
+            {
+                "de": "die Nachtschicht",
+                "tr": "ˈnaxtˌʃɪçt",
+                "ru": "ночная смена"
+            },
+            {
+                "de": "Überstunden machen",
+                "tr": "ˈyːbɐˌʃtʊndn̩ ˈmaxn̩",
+                "ru": "работать сверхурочно"
+            },
+            {
+                "de": "Feierabend haben",
+                "tr": "ˈfaɪ̯ɐˌʔaːbnt haːbn̩",
+                "ru": "закончить рабочий день"
+            },
+            {
+                "de": "Pausen machen",
+                "tr": "ˈpaʊ̯zn̩ ˈmaxn̩",
+                "ru": "делать перерывы"
+            },
+            {
+                "de": "arbeiten bis ... Uhr",
+                "tr": "ˈaʁbaɪ̯tn̩ bɪs ... uːɐ̯",
+                "ru": "работать до ... часов"
+            },
+            {
+                "de": "anfangen zu arbeiten",
+                "tr": "ˈanfaŋən t͡suː ˈaʁbaɪ̯tn̩",
+                "ru": "начинать работать"
+            },
+            {
+                "de": "der Kollege / die Kollegin",
+                "tr": "koˈleːɡə",
+                "ru": "коллега"
+            },
+            {
+                "de": "das Team",
+                "tr": "tiːm",
+                "ru": "команда"
+            }
+        ]
+    },
+    {
+        "topic": "Учеба и профессиональное обучение",
+        "level": "A2",
+        "subtopic": "Типы учебы",
+        "words": [
+            {
+                "de": "die Ausbildung",
+                "tr": "ˈaʊ̯sˌbɪldʊŋ",
+                "ru": "профессиональное обучение"
+            },
+            {
+                "de": "das Studium",
+                "tr": "ˈʃtuːdi̯ʊm",
+                "ru": "обучение в университете"
+            },
+            {
+                "de": "die Weiterbildung",
+                "tr": "ˈvaɪ̯tɐˌbɪldʊŋ",
+                "ru": "повышение квалификации"
+            },
+            {
+                "de": "die Fortbildung",
+                "tr": "ˈfɔʁtˌbɪldʊŋ",
+                "ru": "повышение квалификации (короткие курсы)"
+            },
+            {
+                "de": "der Sprachkurs",
+                "tr": "ˈʃpʁaːxˌkʊʁs",
+                "ru": "языковой курс"
+            },
+            {
+                "de": "der Integrationskurs",
+                "tr": "ɪntəɡʁaˈt͡si̯oːnskʊʁs",
+                "ru": "интеграционный курс"
+            },
+            {
+                "de": "der Abendkurs",
+                "tr": "ˈaːbəntˌkʊʁs",
+                "ru": "вечерний курс"
+            },
+            {
+                "de": "der Onlinekurs",
+                "tr": "ˈɔnlaɪ̯nˌkʊʁs",
+                "ru": "онлайн-курс"
+            },
+            {
+                "de": "der Teilnehmer",
+                "tr": "ˈtaɪ̯lˌnaɪ̯mɐ",
+                "ru": "участник курса"
+            },
+            {
+                "de": "die Anmeldung",
+                "tr": "ˈanˌmɛldʊŋ",
+                "ru": "регистрация / запись"
+            }
+        ]
+    },
+    {
+        "topic": "Учеба и профессиональное обучение",
+        "level": "A2",
+        "subtopic": "Экзамены и тесты",
+        "words": [
+            {
+                "de": "die Prüfung",
+                "tr": "ˈpʁyːfʊŋ",
+                "ru": "экзамен"
+            },
+            {
+                "de": "die Abschlussprüfung",
+                "tr": "ˈapˌʃlʊsˌpʁyːfʊŋ",
+                "ru": "выпускной экзамен"
+            },
+            {
+                "de": "der Test",
+                "tr": "tɛst",
+                "ru": "тест"
+            },
+            {
+                "de": "der Einstufungstest",
+                "tr": "ˈaɪ̯nˌʃtuːfʊŋsˌtɛst",
+                "ru": "тест на определение уровня"
+            },
+            {
+                "de": "die Aufgabe",
+                "tr": "ˈaʊ̯fˌɡaːbə",
+                "ru": "задание"
+            },
+            {
+                "de": "die Lösung",
+                "tr": "ˈløːzʊŋ",
+                "ru": "решение"
+            },
+            {
+                "de": "bestehen",
+                "tr": "bəˈʃteːən",
+                "ru": "сдать (экзамен)"
+            },
+            {
+                "de": "durchfallen",
+                "tr": "ˈdʊʁçˌfalən",
+                "ru": "провалить экзамен"
+            },
+            {
+                "de": "sich vorbereiten auf",
+                "tr": "ˈfoːɐ̯bəˌʁaɪ̯tn̩ aʊ̯f",
+                "ru": "готовиться к"
+            },
+            {
+                "de": "der Prüfungstermin",
+                "tr": "ˈpʁyːfʊŋstaɐ̯ˌmiːn",
+                "ru": "дата экзамена"
+            },
+            {
+                "de": "das Ergebnis",
+                "tr": "ɛɐ̯ˈɡeːpnɪs",
+                "ru": "результат"
+            }
+        ]
+    },
+    {
+        "topic": "Учеба и профессиональное обучение",
+        "level": "A2",
+        "subtopic": "Профессиональное обучение",
+        "words": [
+            {
+                "de": "die Berufsausbildung",
+                "tr": "bəˈʁuːfsˌaʊ̯sˌbɪldʊŋ",
+                "ru": "профессиональная подготовка (Ausbildung)"
+            },
+            {
+                "de": "der Auszubildende (Azubi)",
+                "tr": "ˈaʊ̯sʦuˌbɪldn̩də",
+                "ru": "ученик (в Ausbildung)"
+            },
+            {
+                "de": "die Berufsschule",
+                "tr": "bəˈʁuːfsˌʃuːlə",
+                "ru": "профессиональная школа"
+            },
+            {
+                "de": "der Betrieb",
+                "tr": "bəˈtʁiːp",
+                "ru": "предприятие"
+            },
+            {
+                "de": "das Praktikum",
+                "tr": "ˈpʁaktɪkʊm",
+                "ru": "практика / стажировка"
+            },
+            {
+                "de": "der Praktikant",
+                "tr": "pʁaktiˈkant",
+                "ru": "стажёр"
+            },
+            {
+                "de": "Erfahrung sammeln",
+                "tr": "ɛʁˈfaːʁʊŋ ˈzaməln̩",
+                "ru": "набирать опыт"
+            },
+            {
+                "de": "kenntnisse erwerben",
+                "tr": "ˈkɛntnɪsə ɛɐ̯ˈvɛʁbn̩",
+                "ru": "приобретать знания"
+            },
+            {
+                "de": "sich bewerben",
+                "tr": "bəˈvɛʁbn̩",
+                "ru": "подавать заявление (на работу/учёбу)"
+            },
+            {
+                "de": "die Bewerbung",
+                "tr": "bəˈvɛʁbʊŋ",
+                "ru": "заявление / резюме"
+            },
+            {
+                "de": "der Vertrag",
+                "tr": "fɛɐ̯ˈtʁaːk",
+                "ru": "контракт"
+            },
+            {
+                "de": "die Probezeit",
+                "tr": "ˈpʁoːbəˌt͡saɪ̯t",
+                "ru": "испытательный срок"
+            }
+        ]
+    },
+    {
+        "topic": "Город, службы и учреждения",
+        "level": "A2",
+        "subtopic": "Госучреждения",
+        "words": [
+            {
+                "de": "das Amt",
+                "tr": "amt",
+                "ru": "учреждение"
+            },
+            {
+                "de": "das Bürgeramt",
+                "tr": "ˈbʏʁɡɐʔamt",
+                "ru": "гражданское ведомство"
+            },
+            {
+                "de": "das Rathaus",
+                "tr": "ˈʁaːtˌhaʊ̯s",
+                "ru": "ратуша / мэрия"
+            },
+            {
+                "de": "die Ausländerbehörde",
+                "tr": "ˈaʊ̯slɛndɐbəˌhøːʁdə",
+                "ru": "миграционная служба"
+            },
+            {
+                "de": "die Anmeldung",
+                "tr": "ˈanˌmɛldʊŋ",
+                "ru": "регистрация"
+            },
+            {
+                "de": "die Abmeldung",
+                "tr": "ˈapˌmɛldʊŋ",
+                "ru": "снятие с регистрации"
+            },
+            {
+                "de": "der Termin",
+                "tr": "tɛʁˈmiːn",
+                "ru": "запись / приём"
+            },
+            {
+                "de": "der Antrag",
+                "tr": "ˈantʁaːk",
+                "ru": "заявление"
+            },
+            {
+                "de": "das Formular",
+                "tr": "fɔʁmuˈlaːɐ̯",
+                "ru": "формуляр"
+            },
+            {
+                "de": "die Unterlagen",
+                "tr": "ˈʊntɐˌlaːɡn̩",
+                "ru": "документы"
+            },
+            {
+                "de": "einreichen",
+                "tr": "ˈaɪ̯nˌʁaɪ̯çn̩",
+                "ru": "подавать (документы)"
+            },
+            {
+                "de": "abholen",
+                "tr": "ˈapˌhoːlən",
+                "ru": "забирать"
+            }
+        ]
+    },
+    {
+        "topic": "Город, службы и учреждения",
+        "level": "A2",
+        "subtopic": "Банки и страховые",
+        "words": [
+            {
+                "de": "die Bank",
+                "tr": "baŋk",
+                "ru": "банк"
+            },
+            {
+                "de": "das Konto",
+                "tr": "ˈkɔnto",
+                "ru": "счёт"
+            },
+            {
+                "de": "das Girokonto",
+                "tr": "ˈʒiːʁoˌkɔnto",
+                "ru": "расчётный счёт"
+            },
+            {
+                "de": "die Überweisung",
+                "tr": "ˌyːbɐˈvaɪ̯zʊŋ",
+                "ru": "перевод"
+            },
+            {
+                "de": "abheben",
+                "tr": "ˈapˌheːbn̩",
+                "ru": "снимать деньги"
+            },
+            {
+                "de": "einzahlen",
+                "tr": "ˈaɪ̯nˌt͡saːlən",
+                "ru": "вносить деньги"
+            },
+            {
+                "de": "die EC-Karte",
+                "tr": "eːˈt͡seːˌkaʁtə",
+                "ru": "дебетовая карта"
+            },
+            {
+                "de": "die Kreditkarte",
+                "tr": "kʁeˈdiːtˌkaʁtə",
+                "ru": "кредитная карта"
+            },
+            {
+                "de": "der Kontostand",
+                "tr": "ˈkɔntoˌʃtant",
+                "ru": "остаток на счёте"
+            },
+            {
+                "de": "die Versicherung",
+                "tr": "fɛɐ̯ˈzɪçəʁʊŋ",
+                "ru": "страховка"
+            },
+            {
+                "de": "die Krankenversicherung",
+                "tr": "ˈkʁaŋkn̩fɛɐ̯ˌzɪçəʁʊŋ",
+                "ru": "медицинская страховка"
+            },
+            {
+                "de": "die Haftpflichtversicherung",
+                "tr": "ˈhaftplɪçtfɛɐ̯ˌzɪçəʁʊŋ",
+                "ru": "страховка ответственности"
+            }
+        ]
+    },
+    {
+        "topic": "Город, службы и учреждения",
+        "level": "A2",
+        "subtopic": "Почта и сервисы",
+        "words": [
+            {
+                "de": "die Post",
+                "tr": "pɔst",
+                "ru": "почта"
+            },
+            {
+                "de": "das Paket",
+                "tr": "paˈkeːt",
+                "ru": "посылка"
+            },
+            {
+                "de": "der Brief",
+                "tr": "bʁiːf",
+                "ru": "письмо"
+            },
+            {
+                "de": "der Briefkasten",
+                "tr": "ˈbʁiːfˌkastn̩",
+                "ru": "почтовый ящик"
+            },
+            {
+                "de": "abschicken",
+                "tr": "ˈapˌʃɪkn̩",
+                "ru": "отправлять"
+            },
+            {
+                "de": "einschreiben",
+                "tr": "ˈaɪ̯nˌʃʁaɪ̯bn̩",
+                "ru": "заказное письмо"
+            },
+            {
+                "de": "die Sendungsnummer",
+                "tr": "ˈzɛndʊŋsˌnʊmɐ",
+                "ru": "номер отслеживания"
+            },
+            {
+                "de": "abholen",
+                "tr": "ˈapˌhoːlən",
+                "ru": "забирать"
+            },
+            {
+                "de": "die Lieferung",
+                "tr": "ˈliːfəʁʊŋ",
+                "ru": "доставка"
+            },
+            {
+                "de": "die Filiale",
+                "tr": "filiˈaːlə",
+                "ru": "отделение"
+            },
+            {
+                "de": "der Abholschein",
+                "tr": "ˈapˌhoːlˌʃaɪ̯n",
+                "ru": "уведомление о получении"
+            },
+            {
+                "de": "die Dienstleistung",
+                "tr": "ˈdiːnstˌlaɪ̯stʊŋ",
+                "ru": "услуга"
+            }
+        ]
+    },
+    {
+        "topic": "Транспорт и путешествия",
+        "level": "A2",
+        "subtopic": "Билеты и абонементы",
+        "words": [
+            {
+                "de": "das Ticket",
+                "tr": "ˈtɪkət",
+                "ru": "билет"
+            },
+            {
+                "de": "die Fahrkarte",
+                "tr": "ˈfaːʁˌkaʁtə",
+                "ru": "билет (транспорт)"
+            },
+            {
+                "de": "der Fahrschein",
+                "tr": "ˈfaːʁˌʃaɪ̯n",
+                "ru": "проездной билет"
+            },
+            {
+                "de": "die Monatskarte",
+                "tr": "ˈmoːnatsˌkaʁtə",
+                "ru": "месячный абонемент"
+            },
+            {
+                "de": "die Wochenkarte",
+                "tr": "ˈvɔxn̩ˌkaʁtə",
+                "ru": "недельный абонемент"
+            },
+            {
+                "de": "das Deutschlandticket",
+                "tr": "ˈdɔʏ̯tʃlantˌtɪkət",
+                "ru": "Deutschlandticket"
+            },
+            {
+                "de": "der Automat",
+                "tr": "autoˈmaːt",
+                "ru": "автомат по продаже билетов"
+            },
+            {
+                "de": "entwerten",
+                "tr": "ɛntˈvɛʁtn̩",
+                "ru": "компостировать билет"
+            },
+            {
+                "de": "gültig",
+                "tr": "ˈɡʏltɪç",
+                "ru": "действительный"
+            },
+            {
+                "de": "ungültig",
+                "tr": "ʊnˈɡʏltɪç",
+                "ru": "недействительный"
+            },
+            {
+                "de": "die Ermäßigung",
+                "tr": "ɛɐ̯ˈmɛːsɪɡʊŋ",
+                "ru": "скидка, льгота"
+            },
+            {
+                "de": "der Tarif",
+                "tr": "taˈʁiːf",
+                "ru": "тариф"
+            }
+        ]
+    },
+    {
+        "topic": "Транспорт и путешествия",
+        "level": "A2",
+        "subtopic": "Пересадки и расписание",
+        "words": [
+            {
+                "de": "der Fahrplan",
+                "tr": "ˈfaːʁˌplaːn",
+                "ru": "расписание"
+            },
+            {
+                "de": "die Abfahrt",
+                "tr": "ˈapˌfaʁt",
+                "ru": "отправление"
+            },
+            {
+                "de": "die Ankunft",
+                "tr": "ˈaŋˌkʊnft",
+                "ru": "прибытие"
+            },
+            {
+                "de": "umsteigen",
+                "tr": "ˈʊmˌʃtaɪ̯ɡn̩",
+                "ru": "делать пересадку"
+            },
+            {
+                "de": "aussteigen",
+                "tr": "ˈaʊ̯sˌʃtaɪ̯ɡn̩",
+                "ru": "выходить"
+            },
+            {
+                "de": "einsteigen",
+                "tr": "ˈaɪ̯nˌʃtaɪ̯ɡn̩",
+                "ru": "входить/садиться"
+            },
+            {
+                "de": "die Verspätung",
+                "tr": "fɛɐ̯ˈʃpɛːtʊŋ",
+                "ru": "опоздание"
+            },
+            {
+                "de": "der Anschluss",
+                "tr": "ˈanʃlʊs",
+                "ru": "пересадка (соединение)"
+            },
+            {
+                "de": "verpassen",
+                "tr": "fɛɐ̯ˈpasn̩",
+                "ru": "пропустить"
+            },
+            {
+                "de": "direkt",
+                "tr": "diˈʁɛkt",
+                "ru": "прямой"
+            },
+            {
+                "de": "die Linie",
+                "tr": "ˈliːni̯ə",
+                "ru": "линия (метро/автобуса)"
+            },
+            {
+                "de": "der Bahnsteig",
+                "tr": "ˈbaːnˌʃtaɪ̯k",
+                "ru": "платформа"
+            }
+        ]
+    },
+    {
+        "topic": "Транспорт и путешествия",
+        "level": "A2",
+        "subtopic": "Поездки и путешествия",
+        "words": [
+            {
+                "de": "reisen",
+                "tr": "ˈʁaɪ̯zn̩",
+                "ru": "путешествовать"
+            },
+            {
+                "de": "die Reise",
+                "tr": "ˈʁaɪ̯zə",
+                "ru": "путешествие"
+            },
+            {
+                "de": "der Urlaub",
+                "tr": "ˈuːɐ̯laʊ̯p",
+                "ru": "отпуск"
+            },
+            {
+                "de": "die Ferien",
+                "tr": "ˈfeːʁi̯ən",
+                "ru": "каникулы"
+            },
+            {
+                "de": "der Ausflug",
+                "tr": "ˈaʊ̯sˌfluːk",
+                "ru": "поездка / экскурсия"
+            },
+            {
+                "de": "die Sehenswürdigkeit",
+                "tr": "ˈzeːənsˌvʏʁdɪçkaɪ̯t",
+                "ru": "достопримечательность"
+            },
+            {
+                "de": "buchen",
+                "tr": "ˈbuːxn̩",
+                "ru": "бронировать"
+            },
+            {
+                "de": "die Buchung",
+                "tr": "ˈbuːxʊŋ",
+                "ru": "бронирование"
+            },
+            {
+                "de": "die Unterkunft",
+                "tr": "ˈʊntɐˌkʊnft",
+                "ru": "жильё"
+            },
+            {
+                "de": "das Hotel",
+                "tr": "hoˈtɛl",
+                "ru": "отель"
+            },
+            {
+                "de": "die Jugendherberge",
+                "tr": "ˈjuːɡn̩tˌhɛʁˌbɛʁɡə",
+                "ru": "хостел / турбаза"
+            },
+            {
+                "de": "die Reservierung",
+                "tr": "ʁezeɐ̯ˈviːʁʊŋ",
+                "ru": "резервация"
+            }
+        ]
+    },
+    {
+        "topic": "Время, планирование и расписание",
+        "level": "A2",
+        "subtopic": "Подробное время",
+        "words": [
+            {
+                "de": "die Uhrzeit",
+                "tr": "ˈuːɐ̯ˌt͡saɪ̯t",
+                "ru": "время (по часам)"
+            },
+            {
+                "de": "genau um ... Uhr",
+                "tr": "ɡəˈnaʊ̯ ʊm ... uːɐ̯",
+                "ru": "ровно в ... часов"
+            },
+            {
+                "de": "gegen ... Uhr",
+                "tr": "ˈɡeːɡn̩ ... uːɐ̯",
+                "ru": "примерно в ... часов"
+            },
+            {
+                "de": "früh am Morgen",
+                "tr": "fʁyː ʔam ˈmɔʁɡn̩",
+                "ru": "рано утром"
+            },
+            {
+                "de": "spät am Abend",
+                "tr": "ʃpɛːt ʔam ˈaːbn̩t",
+                "ru": "поздно вечером"
+            },
+            {
+                "de": "die Dauer",
+                "tr": "ˈdaʊ̯ɐ",
+                "ru": "длительность"
+            },
+            {
+                "de": "von ... bis ...",
+                "tr": "fɔn ... bɪs ...",
+                "ru": "с ... до ..."
+            },
+            {
+                "de": "halbtags",
+                "tr": "ˈhalptaːks",
+                "ru": "полдня"
+            },
+            {
+                "de": "ganztags",
+                "tr": "ˈɡanʦtaːks",
+                "ru": "целый день"
+            },
+            {
+                "de": "pünktlich",
+                "tr": "ˈpʏŋktlɪç",
+                "ru": "точно / вовремя"
+            },
+            {
+                "de": "verspätet",
+                "tr": "fɛɐ̯ˈʃpɛːtət",
+                "ru": "с опозданием"
+            },
+            {
+                "de": "rechtzeitig",
+                "tr": "ˈʁɛçtˌt͡saɪ̯tɪç",
+                "ru": "заблаговременно"
+            }
+        ]
+    },
+    {
+        "topic": "Время, планирование и расписание",
+        "level": "A2",
+        "subtopic": "Расписание",
+        "words": [
+            {
+                "de": "der Zeitplan",
+                "tr": "ˈt͡saɪ̯tˌplaːn",
+                "ru": "расписание"
+            },
+            {
+                "de": "der Stundenplan",
+                "tr": "ˈʃtʊndn̩ˌplaːn",
+                "ru": "расписание уроков"
+            },
+            {
+                "de": "der Terminplan",
+                "tr": "tɛʁˈmiːnˌplaːn",
+                "ru": "план встреч"
+            },
+            {
+                "de": "der Kalender",
+                "tr": "kaˈlɛndɐ",
+                "ru": "календарь"
+            },
+            {
+                "de": "vereinbaren",
+                "tr": "fɛɐ̯ˈʔaɪ̯nbaːʁən",
+                "ru": "назначать (встречу)"
+            },
+            {
+                "de": "verschieben",
+                "tr": "fɛɐ̯ˈʃiːbn̩",
+                "ru": "переносить"
+            },
+            {
+                "de": "absagen",
+                "tr": "ˈapˌzaːɡn̩",
+                "ru": "отменять"
+            },
+            {
+                "de": "ausfallen",
+                "tr": "ˈaʊ̯sˌfalən",
+                "ru": "не состояться"
+            },
+            {
+                "de": "der freie Tag",
+                "tr": "ˈfʁaɪ̯ə taːk",
+                "ru": "выходной"
+            },
+            {
+                "de": "die Öffnungszeiten",
+                "tr": "ˈœfnʊŋsˌt͡saɪ̯tn̩",
+                "ru": "часы работы"
+            },
+            {
+                "de": "die Sprechstunde",
+                "tr": "ˈʃpʁɛçˌʃtʊndə",
+                "ru": "приёмные часы"
+            },
+            {
+                "de": "der Termin ist frei",
+                "tr": "tɛʁˈmiːn ɪst fʁaɪ̯",
+                "ru": "время приёма свободно"
+            }
+        ]
+    },
+    {
+        "topic": "Время, планирование и расписание",
+        "level": "A2",
+        "subtopic": "Планирование дня и недели",
+        "words": [
+            {
+                "de": "der Tagesablauf",
+                "tr": "ˈtaːɡəsˌʔaplaʊ̯f",
+                "ru": "распорядок дня"
+            },
+            {
+                "de": "die Woche planen",
+                "tr": "ˈvɔxə ˈplaːnən",
+                "ru": "планировать неделю"
+            },
+            {
+                "de": "vorhaben",
+                "tr": "ˈfoːɐ̯ˌhaːbn̩",
+                "ru": "планировать / намереваться"
+            },
+            {
+                "de": "die To-do-Liste",
+                "tr": "tuˈduː ˈlɪstə",
+                "ru": "список задач"
+            },
+            {
+                "de": "sich verabreden",
+                "tr": "fɛɐ̯ˈʔapʁeːdn̩",
+                "ru": "договориться (о встрече)"
+            },
+            {
+                "de": "besprechen",
+                "tr": "bəˈʃpʁɛxn̩",
+                "ru": "обсуждать"
+            },
+            {
+                "de": "planen",
+                "tr": "ˈplaːnən",
+                "ru": "планировать"
+            },
+            {
+                "de": "organisieren",
+                "tr": "ɔʁɡaniˈziːʁən",
+                "ru": "организовывать"
+            },
+            {
+                "de": "Zeit haben",
+                "tr": "t͡saɪ̯t ˈhaːbn̩",
+                "ru": "иметь время"
+            },
+            {
+                "de": "keine Zeit haben",
+                "tr": "ˈkaɪ̯nə t͡saɪ̯t ˈhaːbn̩",
+                "ru": "не иметь времени"
+            },
+            {
+                "de": "sich beeilen",
+                "tr": "bəˈʔaɪ̯lən",
+                "ru": "торопиться"
+            },
+            {
+                "de": "Zeit verlieren",
+                "tr": "t͡saɪ̯t fɛɐ̯ˈliːʁən",
+                "ru": "терять время"
+            }
+        ]
+    },
+    {
+        "topic": "Покупки и услуги",
+        "level": "A2",
+        "subtopic": "Одежда и размеры",
+        "words": [
+            {
+                "de": "die Kleidung",
+                "tr": "ˈklaɪ̯dʊŋ",
+                "ru": "одежда"
+            },
+            {
+                "de": "das Kleid",
+                "tr": "klaɪ̯t",
+                "ru": "платье"
+            },
+            {
+                "de": "die Hose",
+                "tr": "ˈhoːzə",
+                "ru": "штаны"
+            },
+            {
+                "de": "das Hemd",
+                "tr": "hɛmt",
+                "ru": "рубашка"
+            },
+            {
+                "de": "die Jacke",
+                "tr": "ˈjakə",
+                "ru": "куртка"
+            },
+            {
+                "de": "die Größe",
+                "tr": "ˈɡʁøːsə",
+                "ru": "размер"
+            },
+            {
+                "de": "die Schuhgröße",
+                "tr": "ˈʃuːˌɡʁøːsə",
+                "ru": "размер обуви"
+            },
+            {
+                "de": "anprobieren",
+                "tr": "ˈanpʁoˌbiːʁən",
+                "ru": "примерять"
+            },
+            {
+                "de": "stehen (jemandem)",
+                "tr": "ˈʃteːən",
+                "ru": "идти (об одежде)"
+            },
+            {
+                "de": "passen",
+                "tr": "ˈpasn̩",
+                "ru": "подходить"
+            },
+            {
+                "de": "eng",
+                "tr": "ɛŋ",
+                "ru": "узкий, тесный"
+            },
+            {
+                "de": "weit",
+                "tr": "vaɪ̯t",
+                "ru": "широкий"
+            }
+        ]
+    },
+    {
+        "topic": "Покупки и услуги",
+        "level": "A2",
+        "subtopic": "Техника и товары",
+        "words": [
+            {
+                "de": "das Gerät",
+                "tr": "ɡəˈʁɛːt",
+                "ru": "устройство"
+            },
+            {
+                "de": "die Maschine",
+                "tr": "maˈʃiːnə",
+                "ru": "машина / аппарат"
+            },
+            {
+                "de": "der Kühlschrank",
+                "tr": "ˈkyːlˌʃʁaŋk",
+                "ru": "холодильник"
+            },
+            {
+                "de": "die Waschmaschine",
+                "tr": "ˈvaʃmaˌʃiːnə",
+                "ru": "стиральная машина"
+            },
+            {
+                "de": "der Staubsauger",
+                "tr": "ˈʃtaʊ̯pˌzaʊ̯ɡɐ",
+                "ru": "пылесос"
+            },
+            {
+                "de": "das Handy",
+                "tr": "ˈhɛndi",
+                "ru": "мобильный телефон"
+            },
+            {
+                "de": "der Laptop",
+                "tr": "ˈlɛptɔp",
+                "ru": "ноутбук"
+            },
+            {
+                "de": "die Garantie",
+                "tr": "ɡaʁanˈtiː",
+                "ru": "гарантия"
+            },
+            {
+                "de": "reduziert",
+                "tr": "ʁeduˈt͡siːɐ̯t",
+                "ru": "со скидкой"
+            },
+            {
+                "de": "defekt",
+                "tr": "deˈfɛkt",
+                "ru": "неисправный"
+            },
+            {
+                "de": "funktionieren",
+                "tr": "fʊŋkt͡si̯oˈniːʁən",
+                "ru": "работать, функционировать"
+            },
+            {
+                "de": "kaputt",
+                "tr": "kaˈpʊt",
+                "ru": "сломанный"
+            }
+        ]
+    },
+    {
+        "topic": "Покупки и услуги",
+        "level": "A2",
+        "subtopic": "Услуги",
+        "words": [
+            {
+                "de": "die Dienstleistung",
+                "tr": "ˈdiːnstˌlaɪ̯stʊŋ",
+                "ru": "услуга"
+            },
+            {
+                "de": "die Reparatur",
+                "tr": "ʁepaʁaˈtuːɐ̯",
+                "ru": "ремонт"
+            },
+            {
+                "de": "reparieren lassen",
+                "tr": "ʁepaˈʁiːʁən lasn̩",
+                "ru": "отдать в ремонт"
+            },
+            {
+                "de": "der Friseur",
+                "tr": "fʁiˈzøːɐ̯",
+                "ru": "парикмахер"
+            },
+            {
+                "de": "der Termin",
+                "tr": "tɛʁˈmiːn",
+                "ru": "запись / встреча"
+            },
+            {
+                "de": "die Reinigung",
+                "tr": "ˈʁaɪ̯nɪɡʊŋ",
+                "ru": "химчистка"
+            },
+            {
+                "de": "der Service",
+                "tr": "ˈsœʁvɪs",
+                "ru": "сервис"
+            },
+            {
+                "de": "die Werkstatt",
+                "tr": "ˈvɛʁkˌʃtat",
+                "ru": "мастерская"
+            },
+            {
+                "de": "der Kostenvoranschlag",
+                "tr": "ˈkɔstn̩ˌfoːʁanˌʃlaːk",
+                "ru": "смета, предварительная стоимость"
+            },
+            {
+                "de": "bar bezahlen",
+                "tr": "baːɐ̯ bəˈtsaːlən",
+                "ru": "платить наличными"
+            },
+            {
+                "de": "per Karte bezahlen",
+                "tr": "kaʁtə bəˈtsaːlən",
+                "ru": "платить картой"
+            },
+            {
+                "de": "abholen",
+                "tr": "ˈapˌhoːlən",
+                "ru": "забирать"
+            }
+        ]
+    },
+    {
+        "topic": "Здоровье и медицина",
+        "level": "A2",
+        "subtopic": "Симптомы A2",
+        "words": [
+            {
+                "de": "die Schmerzen",
+                "tr": "ˈʃmɛʁʦn̩",
+                "ru": "боли"
+            },
+            {
+                "de": "Kopfschmerzen",
+                "tr": "ˈkɔp͡fʃmɛʁʦn̩",
+                "ru": "головная боль"
+            },
+            {
+                "de": "Halsschmerzen",
+                "tr": "ˈhalʃʃmɛʁʦn̩",
+                "ru": "боль в горле"
+            },
+            {
+                "de": "Rückenschmerzen",
+                "tr": "ˈʁʏkn̩ʃmɛʁʦn̩",
+                "ru": "боль в спине"
+            },
+            {
+                "de": "Bauchschmerzen",
+                "tr": "ˈbaʊ̯xʃmɛʁʦn̩",
+                "ru": "боль в животе"
+            },
+            {
+                "de": "die Übelkeit",
+                "tr": "ˈyːbl̩kaɪ̯t",
+                "ru": "тошнота"
+            },
+            {
+                "de": "sich schlecht fühlen",
+                "tr": "ʃlɛçt ˈfyːlən",
+                "ru": "чувствовать себя плохо"
+            },
+            {
+                "de": "Fieber haben",
+                "tr": "ˈfiːbɐ haːbn̩",
+                "ru": "иметь температуру"
+            },
+            {
+                "de": "Husten",
+                "tr": "ˈhuːstn̩",
+                "ru": "кашель"
+            },
+            {
+                "de": "Schnupfen",
+                "tr": "ˈʃnʊpfn̩",
+                "ru": "насморк"
+            },
+            {
+                "de": "Schwindel",
+                "tr": "ˈʃvɪndl̩",
+                "ru": "головокружение"
+            },
+            {
+                "de": "Allergie",
+                "tr": "alɛʁˈɡiː",
+                "ru": "аллергия"
+            }
+        ]
+    },
+    {
+        "topic": "Здоровье и медицина",
+        "level": "A2",
+        "subtopic": "Прием у врача",
+        "words": [
+            {
+                "de": "der Arzttermin",
+                "tr": "ˈʔaːʁt͡sttɛʁˌmiːn",
+                "ru": "приём у врача"
+            },
+            {
+                "de": "die Praxis",
+                "tr": "ˈpʁaksɪs",
+                "ru": "поликлиника / кабинет врача"
+            },
+            {
+                "de": "der Hausarzt",
+                "tr": "ˈhaʊ̯sˌʔaːʁt͡st",
+                "ru": "семейный врач"
+            },
+            {
+                "de": "untersuchen",
+                "tr": "ʊntɐˈzuːxn̩",
+                "ru": "осматривать"
+            },
+            {
+                "de": "die Untersuchung",
+                "tr": "ʊntɐˈzuːxʊŋ",
+                "ru": "обследование"
+            },
+            {
+                "de": "verschreiben",
+                "tr": "fɛɐ̯ˈʃʁaɪ̯bn̩",
+                "ru": "выписывать (лекарства)"
+            },
+            {
+                "de": "das Rezept",
+                "tr": "ʁeˈt͡sɛpt",
+                "ru": "рецепт"
+            },
+            {
+                "de": "die Tablette",
+                "tr": "taˈblɛtə",
+                "ru": "таблетка"
+            },
+            {
+                "de": "einnehmen",
+                "tr": "ˈaɪ̯nˌneːmən",
+                "ru": "принимать (лекарства)"
+            },
+            {
+                "de": "die Salbe",
+                "tr": "ˈzalbə",
+                "ru": "мазь"
+            },
+            {
+                "de": "der Verband",
+                "tr": "fɛɐ̯ˈbant",
+                "ru": "повязка, бинт"
+            },
+            {
+                "de": "kontrollieren",
+                "tr": "kɔntʁoˈliːʁən",
+                "ru": "проверять / осматривать повторно"
+            }
+        ]
+    },
+    {
+        "topic": "Здоровье и медицина",
+        "level": "A2",
+        "subtopic": "Медстраховка",
+        "words": [
+            {
+                "de": "die Krankenversicherung",
+                "tr": "ˈkʁaŋkn̩fɛɐ̯ˌzɪçəʁʊŋ",
+                "ru": "медицинская страховка"
+            },
+            {
+                "de": "die Versichertenkarte",
+                "tr": "fɛɐ̯ˈzɪçəʁtənˌkaʁtə",
+                "ru": "страховая карта"
+            },
+            {
+                "de": "die Krankenkasse",
+                "tr": "ˈkʁaŋkn̩ˌkasə",
+                "ru": "страховая касса"
+            },
+            {
+                "de": "die Notfallnummer",
+                "tr": "ˈnoːtˌfalˌnʊmɐ",
+                "ru": "номер экстренной помощи"
+            },
+            {
+                "de": "der Unfall",
+                "tr": "ˈʊnˌfal",
+                "ru": "несчастный случай"
+            },
+            {
+                "de": "Notdienst",
+                "tr": "ˈnoːtˌdiːnst",
+                "ru": "дежурная служба"
+            },
+            {
+                "de": "die Apotheke",
+                "tr": "apoˈteːkə",
+                "ru": "аптека"
+            },
+            {
+                "de": "die Zuzahlung",
+                "tr": "ˈt͡suːˌt͡saːlʊŋ",
+                "ru": "доплата"
+            },
+            {
+                "de": "die Versicherungskarte vorzeigen",
+                "tr": "fɛɐ̯ˈzɪçəʁʊŋsˌkaʁtə ˈfoːɐ̯t͡saɪ̯ɡn̩",
+                "ru": "показать страховую карту"
+            },
+            {
+                "de": "die Kosten übernehmen",
+                "tr": "ˈkɔstn̩ yːbɐˈneːmən",
+                "ru": "покрывать расходы"
+            },
+            {
+                "de": "die Behandlung",
+                "tr": "bəˈhandlʊŋ",
+                "ru": "лечение"
+            },
+            {
+                "de": "die Krankmeldung",
+                "tr": "ˈkʁaŋkmɛldʊŋ",
+                "ru": "больничный"
+            }
+        ]
+    },
+    {
+        "topic": "Питание и кулинария",
+        "level": "A2",
+        "subtopic": "Продукты A2",
+        "words": [
+            {
+                "de": "die Zutaten",
+                "tr": "ˈt͡suːtaːtn̩",
+                "ru": "ингредиенты"
+            },
+            {
+                "de": "das Getreide",
+                "tr": "ɡəˈtʁaɪ̯də",
+                "ru": "зерновые"
+            },
+            {
+                "de": "der Reis",
+                "tr": "ʁaɪ̯s",
+                "ru": "рис"
+            },
+            {
+                "de": "die Nudeln",
+                "tr": "ˈnuːdln̩",
+                "ru": "макароны"
+            },
+            {
+                "de": "das Mehl",
+                "tr": "meːl",
+                "ru": "мука"
+            },
+            {
+                "de": "der Zucker",
+                "tr": "ˈt͡sʊkɐ",
+                "ru": "сахар"
+            },
+            {
+                "de": "das Öl",
+                "tr": "øːl",
+                "ru": "масло (растительное)"
+            },
+            {
+                "de": "das Rindfleisch",
+                "tr": "ˈʁɪntˌflaɪ̯ʃ",
+                "ru": "говядина"
+            },
+            {
+                "de": "das Geflügel",
+                "tr": "ɡəˈflyːɡl̩",
+                "ru": "птица"
+            },
+            {
+                "de": "die Meeresfrüchte",
+                "tr": "ˈmeːʁəsˌfʁʏçtə",
+                "ru": "морепродукты"
+            },
+            {
+                "de": "die Gewürze",
+                "tr": "ɡəˈvʏʁt͡sə",
+                "ru": "специи"
+            },
+            {
+                "de": "der Kräutertee",
+                "tr": "ˈkʁɔʏ̯tɐteː",
+                "ru": "травяной чай"
+            }
+        ]
+    },
+    {
+        "topic": "Питание и кулинария",
+        "level": "A2",
+        "subtopic": "Блюда и рецепты",
+        "words": [
+            {
+                "de": "das Gericht",
+                "tr": "ɡəˈʁɪçt",
+                "ru": "блюдо"
+            },
+            {
+                "de": "die Mahlzeit",
+                "tr": "ˈmaːlˌt͡saɪ̯t",
+                "ru": "приём пищи"
+            },
+            {
+                "de": "das Rezept",
+                "tr": "ʁeˈt͡sɛpt",
+                "ru": "рецепт"
+            },
+            {
+                "de": "kochen",
+                "tr": "ˈkɔxn̩",
+                "ru": "готовить"
+            },
+            {
+                "de": "braten",
+                "tr": "ˈbʁaːtn̩",
+                "ru": "жарить"
+            },
+            {
+                "de": "backen",
+                "tr": "ˈbakn̩",
+                "ru": "печь"
+            },
+            {
+                "de": "schneiden",
+                "tr": "ˈʃnaɪ̯dn̩",
+                "ru": "резать"
+            },
+            {
+                "de": "mischen",
+                "tr": "ˈmɪʃn̩",
+                "ru": "смешивать"
+            },
+            {
+                "de": "würzen",
+                "tr": "ˈvʏʁt͡sn̩",
+                "ru": "приправлять"
+            },
+            {
+                "de": "servieren",
+                "tr": "zɛʁˈviːʁən",
+                "ru": "подавать"
+            },
+            {
+                "de": "das Hauptgericht",
+                "tr": "ˈhaʊ̯ptɡəˌʁɪçt",
+                "ru": "основное блюдо"
+            },
+            {
+                "de": "die Vorspeise",
+                "tr": "ˈfoːɐ̯ˌʃpaɪ̯zə",
+                "ru": "закуска"
+            }
+        ]
+    },
+    {
+        "topic": "Питание и кулинария",
+        "level": "A2",
+        "subtopic": "Предпочтения и диета",
+        "words": [
+            {
+                "de": "vegetarisch",
+                "tr": "veɡeˈtaːʁɪʃ",
+                "ru": "вегетарианский"
+            },
+            {
+                "de": "vegan",
+                "tr": "veˈɡaːn",
+                "ru": "веганский"
+            },
+            {
+                "de": "gesund essen",
+                "tr": "ɡəˈzʊnt ˈʔɛsn̩",
+                "ru": "питаться здорово"
+            },
+            {
+                "de": "ungesund",
+                "tr": "ˈʊnɡəˌzʊnt",
+                "ru": "нездоровый"
+            },
+            {
+                "de": "leicht",
+                "tr": "laɪ̯çt",
+                "ru": "лёгкий (о еде)"
+            },
+            {
+                "de": "fettig",
+                "tr": "ˈfɛtɪç",
+                "ru": "жирный"
+            },
+            {
+                "de": "süß",
+                "tr": "zyːs",
+                "ru": "сладкий"
+            },
+            {
+                "de": "würzig",
+                "tr": "ˈvʏʁt͡sɪç",
+                "ru": "пряный"
+            },
+            {
+                "de": "die Ernährungsweise",
+                "tr": "ɛʁˈnɛːʁʊŋsˌvaɪ̯zə",
+                "ru": "тип питания"
+            },
+            {
+                "de": "die Diät",
+                "tr": "diˈɛːt",
+                "ru": "диета"
+            },
+            {
+                "de": "etwas vermeiden",
+                "tr": "fɛɐ̯ˈmaɪ̯dn̩",
+                "ru": "избегать"
+            },
+            {
+                "de": "allergisch sein gegen",
+                "tr": "aˈlɛʁɡɪʃ zaɪ̯n ˈɡeːɡn̩",
+                "ru": "быть аллергичным к"
+            }
+        ]
+    },
+    {
+        "topic": "Свободное время, досуг, культура",
+        "level": "A2",
+        "subtopic": "Фильмы и музыка",
+        "words": [
+            {
+                "de": "der Film",
+                "tr": "fɪlm",
+                "ru": "фильм"
+            },
+            {
+                "de": "die Serie",
+                "tr": "ˈzeːʁi̯ə",
+                "ru": "сериал"
+            },
+            {
+                "de": "die Folge",
+                "tr": "ˈfɔlɡə",
+                "ru": "серия (эпизод)"
+            },
+            {
+                "de": "die Schauspieler",
+                "tr": "ˈʃaʊ̯ʃpiːlɐ",
+                "ru": "актёры"
+            },
+            {
+                "de": "spannend",
+                "tr": "ˈʃpanənt",
+                "ru": "захватывающий"
+            },
+            {
+                "de": "langweilig",
+                "tr": "ˈlaŋˌvaɪ̯lɪç",
+                "ru": "скучный"
+            },
+            {
+                "de": "die Musik",
+                "tr": "muˈziːk",
+                "ru": "музыка"
+            },
+            {
+                "de": "das Lied",
+                "tr": "liːt",
+                "ru": "песня"
+            },
+            {
+                "de": "der Sänger / die Sängerin",
+                "tr": "ˈzɛŋɐ",
+                "ru": "певец / певица"
+            },
+            {
+                "de": "der Konzertbesuch",
+                "tr": "kɔnˈt͡sɛʁt bəˌzuːx",
+                "ru": "посещение концерта"
+            },
+            {
+                "de": "live hören",
+                "tr": "laɪ̯f ˈhøːʁən",
+                "ru": "слушать вживую"
+            },
+            {
+                "de": "die Kopfhörer",
+                "tr": "ˈkɔp͡fˌhøːʁɐ",
+                "ru": "наушники"
+            }
+        ]
+    },
+    {
+        "topic": "Свободное время, досуг, культура",
+        "level": "A2",
+        "subtopic": "Книги и культура",
+        "words": [
+            {
+                "de": "das Buch",
+                "tr": "buːx",
+                "ru": "книга"
+            },
+            {
+                "de": "der Roman",
+                "tr": "ʁoˈmaːn",
+                "ru": "роман"
+            },
+            {
+                "de": "die Geschichte",
+                "tr": "ɡəˈʃɪçtə",
+                "ru": "история / рассказ"
+            },
+            {
+                "de": "lesen",
+                "tr": "ˈleːzn̩",
+                "ru": "читать"
+            },
+            {
+                "de": "die Bibliothek",
+                "tr": "bɪbli̯oˈteːk",
+                "ru": "библиотека"
+            },
+            {
+                "de": "die Kultur",
+                "tr": "kʊlˈtuːɐ̯",
+                "ru": "культура"
+            },
+            {
+                "de": "das Museum",
+                "tr": "muˈzeːʊm",
+                "ru": "музей"
+            },
+            {
+                "de": "die Ausstellung",
+                "tr": "ˈaʊ̯sˌʃtɛlʊŋ",
+                "ru": "выставка"
+            },
+            {
+                "de": "die Führung",
+                "tr": "ˈfyːʁʊŋ",
+                "ru": "экскурсия с гидом"
+            },
+            {
+                "de": "interessant",
+                "tr": "ɪntəʁɛˈsant",
+                "ru": "интересный"
+            },
+            {
+                "de": "empfehlen",
+                "tr": "ɛmpˈfeːlən",
+                "ru": "рекомендовать"
+            },
+            {
+                "de": "die Eintrittskarte",
+                "tr": "ˈaɪ̯ntʁɪt͡sˌkaʁtə",
+                "ru": "входной билет"
+            }
+        ]
+    },
+    {
+        "topic": "Свободное время, досуг, культура",
+        "level": "A2",
+        "subtopic": "Мероприятия",
+        "words": [
+            {
+                "de": "die Veranstaltung",
+                "tr": "fɛɐ̯ˈʔanʃtaːltʊŋ",
+                "ru": "мероприятие"
+            },
+            {
+                "de": "das Event",
+                "tr": "iˈvɛnt",
+                "ru": "ивент, событие"
+            },
+            {
+                "de": "das Festival",
+                "tr": "ˈfɛstɪval",
+                "ru": "фестиваль"
+            },
+            {
+                "de": "die Party",
+                "tr": "ˈpaʁti",
+                "ru": "вечеринка"
+            },
+            {
+                "de": "das Konzert",
+                "tr": "kɔnˈt͡sɛʁt",
+                "ru": "концерт"
+            },
+            {
+                "de": "der Eintritt",
+                "tr": "ˈaɪ̯ntʁɪt",
+                "ru": "вход"
+            },
+            {
+                "de": "kostenlos",
+                "tr": "ˈkɔstn̩ˌloːs",
+                "ru": "бесплатно"
+            },
+            {
+                "de": "die Anmeldung",
+                "tr": "ˈanˌmɛldʊŋ",
+                "ru": "регистрация"
+            },
+            {
+                "de": "teilnehmen",
+                "tr": "ˈtaɪ̯lˌneːmən",
+                "ru": "участвовать"
+            },
+            {
+                "de": "absagen",
+                "tr": "ˈapˌzaːɡn̩",
+                "ru": "отменять"
+            },
+            {
+                "de": "stattfinden",
+                "tr": "ˈʃtatˌfɪndn̩",
+                "ru": "состояться"
+            },
+            {
+                "de": "die Bühne",
+                "tr": "ˈbyːnə",
+                "ru": "сцена"
+            }
+        ]
+    },
+    {
+        "topic": "Погода, природа и окружающая среда",
+        "level": "A2",
+        "subtopic": "Подробная погода",
+        "words": [
+            {
+                "de": "das Wetterbericht",
+                "tr": "ˈvɛtɐbəˌʁɪçt",
+                "ru": "прогноз погоды"
+            },
+            {
+                "de": "die Temperatur",
+                "tr": "tɛmpəʁaˈtuːɐ̯",
+                "ru": "температура"
+            },
+            {
+                "de": "wärmer werden",
+                "tr": "ˈvɛʁmɐ ˈveːɐ̯dn̩",
+                "ru": "становиться теплее"
+            },
+            {
+                "de": "kälter werden",
+                "tr": "ˈkɛltɐ ˈveːɐ̯dn̩",
+                "ru": "становиться холоднее"
+            },
+            {
+                "de": "heiß",
+                "tr": "haɪ̯s",
+                "ru": "жарко"
+            },
+            {
+                "de": "kühl",
+                "tr": "kyːl",
+                "ru": "прохладно"
+            },
+            {
+                "de": "neblig",
+                "tr": "ˈneːblɪç",
+                "ru": "туманно"
+            },
+            {
+                "de": "stürmisch",
+                "tr": "ˈʃtʏʁmɪʃ",
+                "ru": "бурно, штормовой"
+            },
+            {
+                "de": "es donnert",
+                "tr": "ˈdɔnɐt",
+                "ru": "гремит гром"
+            },
+            {
+                "de": "es blitzt",
+                "tr": "blɪt͡st",
+                "ru": "сверкает молния"
+            },
+            {
+                "de": "die Wetterlage",
+                "tr": "ˈvɛtɐˌlaːɡə",
+                "ru": "погодная ситуация"
+            },
+            {
+                "de": "die Vorhersage",
+                "tr": "foːɐ̯ˈheːɐ̯zaːɡə",
+                "ru": "прогноз"
+            }
+        ]
+    },
+    {
+        "topic": "Погода, природа и окружающая среда",
+        "level": "A2",
+        "subtopic": "Местность",
+        "words": [
+            {
+                "de": "die Landschaft",
+                "tr": "ˈlantʃaft",
+                "ru": "ландшафт"
+            },
+            {
+                "de": "die Region",
+                "tr": "ʁeˈɡi̯oːn",
+                "ru": "регион"
+            },
+            {
+                "de": "das Dorf",
+                "tr": "dɔʁf",
+                "ru": "деревня"
+            },
+            {
+                "de": "die Umgebung",
+                "tr": "ʊmˈɡeːbʊŋ",
+                "ru": "окрестности"
+            },
+            {
+                "de": "der Hügel",
+                "tr": "ˈhyːɡl̩",
+                "ru": "холм"
+            },
+            {
+                "de": "das Tal",
+                "tr": "taːl",
+                "ru": "долина"
+            },
+            {
+                "de": "die Küste",
+                "tr": "ˈkʏstə",
+                "ru": "побережье"
+            },
+            {
+                "de": "der Wald",
+                "tr": "valt",
+                "ru": "лес"
+            },
+            {
+                "de": "der Fluss",
+                "tr": "flʊs",
+                "ru": "река"
+            },
+            {
+                "de": "der See",
+                "tr": "zeː",
+                "ru": "озеро"
+            },
+            {
+                "de": "die Sehenswürdigkeit",
+                "tr": "ˈzeːənsˌvʏʁdɪçkaɪ̯t",
+                "ru": "достопримечательность"
+            },
+            {
+                "de": "die Aussicht",
+                "tr": "ˈaʊ̯sˌzɪçt",
+                "ru": "вид, панорама"
+            }
+        ]
+    },
+    {
+        "topic": "Погода, природа и окружающая среда",
+        "level": "A2",
+        "subtopic": "Экология",
+        "words": [
+            {
+                "de": "die Umwelt",
+                "tr": "ˈʊmˌvɛlt",
+                "ru": "окружающая среда"
+            },
+            {
+                "de": "umweltfreundlich",
+                "tr": "ˈʊmˌvɛltˌfʁɔɪ̯ntlɪç",
+                "ru": "экологичный"
+            },
+            {
+                "de": "recyceln",
+                "tr": "ʁiˈzaɪ̯kl̩n",
+                "ru": "перерабатывать"
+            },
+            {
+                "de": "den Müll trennen",
+                "tr": "mʏl ˈtʁɛnən",
+                "ru": "сортировать мусор"
+            },
+            {
+                "de": "die Mülltonne",
+                "tr": "ˈmʏlˌtɔnə",
+                "ru": "мусорный контейнер"
+            },
+            {
+                "de": "die Energie sparen",
+                "tr": "ɛːnɛʁˈɡiː ˈʃpaːʁən",
+                "ru": "экономить энергию"
+            },
+            {
+                "de": "die Verschmutzung",
+                "tr": "fɛɐ̯ˈʃmʊt͡sʊŋ",
+                "ru": "загрязнение"
+            },
+            {
+                "de": "die Luftqualität",
+                "tr": "ˈlʊftˌkvaliˌtɛːt",
+                "ru": "качество воздуха"
+            },
+            {
+                "de": "die Natur schützen",
+                "tr": "naˈtuːɐ̯ ˈʃʏt͡sn̩",
+                "ru": "защищать природу"
+            },
+            {
+                "de": "die erneuerbare Energie",
+                "tr": "ɛɐ̯ˈnɔʏ̯ɐˌbaːʁə ɛːnɛʁˈɡiː",
+                "ru": "возобновляемая энергия"
+            },
+            {
+                "de": "umgehen mit",
+                "tr": "ˈʊmˌɡeːən mɪt",
+                "ru": "обращаться с"
+            },
+            {
+                "de": "vermeiden",
+                "tr": "fɛɐ̯ˈmaɪ̯dn̩",
+                "ru": "избегать"
+            }
+        ]
+    },
+    {
+        "topic": "Чувства, эмоции и характер",
+        "level": "A2",
+        "subtopic": "Эмоции",
+        "words": [
+            {
+                "de": "glücklich",
+                "tr": "ˈɡlʏklɪç",
+                "ru": "счастливый"
+            },
+            {
+                "de": "zufrieden",
+                "tr": "t͡suˈfʁiːdn̩",
+                "ru": "довольный"
+            },
+            {
+                "de": "traurig",
+                "tr": "ˈtʁaʊ̯ʁɪç",
+                "ru": "грустный"
+            },
+            {
+                "de": "wütend",
+                "tr": "ˈvyːtənt",
+                "ru": "разозлённый"
+            },
+            {
+                "de": "genervt",
+                "tr": "ɡəˈnɛʁft",
+                "ru": "раздражённый"
+            },
+            {
+                "de": "überrascht",
+                "tr": "ˌyːbɐˈʁaʃt",
+                "ru": "удивлённый"
+            },
+            {
+                "de": "ängstlich",
+                "tr": "ˈɛŋstlɪç",
+                "ru": "испуганный"
+            },
+            {
+                "de": "gestresst",
+                "tr": "ɡəˈstʁɛst",
+                "ru": "в стрессе"
+            },
+            {
+                "de": "verliebt",
+                "tr": "fɛɐ̯ˈliːpt",
+                "ru": "влюблённый"
+            },
+            {
+                "de": "hoffnungsvoll",
+                "tr": "ˈhɔfnʊŋsˌfɔl",
+                "ru": "полный надежды"
+            },
+            {
+                "de": "enttäuscht",
+                "tr": "ɛntˈtɔɪ̯ʃt",
+                "ru": "разочарованный"
+            },
+            {
+                "de": "unsicher",
+                "tr": "ˈʊnˌzɪçɐ",
+                "ru": "неуверенный"
+            }
+        ]
+    },
+    {
+        "topic": "Чувства, эмоции и характер",
+        "level": "A2",
+        "subtopic": "Характер",
+        "words": [
+            {
+                "de": "freundlich",
+                "tr": "ˈfʁɔɪ̯ntlɪç",
+                "ru": "дружелюбный"
+            },
+            {
+                "de": "höflich",
+                "tr": "ˈhøːflɪç",
+                "ru": "вежливый"
+            },
+            {
+                "de": "ehrlich",
+                "tr": "ˈeːɐ̯lɪç",
+                "ru": "честный"
+            },
+            {
+                "de": "offen",
+                "tr": "ˈɔfn̩",
+                "ru": "открытый"
+            },
+            {
+                "de": "geduldig",
+                "tr": "ɡəˈdʊldɪç",
+                "ru": "терпеливый"
+            },
+            {
+                "de": "ungeduldig",
+                "tr": "ˈʊnɡəˌdʊldɪç",
+                "ru": "нетерпеливый"
+            },
+            {
+                "de": "fleißig",
+                "tr": "ˈflaɪ̯sɪç",
+                "ru": "трудолюбивый"
+            },
+            {
+                "de": "faul",
+                "tr": "faʊ̯l",
+                "ru": "ленивый"
+            },
+            {
+                "de": "ruhig",
+                "tr": "ˈʁuːɪç",
+                "ru": "спокойный"
+            },
+            {
+                "de": "nervös",
+                "tr": "nɛʁˈvøːs",
+                "ru": "нервный"
+            },
+            {
+                "de": "selbstbewusst",
+                "tr": "ˈzɛlpstbəˌvʊst",
+                "ru": "уверенный в себе"
+            },
+            {
+                "de": "schüchtern",
+                "tr": "ˈʃʏçtɐn",
+                "ru": "застенчивый"
+            }
+        ]
+    },
+    {
+        "topic": "Чувства, эмоции и характер",
+        "level": "A2",
+        "subtopic": "Настроение и ситуации",
+        "words": [
+            {
+                "de": "gut gelaunt",
+                "tr": "ɡuːt ɡəˈlaʊ̯nt",
+                "ru": "в хорошем настроении"
+            },
+            {
+                "de": "schlecht gelaunt",
+                "tr": "ʃlɛçt ɡəˈlaʊ̯nt",
+                "ru": "в плохом настроении"
+            },
+            {
+                "de": "gestresst sein",
+                "tr": "ɡəˈstʁɛst zaɪ̯n",
+                "ru": "быть в стрессе"
+            },
+            {
+                "de": "sich freuen auf",
+                "tr": "zɪç ˈfʁɔɪ̯ən aʊ̯f",
+                "ru": "радоваться предстоящему"
+            },
+            {
+                "de": "sich Sorgen machen",
+                "tr": "zɪç ˈzɔʁɡn̩ ˈmaxn̩",
+                "ru": "беспокоиться"
+            },
+            {
+                "de": "Angst haben",
+                "tr": "aŋst ˈhaːbn̩",
+                "ru": "бояться"
+            },
+            {
+                "de": "Lust haben",
+                "tr": "lʊst ˈhaːbn̩",
+                "ru": "иметь желание"
+            },
+            {
+                "de": "keine Lust haben",
+                "tr": "ˈkaɪ̯nə lʊst ˈhaːbn̩",
+                "ru": "не иметь желания"
+            },
+            {
+                "de": "es eilig haben",
+                "tr": "ˈaɪ̯lɪç ˈhaːbn̩",
+                "ru": "спешить"
+            },
+            {
+                "de": "enttäuscht sein von",
+                "tr": "ɛntˈtɔɪ̯ʃt zaɪ̯n fɔn",
+                "ru": "быть разочарованным чем-то"
+            },
+            {
+                "de": "zufrieden sein mit",
+                "tr": "t͡suˈfʁiːdn̩ zaɪ̯n mɪt",
+                "ru": "быть довольным чем-то"
+            },
+            {
+                "de": "stolz sein auf",
+                "tr": "ʃtɔlt͡s zaɪ̯n aʊ̯f",
+                "ru": "гордиться"
+            }
+        ]
+    },
+    {
+        "topic": "Повседневные проблемы и ситуации",
+        "level": "A2",
+        "subtopic": "Опоздания и поломки",
+        "words": [
+            {
+                "de": "zu spät kommen",
+                "tr": "t͡suː ʃpɛːt ˈkɔmən",
+                "ru": "опоздать"
+            },
+            {
+                "de": "sich verspäten",
+                "tr": "fɛɐ̯ˈʃpɛːtn̩",
+                "ru": "задержаться, опоздать"
+            },
+            {
+                "de": "der Verkehr",
+                "tr": "fɛɐ̯ˈkeːɐ̯",
+                "ru": "дорожное движение"
+            },
+            {
+                "de": "Stau haben",
+                "tr": "ʃtaʊ̯ ˈhaːbn̩",
+                "ru": "стоять в пробке"
+            },
+            {
+                "de": "der Unfall",
+                "tr": "ˈʊnfal",
+                "ru": "авария"
+            },
+            {
+                "de": "kaputt gehen",
+                "tr": "kaˈpʊt ˈɡeːən",
+                "ru": "сломаться"
+            },
+            {
+                "de": "kaputt sein",
+                "tr": "kaˈpʊt zaɪ̯n",
+                "ru": "быть сломанным"
+            },
+            {
+                "de": "nicht funktionieren",
+                "tr": "nɪçt fʊŋktsi̯oˈniːʁən",
+                "ru": "не работать"
+            },
+            {
+                "de": "die Reparatur",
+                "tr": "ʁepaʁaˈtuːɐ̯",
+                "ru": "ремонт"
+            },
+            {
+                "de": "eine Panne haben",
+                "tr": "ˈpanə ˈhaːbn̩",
+                "ru": "иметь неполадку (в пути)"
+            },
+            {
+                "de": "blockiert",
+                "tr": "blɔˈkiːɐ̯t",
+                "ru": "заблокировано, перекрыто"
+            },
+            {
+                "de": "versäumen",
+                "tr": "fɛɐ̯ˈzɔʏ̯mn̩",
+                "ru": "пропустить (поезд, встречу)"
+            }
+        ]
+    },
+    {
+        "topic": "Повседневные проблемы и ситуации",
+        "level": "A2",
+        "subtopic": "Жалобы",
+        "words": [
+            {
+                "de": "sich beschweren",
+                "tr": "bəˈʃveːʁən",
+                "ru": "жаловаться"
+            },
+            {
+                "de": "die Beschwerde",
+                "tr": "bəˈʃveːɐ̯də",
+                "ru": "жалоба"
+            },
+            {
+                "de": "nicht zufrieden sein",
+                "tr": "nɪçt t͡suˈfʁiːdn̩ zaɪ̯n",
+                "ru": "быть недовольным"
+            },
+            {
+                "de": "falsch geliefert",
+                "tr": "falʃ ɡəˈliːfɐt",
+                "ru": "доставлено неправильно"
+            },
+            {
+                "de": "defekt",
+                "tr": "deˈfɛkt",
+                "ru": "неисправный"
+            },
+            {
+                "de": "die Rückerstattung",
+                "tr": "ˈʁʏkˌʔɛʁʃtatʊŋ",
+                "ru": "возврат денег"
+            },
+            {
+                "de": "umtauschen",
+                "tr": "ˈʊmˌtaʊ̯ʃn̩",
+                "ru": "обменивать"
+            },
+            {
+                "de": "sich entschuldigen",
+                "tr": "ɛntˈʃʊldɪɡn̩",
+                "ru": "извиняться"
+            },
+            {
+                "de": "ein Problem melden",
+                "tr": "aɪ̯n pʁoˈbleːm ˈmɛldn̩",
+                "ru": "сообщить о проблеме"
+            },
+            {
+                "de": "schlimm",
+                "tr": "ʃlɪm",
+                "ru": "плохо, серьёзно"
+            },
+            {
+                "de": "sofort",
+                "tr": "zoˈfɔʁt",
+                "ru": "сразу"
+            },
+            {
+                "de": "unverständlich",
+                "tr": "ʊn fɛɐ̯ˈʃtɛntlɪç",
+                "ru": "непонятно"
+            }
+        ]
+    },
+    {
+        "topic": "Повседневные проблемы и ситуации",
+        "level": "A2",
+        "subtopic": "Потерянные вещи",
+        "words": [
+            {
+                "de": "verlieren",
+                "tr": "fɛɐ̯ˈliːʁən",
+                "ru": "потерять"
+            },
+            {
+                "de": "verloren",
+                "tr": "fɛɐ̯ˈloːʁn̩",
+                "ru": "потерянный"
+            },
+            {
+                "de": "die Verlustmeldung",
+                "tr": "fɛɐ̯ˈlʊstˌmɛldʊŋ",
+                "ru": "заявление о потере"
+            },
+            {
+                "de": "das Fundbüro",
+                "tr": "ˈfʊntˌbyːʁoː",
+                "ru": "бюро находок"
+            },
+            {
+                "de": "finden",
+                "tr": "ˈfɪndn̩",
+                "ru": "найти"
+            },
+            {
+                "de": "der Ausweis",
+                "tr": "ˈaʊ̯svaɪ̯s",
+                "ru": "удостоверение личности"
+            },
+            {
+                "de": "die Geldbörse",
+                "tr": "ˈɡɛltˌbœʁzə",
+                "ru": "кошелёк"
+            },
+            {
+                "de": "verlegt",
+                "tr": "fɛɐ̯ˈleːkt",
+                "ru": "переложенный, потерян дома"
+            },
+            {
+                "de": "liegen lassen",
+                "tr": "ˈliːɡn̩ ˈlasn̩",
+                "ru": "оставить где-то"
+            },
+            {
+                "de": "verschwinden",
+                "tr": "fɛɐ̯ˈʃvɪndn̩",
+                "ru": "исчезнуть"
+            },
+            {
+                "de": "die Beschreibung",
+                "tr": "bəˈʃʁaɪ̯bʊŋ",
+                "ru": "описание"
+            },
+            {
+                "de": "wo zuletzt gesehen?",
+                "tr": "voː t͡suˈlɛtst ɡəˈzeːən",
+                "ru": "где последний раз видели?"
+            }
+        ]
+    }
+]
+
