@@ -3,13 +3,15 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.enums import ChatAction
 
-from ai_client import check_text_with_ai  # если файл ai_client.py в корне проекта
+# Импорт, который работает и когда ai_client.py в src, и когда он на уровень выше.
+try:
+    from ai_client import check_text_with_ai
+except ModuleNotFoundError:
+    from src.ai_client import check_text_with_ai
 
 
 router = Router()
 
-# Простой режим проверки в памяти процесса.
-# На Render после перезапуска сбросится. Это нормально для старта.
 CHECK_MODE_USERS: set[int] = set()
 
 
@@ -34,22 +36,23 @@ async def check_help(message: Message):
         "Команды проверки:\n"
         "/check_on включить проверку\n"
         "/check_off выключить проверку\n\n"
-        "Когда режим включен, просто отправляй немецкие предложения обычным текстом."
+        "Когда режим включен, просто отправляй немецкие предложения текстом."
     )
 
 
 @router.message(F.text)
 async def check_text_handler(message: Message):
-    # Не трогаем команды
     text = (message.text or "").strip()
-    if not text or text.startswith("/"):
+
+    if not text:
         return
 
-    # Проверяем только если режим включен
+    if text.startswith("/"):
+        return
+
     if message.from_user.id not in CHECK_MODE_USERS:
         return
 
-    # Сразу показать, что бот работает
     try:
         await message.bot.send_chat_action(message.chat.id, ChatAction.TYPING)
     except Exception:
@@ -59,7 +62,6 @@ async def check_text_handler(message: Message):
 
     result = await check_text_with_ai(text)
 
-    # Лучше редактировать сообщение "подожди" на результат
     try:
         await wait_msg.edit_text(result)
     except Exception:
