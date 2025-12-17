@@ -11,11 +11,11 @@ allowed_users: Set[int] = set()
 
 def load_allowed_users() -> None:
     global allowed_users
-    path = Path(ALLOWED_USERS_FILE)
 
+    path = Path(ALLOWED_USERS_FILE)
     if not path.exists():
         allowed_users = set()
-        print("allowed_users.txt не найден, начинаем с пустого списка.")
+        print("allowed_users.txt not found. Starting with empty list.")
         return
 
     ids: list[int] = []
@@ -29,7 +29,7 @@ def load_allowed_users() -> None:
             continue
 
     allowed_users = set(ids)
-    print(f"Загружено разрешенных пользователей: {len(allowed_users)}")
+    print(f"Allowed users loaded: {len(allowed_users)}")
 
 
 def save_allowed_users() -> None:
@@ -41,7 +41,7 @@ def save_allowed_users() -> None:
         content += "\n"
 
     path.write_text(content, encoding="utf-8")
-    print(f"Сохранено разрешенных пользователей: {len(allowed_users)}")
+    print(f"Allowed users saved: {len(allowed_users)}")
 
 
 def add_allowed_user(user_id: int) -> None:
